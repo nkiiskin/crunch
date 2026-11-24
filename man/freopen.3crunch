@@ -1,0 +1,22 @@
+.TH FREOPEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+freopen \- reopen a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B FILE *freopen(const char *path, const char *mode, FILE *stream);
+.fi
+.SH DESCRIPTION
+Replaces the file associated with a stream, preserving the stream pointer
+and descriptor number. Modes are as for
+.BR fopen (3crunch).
+When path is NULL, Crunch reopens the existing file through /proc/self/fd;
+this requires a mounted, accessible procfs and can fail for some descriptors.
+Streams are unbuffered. On failure the original stream is closed and must
+not be used; standard stream objects remain allocated but have no descriptor.
+.SH RETURN VALUE
+Returns the original stream on success, or NULL with errno set on failure.
+.SH SEE ALSO
+.BR fopen (3crunch),
+.BR fclose (3crunch),
+.BR freopen (3)

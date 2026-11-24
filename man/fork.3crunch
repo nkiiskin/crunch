@@ -1,0 +1,35 @@
+.TH FORK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fork \- create a child process
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.B "pid_t fork(void);"
+.fi
+.SH DESCRIPTION
+Creates a child process using the Linux fork syscall. The child has a separate
+address space and inherits open descriptors referring to the same open file
+descriptions as the parent.
+.SH RETURN VALUE
+Returns the child PID in the parent and 0 in the child. On failure it returns
+\-1 in the parent, sets
+.BR errno ,
+and creates no child. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.B EAGAIN
+and
+.BR ENOMEM .
+Other Linux fork errors are possible.
+.SH NOTES
+Crunch provides no atfork handlers. The parent must reap the child separately;
+this interface does not provide a wait function. Crunch errno is process\-wide
+within each process.
+.SH SEE ALSO
+.BR getpid (3crunch),
+.BR kill (3crunch),
+.BR fork (2),
+.BR waitpid (2)

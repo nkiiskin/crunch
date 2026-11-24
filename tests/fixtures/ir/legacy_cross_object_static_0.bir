@@ -1,0 +1,4 @@
+CRUNCH-IR 3
+global words ptr 0
+global words$length int 6
+globalbytes words 68656c6c6f00

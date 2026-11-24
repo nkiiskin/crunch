@@ -1,0 +1,36 @@
+#include <elf.h>
+#include <string.h>
+
+#define OFFSET(value, field) ((char *)&(value).field - (char *)&(value))
+
+int main() {
+    Elf64_Ehdr eh;
+    Elf64_Shdr sh;
+    Elf64_Phdr ph;
+    Elf64_Sym sym;
+    Elf64_Rela rela;
+    Elf64_Dyn dyn;
+    if (sizeof(eh) != 64 || sizeof(sh) != 64 || sizeof(ph) != 56 ||
+        sizeof(sym) != 24 || sizeof(rela) != 24 || sizeof(dyn) != 16) return 1;
+    if (OFFSET(eh, e_type) != 16 || OFFSET(eh, e_entry) != 24 ||
+        OFFSET(eh, e_shoff) != 40 || OFFSET(eh, e_shstrndx) != 62) return 2;
+    if (OFFSET(sh, sh_flags) != 8 || OFFSET(sh, sh_offset) != 24 ||
+        OFFSET(sh, sh_link) != 40 || OFFSET(sh, sh_entsize) != 56) return 3;
+    if (OFFSET(ph, p_flags) != 4 || OFFSET(ph, p_offset) != 8 ||
+        OFFSET(ph, p_filesz) != 32 || OFFSET(ph, p_align) != 48) return 4;
+    if (OFFSET(sym, st_info) != 4 || OFFSET(sym, st_shndx) != 6 ||
+        OFFSET(sym, st_value) != 8 || OFFSET(sym, st_size) != 16) return 5;
+    if (OFFSET(rela, r_info) != 8 || OFFSET(rela, r_addend) != 16 ||
+        OFFSET(dyn, d_un) != 8) return 6;
+    if (memcmp(ELFMAG, "\x7f" "ELF", SELFMAG) != 0) return 7;
+    sym.st_info = ELF64_ST_INFO(STB_WEAK, STT_FUNC);
+    if (ELF64_ST_BIND(sym.st_info) != STB_WEAK ||
+        ELF64_ST_TYPE(sym.st_info) != STT_FUNC ||
+        ELF64_ST_VISIBILITY(0xfe) != STV_HIDDEN) return 8;
+    rela.r_info = ELF64_R_INFO(0x12345678, R_X86_64_REX_GOTPCRELX);
+    if (ELF64_R_SYM(rela.r_info) != 0x12345678 ||
+        ELF64_R_TYPE(rela.r_info) != R_X86_64_REX_GOTPCRELX) return 9;
+    dyn.d_un.d_val = 0x123456789abcdef0UL;
+    if (dyn.d_un.d_ptr != 0x123456789abcdef0UL) return 10;
+    return 0;
+}

@@ -1,0 +1,68 @@
+.TH POLL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+poll \- wait for file descriptor events
+.SH SYNOPSIS
+.nf
+.B #include <poll.h>
+.PP
+.BI "int poll(struct pollfd* " descriptors ", nfds_t " count ", int " timeout ");"
+.fi
+.SH DESCRIPTION
+Waits for events on an array of
+.I count
+Linux x86\-64 pollfd records.
+The timeout is in milliseconds; zero returns immediately and \-1 waits
+indefinitely. The kernel writes the result events in each record. A negative
+descriptor is ignored.
+.PP
+Each Crunch
+.B struct pollfd
+contains
+.BR fd ,
+.BR events_low ,
+.BR events_high ,
+.BR revents_low ,
+and
+.BR revents_high .
+The last four are bytes in little\-endian order. Set the event bytes to
+.B (byte)(flags & 255)
+and
+.BR "(byte)((flags >> 8) & 255)" ;
+combine the result bytes as
+.BR "(revents_low & 255) | ((revents_high & 255) << 8)" .
+The header defines
+.BR POLLIN ,
+.BR POLLPRI ,
+.BR POLLOUT ,
+.BR POLLERR ,
+.BR POLLHUP ,
+.BR POLLNVAL ,
+.BR POLLRDNORM ,
+.BR POLLRDBAND ,
+.BR POLLWRNORM ,
+.BR POLLWRBAND ,
+and
+.BR POLLRDHUP .
+Error, hangup, and invalid\-descriptor events may be returned even if not
+requested.
+.SH RETURN VALUE
+Returns the number of records with nonzero result events, zero on timeout,
+or \-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.BR EFAULT ,
+.BR EINTR ,
+.BR EINVAL ,
+and
+.BR ENOMEM .
+.SH NOTES
+This is the Linux poll syscall, not a libc cancellation wrapper. Crunch errno
+is process\-wide.
+.SH SEE ALSO
+.BR select (3crunch),
+.BR pipe (3crunch),
+.BR poll (2)

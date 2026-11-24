@@ -1,0 +1,14 @@
+.TH SCHED_SETPARAM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_setparam \- sets scheduling parameters for a thread; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_setparam(pid_t process, const struct sched_param* parameter);
+.fi
+.SH DESCRIPTION
+Sets scheduling parameters for a thread; process zero selects the caller.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_setparam (2)

@@ -1,0 +1,14 @@
+.TH SCHED_GETSCHEDULER 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_getscheduler \- reads a thread's scheduling policy; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_getscheduler(pid_t process);
+.fi
+.SH DESCRIPTION
+Reads a thread's scheduling policy; process zero selects the caller.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_getscheduler (2)

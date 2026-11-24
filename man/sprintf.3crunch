@@ -1,0 +1,21 @@
+.TH SPRINTF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sprintf \- format output into an unbounded buffer
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B int sprintf(char *buffer, const char *format);
+.fi
+.SH DESCRIPTION
+Formats output using the Crunch formatter and writes it, including a
+terminating NUL, into buffer. The caller must provide enough space; prefer
+.BR snprintf (3crunch)
+when the capacity is known. The compiler accepts additional numeric and
+byte-pointer arguments. Conversion support matches
+.BR snprintf (3crunch).
+.SH RETURN VALUE
+Returns the number of bytes written, excluding the terminating NUL, or
+\-1 on error.
+.SH SEE ALSO
+.BR snprintf (3crunch),
+.BR vsnprintf (3crunch)

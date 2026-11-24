@@ -1,0 +1,74 @@
+CRUNCH-IR 2
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+load 0
+load 1
+push 5
+array_resize int
+store 0 ptr
+store 1 int
+load 0
+push 0
+ptradd int
+push 10
+storeind int
+drop
+load 0
+push 1
+ptradd int
+push 20
+storeind int
+drop
+load 0
+push 2
+ptradd int
+push 12
+storeind int
+drop
+load 0
+push 3
+ptradd int
+push 99
+storeind int
+drop
+load 0
+push 4
+ptradd int
+push 99
+storeind int
+drop
+load 0
+load 1
+push 3
+array_resize int
+store 0 ptr
+store 1 int
+load 1
+push 3
+ne int
+bool int
+jz L0
+push 1
+ret int
+label L0
+load 0
+push 0
+ptradd int
+loadind int
+load 0
+push 1
+ptradd int
+loadind int
+add int
+load 0
+push 2
+ptradd int
+loadind int
+add int
+ret int
+end

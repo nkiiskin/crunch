@@ -1,0 +1,14 @@
+.TH LISTXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+listxattr \- lists nul-separated attribute names by path, following symbolic links
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B ssize_t listxattr(const char* path, char* list, size_t size);
+.fi
+.SH DESCRIPTION
+Lists NUL-separated attribute names by path, following symbolic links. A zero size queries the required length.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR listxattr (2)

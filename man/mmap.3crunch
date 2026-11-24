@@ -1,0 +1,22 @@
+.TH MMAP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mmap \- create a memory mapping
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B void* mmap(void* address, size_t byte_count, int protection,
+.B            int flags, int descriptor, off_t offset);
+.fi
+.SH DESCRIPTION
+Creates a Linux mapping using PROT_* and MAP_* flags.
+Pass descriptor \-1 for an anonymous mapping. File offsets must be page aligned.
+Use map_failed to check the returned sentinel.
+.SH RETURN VALUE
+Returns the mapped address, or the Linux MAP_FAILED sentinel (a pointer value
+of \-1) with errno set. The header does not define a MAP_FAILED macro; use
+map_failed to test the result.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR map_failed (3crunch),
+.BR munmap (3crunch),
+.BR mmap (2)

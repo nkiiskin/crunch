@@ -1,0 +1,15 @@
+.TH SHUTDOWN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+shutdown \- disable socket communication
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int shutdown(int descriptor, int how);
+.fi
+.SH DESCRIPTION
+Disables reception with SHUT_RD, transmission with SHUT_WR, or both with
+SHUT_RDWR on the socket. It does not close the descriptor.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR shutdown (2)

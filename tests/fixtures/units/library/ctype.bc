@@ -1,0 +1,31 @@
+#include <ctype.h>
+#include <ctype.h>
+#include <stdio.h>
+
+int main() {
+    int c = EOF;
+    while (c <= 255) {
+        int upper = c >= 65 && c <= 90;
+        int lower = c >= 97 && c <= 122;
+        int digit = c >= 48 && c <= 57;
+        int alpha = upper || lower;
+        int graphical = c >= 33 && c <= 126;
+        if (!!isalnum(c) != !!(alpha || digit) ||
+            !!isalpha(c) != !!alpha ||
+            !!isblank(c) != !!(c == 9 || c == 32) ||
+            !!iscntrl(c) != !!((c >= 0 && c <= 31) || c == 127) ||
+            !!isdigit(c) != !!digit ||
+            !!isgraph(c) != !!graphical ||
+            !!islower(c) != !!lower ||
+            !!isprint(c) != !!(c >= 32 && c <= 126) ||
+            !!ispunct(c) != !!(graphical && !alpha && !digit) ||
+            !!isspace(c) != !!((c >= 9 && c <= 13) || c == 32) ||
+            !!isupper(c) != !!upper ||
+            !!isxdigit(c) != !!(digit || (c >= 65 && c <= 70) ||
+                                 (c >= 97 && c <= 102)) ||
+            tolower(c) != (upper ? c + 32 : c) ||
+            toupper(c) != (lower ? c - 32 : c)) return 1;
+        c = c + 1;
+    }
+    return 42;
+}

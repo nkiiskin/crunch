@@ -1,0 +1,15 @@
+.TH TIMERFD_SETTIME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+timerfd_settime \- Linux x86-64 syscall 286
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int timerfd_settime(int descriptor, int flags, const struct itimerspec* value, struct itimerspec* previous);
+.fi
+.SH DESCRIPTION
+Arms or disarms a timer descriptor.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR timerfd_settime (2)

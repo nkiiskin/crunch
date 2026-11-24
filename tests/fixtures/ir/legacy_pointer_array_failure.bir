@@ -1,0 +1,534 @@
+CRUNCH-IR 2
+extern_global fail_mode int
+extern_global free_calls int
+global base_calls int 0
+global value_calls int 0
+global number int 0
+func select 1 ptr
+param 0 0 ptr
+gload base_calls int
+push 1
+add int
+dup
+gstore base_calls int
+drop
+load 0
+ret ptr
+end
+func value 0 ptr
+gload value_calls int
+push 1
+add int
+dup
+gstore value_calls int
+drop
+gaddr number
+ret ptr
+end
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+push 0
+push 0
+push 1
+array_resize ptr
+store 0 ptr
+store 1 int
+load 0
+bool ptr
+jz L0
+load 0
+push 0
+ptradd ptr
+call value 0
+storeind ptr
+drop
+label L0
+local 2 int
+localblock __local_struct_2 16 8
+localalias __local_struct_address_2 __local_struct_2 0 byte
+localalias box.values __local_struct_2 0 ptr
+localalias box.values$length __local_struct_2 8 int
+push 0
+lstore box.values ptr
+push 0
+lstore box.values$length int
+local 3 ptr
+laddr __local_struct_address_2
+call select 1
+store 3 ptr
+load 3
+loadind ptr
+load 3
+push 8
+ptradd byte
+loadind int
+push 1
+array_resize ptr
+local 4 ptr
+local 5 int
+store 4 ptr
+store 5 int
+load 3
+load 4
+storeind ptr
+drop
+load 3
+push 8
+ptradd byte
+load 5
+storeind int
+drop
+load 3
+loadind ptr
+bool ptr
+jz L1
+load 3
+loadind ptr
+push 0
+ptradd ptr
+call value 0
+storeind ptr
+drop
+label L1
+gload base_calls int
+push 1
+ne int
+bool int
+jnz L12
+gload value_calls int
+push 0
+ne int
+bool
+jmp L13
+label L12
+push 1
+label L13
+bool int
+jnz L10
+load 0
+bool
+jmp L11
+label L10
+push 1
+label L11
+bool int
+jnz L8
+load 1
+push 0
+ne int
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jnz L6
+lload box.values ptr
+bool
+jmp L7
+label L6
+push 1
+label L7
+bool int
+jnz L4
+lload box.values$length int
+push 0
+ne int
+bool
+jmp L5
+label L4
+push 1
+label L5
+bool int
+jz L2
+push 1
+ret int
+label L2
+push 0
+dup
+gstore fail_mode int
+drop
+local 6 ptr
+laddr __local_struct_address_2
+call select 1
+store 6 ptr
+load 6
+loadind ptr
+load 6
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize ptr
+local 7 ptr
+local 8 int
+store 7 ptr
+store 8 int
+load 6
+load 7
+storeind ptr
+drop
+load 6
+push 8
+ptradd byte
+load 8
+storeind int
+drop
+load 6
+loadind ptr
+bool ptr
+jz L14
+load 6
+loadind ptr
+push 0
+ptradd ptr
+call value 0
+storeind ptr
+drop
+load 6
+loadind ptr
+push 1
+ptradd ptr
+push 0
+storeind ptr
+drop
+label L14
+gload base_calls int
+push 2
+ne int
+bool int
+jnz L23
+gload value_calls int
+push 1
+ne int
+bool
+jmp L24
+label L23
+push 1
+label L24
+bool int
+jnz L21
+lload box.values$length int
+push 2
+ne int
+bool
+jmp L22
+label L21
+push 1
+label L22
+bool int
+jnz L19
+lload box.values ptr
+push 0
+ptradd ptr
+loadind ptr
+gaddr number
+ne ptr
+bool
+jmp L20
+label L19
+push 1
+label L20
+bool int
+jnz L17
+lload box.values ptr
+push 1
+ptradd ptr
+loadind ptr
+push 0
+ne ptr
+bool
+jmp L18
+label L17
+push 1
+label L18
+bool int
+jz L15
+push 2
+ret int
+label L15
+push 1
+dup
+gstore fail_mode int
+drop
+local 9 ptr
+laddr __local_struct_address_2
+call select 1
+store 9 ptr
+load 9
+loadind ptr
+load 9
+push 8
+ptradd byte
+loadind int
+push 3
+array_resize ptr
+local 10 ptr
+local 11 int
+store 10 ptr
+store 11 int
+load 9
+load 10
+storeind ptr
+drop
+load 9
+push 8
+ptradd byte
+load 11
+storeind int
+drop
+load 9
+loadind ptr
+bool ptr
+jz L25
+load 9
+loadind ptr
+push 0
+ptradd ptr
+call value 0
+storeind ptr
+drop
+load 9
+loadind ptr
+push 1
+ptradd ptr
+call value 0
+storeind ptr
+drop
+load 9
+loadind ptr
+push 2
+ptradd ptr
+push 0
+storeind ptr
+drop
+label L25
+gload base_calls int
+push 3
+ne int
+bool int
+jnz L34
+gload value_calls int
+push 1
+ne int
+bool
+jmp L35
+label L34
+push 1
+label L35
+bool int
+jnz L32
+lload box.values ptr
+bool
+jmp L33
+label L32
+push 1
+label L33
+bool int
+jnz L30
+lload box.values$length int
+push 0
+ne int
+bool
+jmp L31
+label L30
+push 1
+label L31
+bool int
+jnz L28
+gload free_calls int
+push 1
+ne int
+bool
+jmp L29
+label L28
+push 1
+label L29
+bool int
+jz L26
+push 3
+ret int
+label L26
+push 0
+dup
+gstore fail_mode int
+drop
+local 12 int
+localblock __local_struct_12 16 8
+localalias __local_struct_address_12 __local_struct_12 0 byte
+localalias source.values __local_struct_12 0 ptr
+localalias source.values$length __local_struct_12 8 int
+push 0
+lstore source.values ptr
+push 0
+lstore source.values$length int
+lload source.values ptr
+lload source.values$length int
+push 2
+array_resize ptr
+lstore source.values ptr
+lstore source.values$length int
+lload source.values ptr
+bool ptr
+jz L36
+lload source.values ptr
+push 0
+ptradd ptr
+gaddr number
+storeind ptr
+drop
+lload source.values ptr
+push 1
+ptradd ptr
+push 0
+storeind ptr
+drop
+label L36
+lload box.values ptr
+lload box.values$length int
+push 1
+array_resize ptr
+lstore box.values ptr
+lstore box.values$length int
+push 1
+dup
+gstore fail_mode int
+drop
+local 13 ptr
+laddr __local_struct_address_2
+call select 1
+store 13 ptr
+local 14 ptr
+local 15 long
+lload source.values ptr
+store 14 ptr
+lload source.values$length int
+store 15 long
+load 15
+push 2147483647
+cast int long
+gt long
+jnz L37
+load 13
+push 8
+ptradd byte
+loadind int
+cast int long
+load 15
+lt long
+jz L38
+load 13
+loadind ptr
+load 13
+push 8
+ptradd byte
+loadind int
+load 15
+array_resize ptr
+local 16 ptr
+local 17 int
+store 16 ptr
+store 17 int
+load 13
+load 16
+storeind ptr
+drop
+load 13
+push 8
+ptradd byte
+load 17
+storeind int
+drop
+label L38
+load 13
+push 8
+ptradd byte
+loadind int
+cast int long
+load 15
+lt long
+jnz L39
+load 13
+loadind ptr
+load 14
+load 15
+push 8
+mul long
+call memcpy 3
+drop
+jmp L39
+label L37
+label L39
+gload base_calls int
+push 4
+ne int
+bool int
+jnz L50
+lload box.values$length int
+push 0
+ne int
+bool
+jmp L51
+label L50
+push 1
+label L51
+bool int
+jnz L48
+lload box.values ptr
+bool
+jmp L49
+label L48
+push 1
+label L49
+bool int
+jnz L46
+lload source.values$length int
+push 2
+ne int
+bool
+jmp L47
+label L46
+push 1
+label L47
+bool int
+jnz L44
+lload source.values ptr
+push 0
+ptradd ptr
+loadind ptr
+gaddr number
+ne ptr
+bool
+jmp L45
+label L44
+push 1
+label L45
+bool int
+jnz L42
+gload free_calls int
+push 2
+ne int
+bool
+jmp L43
+label L42
+push 1
+label L43
+bool int
+jz L40
+push 4
+ret int
+label L40
+lload source.values ptr
+lload source.values$length int
+push 0
+array_resize ptr
+lstore source.values ptr
+lstore source.values$length int
+push 42
+ret int
+end

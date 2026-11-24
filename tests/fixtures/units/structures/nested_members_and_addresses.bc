@@ -1,0 +1,43 @@
+struct Inner {
+    int x;
+};
+
+struct Outer {
+    struct Inner inner;
+    int y;
+};
+
+struct Outer global;
+
+int main() {
+    struct Outer local;
+    int *pointer = &local.inner.x;
+    local.inner.x = 10;
+    if ((local.inner.x += 4) != 14) return 5;
+    local.inner.x -= 2;
+    local.inner.x *= 2;
+    local.inner.x /= 4;
+    local.inner.x %= 5;
+    local.inner.x |= 8;
+    local.inner.x &= 11;
+    local.inner.x ^= 3;
+    local.inner.x <<= 2;
+    if ((local.inner.x >>= 2) != 10) return 6;
+    if (local.inner.x++ != 10 || local.inner.x != 11 || --local.inner.x != 10) return 8;
+    *pointer = -40;
+    if (local.inner.x != -40) return 3;
+    *pointer = 40;
+    local.y = 2;
+
+    global.inner.x = 3;
+    if ((global.inner.x += 2) != 5 || global.inner.x != 5) return 7;
+    if (global.inner.x-- != 5 || global.inner.x != 4 || ++global.inner.x != 5) return 9;
+    pointer = &global.inner.x;
+    *pointer = -20;
+    if (global.inner.x != -20) return 4;
+    *pointer = 20;
+
+    if (local.inner.x != 40) return 1;
+    if (global.inner.x != 20) return 2;
+    return local.inner.x + global.inner.x + local.y;
+}

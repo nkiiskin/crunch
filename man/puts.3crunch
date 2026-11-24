@@ -1,0 +1,22 @@
+.TH PUTS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+puts \- write a string and newline to standard output
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int puts(const char* " text ");"
+.fi
+.SH DESCRIPTION
+Writes the NUL-terminated string followed by a newline to the Crunch standard
+output stream.
+.SH RETURN VALUE
+Returns a nonnegative value on success, or
+.B EOF
+on error with
+.B errno
+and the stream error indicator set.
+.SH SEE ALSO
+.BR fputs (3crunch),
+.BR putchar (3crunch),
+.BR stdout (3crunch)

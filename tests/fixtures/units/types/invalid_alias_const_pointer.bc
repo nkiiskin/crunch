@@ -1,0 +1,9 @@
+typedef const int ReadOnly;
+typedef ReadOnly *View;
+
+int main() {
+    int number = 1;
+    View pointer = &number;
+    *pointer = 2;
+    return number;
+}

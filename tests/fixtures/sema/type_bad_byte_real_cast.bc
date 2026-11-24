@@ -1,0 +1,5 @@
+int main() {
+    char b = (char)3;
+    double r = (double)b;
+    return (int)r;
+}

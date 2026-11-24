@@ -1,0 +1,15 @@
+.TH GET_ROBUST_LIST 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+get_robust_list \- Linux x86-64 syscall 274
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int get_robust_list(pid_t process, void** head, size_t* length);
+.fi
+.SH DESCRIPTION
+Queries a thread's Linux robust-futex list.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR get_robust_list (2)

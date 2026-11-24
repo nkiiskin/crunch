@@ -1,0 +1,2 @@
+int combine(int value, int value) { return value; }
+int main() { return 0; }

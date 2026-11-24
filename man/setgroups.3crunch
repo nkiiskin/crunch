@@ -1,0 +1,14 @@
+.TH SETGROUPS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setgroups \- sets supplementary groups, subject to capabilities and user namespace restrictions
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int setgroups(size_t count, const gid_t* groups);
+.fi
+.SH DESCRIPTION
+Sets supplementary groups, subject to capabilities and user namespace restrictions. This is a direct per-thread syscall.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setgroups (2)

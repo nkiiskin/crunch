@@ -1,0 +1,14 @@
+.TH SIGSUSPEND 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigsuspend \- temporarily replaces the signal mask with the eight-byte linux kernel signal set and waits for a signal
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigsuspend(const sigset_t* mask);
+.fi
+.SH DESCRIPTION
+Temporarily replaces the signal mask with the eight-byte Linux kernel signal set and waits for a signal.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR sigsuspend (2)

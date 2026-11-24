@@ -1,0 +1,27 @@
+typedef long Count;
+struct Inner { char a; long b; };
+struct Outer { char a; struct Inner inner; int items[2]; int end; };
+long global_size = sizeof(struct Outer);
+long total_size = sizeof(struct Inner) + sizeof(int);
+double real_size = sizeof(int);
+int calls = 0;
+int side_effect() { calls = calls + 1; return 3; }
+int main() {
+    struct Outer value;
+    int data[2];
+    int counter = 0;
+    if (sizeof(char) != 1 || sizeof(int) != 4 || sizeof(long) != 8 ||
+        sizeof(double) != 8 || sizeof(void*) != 8 || sizeof(Count) != 8) return 1;
+    if (sizeof(struct Inner) != 16 || sizeof(struct Outer) != 40 ||
+        global_size != 40 || total_size != 20 || real_size != 4.0 || sizeof(value) != 40) return 2;
+    if (sizeof(data) != 8 || sizeof(value.items) != 8 || sizeof(data[0]) != 4) return 3;
+    if (sizeof(counter++) != 4 || sizeof(side_effect()) != 4 ||
+        sizeof(data[side_effect()]) != 4 || calls != 0 || counter != 0) return 4;
+    if (sizeof(sizeof(int)) != 8 || sizeof "abc" != 4 ||
+        sizeof "" != 1 || sizeof "a\0b" != 4 || sizeof "\x41\n" != 3)
+        return 5;
+    switch (4) {
+    case sizeof(int): return 42;
+    default: return 6;
+    }
+}

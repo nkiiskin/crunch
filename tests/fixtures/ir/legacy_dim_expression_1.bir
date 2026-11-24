@@ -1,0 +1,31 @@
+CRUNCH-IR 2
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+load 0
+load 1
+push 20
+array_resize int
+store 0 ptr
+store 1 int
+load 1
+push 20
+ne int
+bool int
+jz L0
+stringlit __crunch_string_0 6661696c3b00
+straddr __crunch_string_0
+call printf 1
+drop
+push 1
+call exit 1
+label L0
+load 1
+call exit 1
+push 0
+ret int
+end

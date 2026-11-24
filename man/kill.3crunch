@@ -1,0 +1,42 @@
+.TH KILL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+kill \- send a signal to processes
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.PP
+.BI "int kill(pid_t " process ", int " signal ");"
+.fi
+.SH DESCRIPTION
+Sends a Linux signal to the process or processes selected by
+.IR process .
+A positive value selects that PID, zero selects the caller's process group,
+\-1 selects all permitted processes except process 1, and a value less than
+\-1 selects the process group whose ID is the negated value.
+Signal zero sends no signal but performs existence and permission checks.
+.B <signal.h>
+defines Linux signal constants including
+.BR SIGTERM ,
+.BR SIGKILL ,
+and
+.BR SIGCHLD .
+.SH RETURN VALUE
+Returns 0 on success, or \-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.BR EINVAL ,
+.BR EPERM ,
+and
+.BR ESRCH .
+.SH NOTES
+When a group is selected, success means at least one signal was sent.
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR getpid (3crunch),
+.BR kill (2),
+.BR signal (7)

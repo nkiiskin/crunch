@@ -1,0 +1,25 @@
+.TH CLONE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+clone \- create a Linux child with a separate stack
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int clone(int (*function)(void*), void* stack, int flags, void* argument);
+.fi
+.SH DESCRIPTION
+Creates a Linux child that invokes function(argument) on the supplied
+downward\-growing stack. The function's return value is its exit status.
+The low flag bits specify the exit signal, typically SIGCHLD. The stack
+must remain mapped until the child exits. Unlike glibc's variadic clone,
+Crunch requires exactly four arguments and does not support flags requiring
+parent or child TID, pidfd, or TLS arguments.
+.PP
+CLONE_VM and CLONE_THREAD do not make Crunch thread\-safe: errno, allocator
+and other runtime state are process\-wide and unsynchronized. The caller
+must coordinate shared resources and signals.
+.SH RETURN VALUE
+Returns the child ID in the parent, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR clone (2)

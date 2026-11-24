@@ -1,0 +1,20 @@
+.TH SEMCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+semctl \- control a System V semaphore set
+.SH SYNOPSIS
+.nf
+.B #include <sys/sem.h>
+.B int semctl(int id, int number, int command, void* argument);
+.fi
+.SH DESCRIPTION
+Supports Linux control commands including IPC_RMID, IPC_SET, IPC_STAT,
+GETVAL, GETALL and SETALL.  Pass NULL for commands without an argument.
+Use semctl_value for SETVAL.  Unlike GNU libc's variadic semctl, Crunch
+requires four arguments and uses separate pointer and integer interfaces.
+The supplied structures have Linux x86\-64 layouts.
+.SH RETURN VALUE
+Returns the command result, or \-1 with errno set.
+.SH SEE ALSO
+.BR semctl_value (3crunch),
+.BR semget (3crunch),
+.BR semctl (2)

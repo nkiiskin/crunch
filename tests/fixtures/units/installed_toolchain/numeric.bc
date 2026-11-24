@@ -1,0 +1,11 @@
+#include <stdio.h>
+
+double average(double x, double y, double z) {
+    return (x + y + z) / 3.0;
+}
+
+int main() {
+    double value = average(1.0, 2.5, 5.5);
+    printf("numeric:%f\n", value);
+    return value == 3.0 ? 0 : 1;
+}

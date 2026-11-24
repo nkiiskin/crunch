@@ -1,0 +1,107 @@
+unsigned int max32 = 0xffffffffU;
+unsigned int wrapped = -1;
+unsigned int folded = 0xffffffffU + 2U;
+unsigned long max64 = 0xffffffffffffffffUL;
+unsigned int global_unsigned = 0xffffffffU;
+unsigned long global_wide = 9223372036854775808UL;
+int global_negative = -8;
+unsigned long extended = (unsigned int)-1;
+int signed_value = 0xffffffffU;
+double real_value = 0xffffffffffffffffUL;
+double real_conditional = 1 ? (unsigned int)-1 : 0U;
+char* null_global = 0U;
+struct Box { unsigned int value; unsigned long wide; char small; double fraction; };
+struct Box global_box;
+
+unsigned long identity(unsigned long value) {
+    return value;
+}
+
+unsigned int narrow(unsigned long value) {
+    return value;
+}
+
+int main() {
+    unsigned int u = max32;
+    unsigned long wide = max64;
+    int negative = -8;
+    char* null_local = 0U;
+    struct Box local_box;
+    if (wrapped != 0xffffffffU || folded != 1U) return 1;
+    if (extended != 4294967295UL || signed_value != -1) return 2;
+    if (real_value != 18446744073709551616.0 || real_conditional != 4294967295.0) return 3;
+    if (u + 1U != 0U || wide + 1UL != 0UL) return 4;
+    if (u / 2U != 2147483647U || u % 2U != 1U) return 5;
+    if (wide / 2UL != 9223372036854775807UL || wide % 2UL != 1UL) return 6;
+    if (-1 < 1U || !((long)-1 < 1U)) return 7;
+    if ((u >> 31UL) != 1U || (negative >> 1UL) != -4) return 8;
+    u >>= 31UL;
+    negative >>= 1UL;
+    if (u != 1U || negative != -4) return 9;
+    if (identity(0xffffffffffffffffUL) != max64 || narrow(max64) != max32) return 10;
+    if ((unsigned long)(unsigned int)-1 != 4294967295UL) return 11;
+    if ((double)max64 != 18446744073709551616.0) return 12;
+    if ((unsigned long)9223372036854775808.0 != 9223372036854775808UL) return 13;
+    if (0 || max64) {
+        u += 1UL;
+    } else {
+        return 14;
+    }
+    if (u != 2U || (1 ? max32 : 1UL) != 4294967295UL) return 15;
+    if (u++ != 2U || ++u != 4U) return 19;
+    double too_large = 18446744073709551616.0;
+    double fraction = -0.5;
+    if ((unsigned long)too_large != 0UL || (unsigned int)fraction != 0U) return 20;
+    if (null_global != (1U - 1U) || null_local != 0U) return 17;
+    local_box.value = max32;
+    global_box.value = local_box.value;
+    if (global_box.value != 0xffffffffU) return 18;
+    if ((global_box.value += 1U) != 0U || global_box.value != 0U) return 30;
+    if ((local_box.value /= 2U) != 2147483647U) return 31;
+    local_box.wide = 9223372036854775808UL;
+    struct Box* box = &local_box;
+    if ((box->wide >>= 63U) != 1UL || local_box.wide != 1UL) return 32;
+    local_box.small = (char)255;
+    if ((box->small += (char)1) != 0 || local_box.small != 0) return 33;
+    local_box.fraction = 2.5;
+    if ((local_box.fraction *= 2) != 5.0 || local_box.fraction != 5.0) return 34;
+    struct Box boxes[1U];
+    boxes[0].value = 0xffffffffU;
+    if ((boxes[0].value += (long)1) != 0U || boxes[0].value != 0U) return 35;
+    switch (max32) {
+        case -1: break;
+        default: return 16;
+    }
+    if ((global_unsigned += 1U) != 0U || global_unsigned != 0U) return 21;
+    global_unsigned = 0xffffffffU;
+    if ((global_unsigned /= 2U) != 2147483647U) return 22;
+    if ((global_wide >>= 63U) != 1UL || global_wide != 1UL) return 23;
+    if ((global_negative >>= 1U) != -4 || global_negative != -4) return 24;
+    global_unsigned = 0xffffffffU;
+    unsigned int* p = &global_unsigned;
+    if ((*p += 1U) != 0U || global_unsigned != 0U) return 25;
+    *p = 0xffffffffU;
+    if ((*p /= 2U) != 2147483647U) return 26;
+    *p = 0xffffffffU;
+    if ((*p += (long)1) != 0U || global_unsigned != 0U) return 29;
+    unsigned long* w = &global_wide;
+    *w = 9223372036854775808UL;
+    if ((*w >>= 63U) != 1UL || global_wide != 1UL) return 27;
+    int* n = &global_negative;
+    if ((*n >>= 1U) != -2 || global_negative != -2) return 28;
+    global_unsigned = 0xffffffffU;
+    if (global_unsigned++ != 0xffffffffU || global_unsigned != 0U ||
+        ++global_unsigned != 1U || --global_unsigned != 0U) return 36;
+    global_wide = 0UL;
+    if ((*w)-- != 0UL || global_wide != 0xffffffffffffffffUL ||
+        ++*w != 0UL) return 37;
+    global_box.value = 0xffffffffU;
+    if (global_box.value++ != 0xffffffffU || global_box.value != 0U) return 38;
+    box->wide = 0UL;
+    if (box->wide-- != 0UL || box->wide != 0xffffffffffffffffUL ||
+        ++box->wide != 0UL) return 39;
+    local_box.fraction = 9007199254740992.0;
+    if (local_box.fraction++ != 9007199254740992.0 ||
+        local_box.fraction != 9007199254740992.0) return 40;
+    return 42;
+}

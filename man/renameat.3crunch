@@ -1,0 +1,27 @@
+.TH RENAMEAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+renameat \- rename entries relative to directory descriptors
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int renameat(int " old_directory ", const char* " old_path ","
+.BI "             int " new_directory ", const char* " new_path ");"
+.fi
+.SH DESCRIPTION
+Renames or moves an entry, resolving each relative path from its corresponding
+open directory descriptor or the current directory for
+.BR AT_FDCWD .
+An absolute path ignores its corresponding descriptor. Linux replacement and
+cross\-filesystem restrictions apply, as with
+.BR rename (3crunch).
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR rename (3crunch),
+.BR renameat (2)

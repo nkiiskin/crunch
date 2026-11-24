@@ -1,0 +1,28 @@
+.TH CLEARERR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+clearerr \- clear a Crunch stream's end-of-file and error indicators
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "void clearerr(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR clearerr ()
+clears both indicators without changing the stream's position or
+.BR errno .
+A later read at the end of the file can set the end-of-file indicator again.
+.SH RETURN VALUE
+No value is returned. A null stream sets
+.B errno
+to
+.BR EINVAL ;
+null is not a valid C stream argument.
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR feof (3crunch),
+.BR ferror (3crunch),
+.BR fseek (3crunch)

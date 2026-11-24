@@ -1,0 +1,20 @@
+.TH GETDENTS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getdents \- read legacy Linux directory records
+.SH SYNOPSIS
+.nf
+.B #include <sys/getdents.h>
+.B ssize_t getdents(unsigned int descriptor, struct linux_dirent* buffer,
+.B                  unsigned int byte_count);
+.fi
+.SH DESCRIPTION
+Reads raw Linux x86\-64 legacy directory records.  Advance by d_reclen; the
+NUL-terminated d_name is variable length and d_type is the last byte of each
+record.  The name array declaration represents only its first byte.  Prefer
+getdents64 and dirent64_next for new code.
+.SH RETURN VALUE
+Returns bytes read, zero at end of directory, or \-1 with errno set.
+.SH SEE ALSO
+.BR getdents64 (3crunch),
+.BR dirent64_next (3crunch),
+.BR getdents (2)

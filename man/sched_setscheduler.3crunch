@@ -1,0 +1,14 @@
+.TH SCHED_SETSCHEDULER 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_setscheduler \- sets scheduling policy and parameters; elevated policies can require privileges
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_setscheduler(pid_t process, int policy, const struct sched_param* parameter);
+.fi
+.SH DESCRIPTION
+Sets scheduling policy and parameters; elevated policies can require privileges.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_setscheduler (2)

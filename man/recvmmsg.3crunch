@@ -1,0 +1,15 @@
+.TH RECVMMSG 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+recvmmsg \- Linux x86-64 syscall 299
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int recvmmsg(int descriptor, struct crunch_mmsghdr* messages, unsigned int count, unsigned int flags, struct timespec* timeout);
+.fi
+.SH DESCRIPTION
+Receives multiple messages. Each message uses the Linux x86-64 mmsghdr layout. Linux may modify timeout.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR recvmmsg (2)

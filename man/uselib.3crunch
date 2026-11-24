@@ -1,0 +1,15 @@
+.TH USELIB 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+uselib \- invoke the obsolete Linux shared-library loader
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int uselib(const char* path);
+.fi
+.SH DESCRIPTION
+Invokes the obsolete Linux shared-library loader. Availability depends on
+the kernel's CONFIG_USELIB option; kernels without it return ENOSYS.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR uselib (2)

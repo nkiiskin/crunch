@@ -1,0 +1,43 @@
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <errno.h>
+
+int main() {
+    struct stat before;
+    struct stat after;
+    errno = ERANGE;
+    if (mkdir("work", 493) != 0 || errno != ERANGE) return 1;
+    if (stat("work", &after) != 0 || (after.st_mode & 511) != 493 ||
+        errno != ERANGE) return 18;
+    if (mkdir("work", 493) != -1 || errno != EEXIST) return 2;
+    errno = ERANGE;
+    int fd = open("work/source", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (fd < 0 || write(fd, "hello", 5) != 5 || errno != ERANGE) return 3;
+    if (fstat(fd, &before) != 0 || before.st_size != 5 || errno != ERANGE) return 4;
+    if (rename("work/source", "work/destination") != 0 || errno != ERANGE) return 5;
+    if (stat("work/destination", &after) != 0 ||
+        before.st_ino != after.st_ino || before.st_dev != after.st_dev) return 6;
+    if (stat("work/source", &after) != -1 || errno != ENOENT) return 7;
+    int replaced = open("work/replaced", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (replaced < 0 || write(replaced, "old", 3) != 3 || close(replaced) != 0) return 19;
+    errno = ERANGE;
+    if (rename("work/destination", "work/replaced") != 0 ||
+        stat("work/replaced", &after) != 0 || after.st_ino != before.st_ino ||
+        after.st_size != 5 || errno != ERANGE) return 20;
+    if (rmdir("work") != -1 || errno != ENOTEMPTY) return 8;
+    errno = ERANGE;
+    if (unlink("work/replaced") != 0 || errno != ERANGE) return 9;
+    if (fstat(fd, &after) != 0 || after.st_nlink != 0 ||
+        after.st_size != 5 || after.st_ino != before.st_ino || errno != ERANGE) return 10;
+    if (close(fd) != 0 || rmdir("work") != 0 || errno != ERANGE) return 11;
+    if (fstat(-1, &after) != -1 || errno != EBADF) return 12;
+    fd = open(".", O_RDONLY, 0);
+    if (fd < 0 || fstat(fd, 0) != -1 || errno != EFAULT || close(fd) != 0) return 13;
+    if (unlink("missing") != -1 || errno != ENOENT) return 14;
+    if (rename("missing", "other") != -1 || errno != ENOENT) return 15;
+    if (mkdir("missing/child", 493) != -1 || errno != ENOENT) return 16;
+    if (rmdir("missing") != -1 || errno != ENOENT) return 17;
+    return 0;
+}

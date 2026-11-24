@@ -1,0 +1,22 @@
+volatile int cell = 1;
+volatile int *volatile pointer = &cell;
+struct Box { int value; };
+volatile struct Box box = {7};
+
+int observe(void) {
+    cell;
+    (void)cell;
+    *pointer;
+    cell = 2;
+    cell += 3;
+    ++cell;
+    box;
+    (void)box;
+    if (sizeof(cell) != sizeof(int))
+        return 0;
+    return cell + box.value;
+}
+
+int main(void) {
+    return observe() == 13 ? 42 : 1;
+}

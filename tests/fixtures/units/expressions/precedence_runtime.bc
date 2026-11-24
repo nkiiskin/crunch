@@ -1,0 +1,11 @@
+int main() {
+    int arithmetic = 2 + 3 * 4;
+    int grouped = (2 + 3) * 4;
+    int shifts = 3 << 2 + 1;
+    int logical = 0 || 1 && 0;
+    if (arithmetic != 14) return 1;
+    if (grouped != 20) return 2;
+    if (shifts != 24) return 3;
+    if (logical != 0) return 4;
+    return 42;
+}

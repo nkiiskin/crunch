@@ -1,0 +1,14 @@
+.TH CRUNCH_AFS_SYSCALL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_afs_syscall \- invokes reserved afs syscall slot 183, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B long crunch_afs_syscall(void);
+.fi
+.SH DESCRIPTION
+Invokes reserved AFS syscall slot 183, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR afs_syscall (2)

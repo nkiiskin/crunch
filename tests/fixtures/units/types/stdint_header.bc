@@ -1,0 +1,49 @@
+#include <stdint.h>
+#include <stdint.h>
+
+#if UINT64_C(18446744073709551615) != UINT64_MAX
+#error UINT64_C decimal boundary failed
+#endif
+#if UINT64_C(0xffffffffffffffff) != UINTMAX_MAX
+#error UINT64_C hexadecimal boundary failed
+#endif
+#if INT64_C(9223372036854775807) != INT64_MAX
+#error INT64_C boundary failed
+#endif
+
+int main() {
+    if (sizeof(int8_t) != 1 || sizeof(uint8_t) != 1 ||
+        sizeof(int16_t) != 2 || sizeof(uint16_t) != 2 ||
+        sizeof(int32_t) != 4 || sizeof(uint32_t) != 4 ||
+        sizeof(int64_t) != 8 || sizeof(uint64_t) != 8) return 1;
+    if (sizeof(int_least8_t) != 1 || sizeof(uint_least8_t) != 1 ||
+        sizeof(int_least16_t) != 2 || sizeof(uint_least16_t) != 2 ||
+        sizeof(int_least32_t) != 4 || sizeof(uint_least32_t) != 4 ||
+        sizeof(int_least64_t) != 8 || sizeof(uint_least64_t) != 8) return 2;
+    if (sizeof(int_fast8_t) != 1 || sizeof(uint_fast8_t) != 1 ||
+        sizeof(int_fast16_t) != 8 || sizeof(uint_fast16_t) != 8 ||
+        sizeof(int_fast32_t) != 8 || sizeof(uint_fast32_t) != 8 ||
+        sizeof(int_fast64_t) != 8 || sizeof(uint_fast64_t) != 8 ||
+        sizeof(intptr_t) != 8 || sizeof(uintptr_t) != 8 ||
+        sizeof(intmax_t) != 8 || sizeof(uintmax_t) != 8) return 3;
+    if ((int8_t)-1 >= 0 || (uint8_t)-1 != UINT8_MAX ||
+        (int16_t)-1 >= 0 || (uint16_t)-1 != UINT16_MAX ||
+        (int32_t)-1 >= 0 || (uint32_t)-1 != UINT32_MAX ||
+        (int64_t)-1 >= 0 || (uint64_t)-1 != UINT64_MAX) return 4;
+    if (INT8_MIN != -128 || INT16_MIN != -32768 ||
+        INT32_MIN != (-2147483647 - 1) ||
+        INT64_MIN != (-9223372036854775807L - 1L) ||
+        INT_FAST16_MAX != INT64_MAX || UINTPTR_MAX != UINT64_MAX ||
+        SIZE_MAX != UINT64_MAX || PTRDIFF_MIN != INT64_MIN) return 5;
+    if (sizeof(INT8_C(1)) != 4 || sizeof(UINT8_C(1)) != 4 ||
+        sizeof(INT16_C(1)) != 4 || sizeof(UINT16_C(1)) != 4 ||
+        sizeof(INT32_C(1)) != 4 || sizeof(UINT32_C(1)) != 4 ||
+        sizeof(INT64_C(1)) != 8 || sizeof(UINT64_C(1)) != 8 ||
+        sizeof(INTMAX_C(1)) != 8 || sizeof(UINTMAX_C(1)) != 8) return 6;
+    if (UINT32_C(4294967295) != UINT32_MAX ||
+        UINT64_C(18446744073709551615 /* boundary */) != UINT64_MAX ||
+        UINTMAX_C(0xffffffffffffffff) != UINTMAX_MAX ||
+        UINT32_C(1) - 2 <= 0 || UINT64_C(1) - 2 <= 0 ||
+        INT32_C(1) - 2 >= 0 || INT64_C(1) - 2 >= 0) return 7;
+    return 42;
+}

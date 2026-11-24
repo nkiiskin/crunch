@@ -1,0 +1,10 @@
+#include <stdlib.h>
+#include <stdio.h>
+
+int main() {
+    int status = 23;
+    printf("second;");
+    exit(status);
+    printf("unreachable;");
+    return 42;
+}

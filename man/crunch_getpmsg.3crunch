@@ -1,0 +1,14 @@
+.TH CRUNCH_GETPMSG 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_getpmsg \- invokes obsolete streams syscall slot 181, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B long crunch_getpmsg(void);
+.fi
+.SH DESCRIPTION
+Invokes obsolete STREAMS syscall slot 181, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR getpmsg (2)

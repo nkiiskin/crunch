@@ -1,0 +1,11 @@
+char byte_max = (char)255;
+int int_max = 2147483647;
+int int_min = -2147483648;
+long long_max = 9223372036854775807;
+long long_min = (-9223372036854775807 - 1);
+int cast_fraction = (int)2147483647.9;
+int main() {
+    int runtime_value = 300;
+    char narrowed = (char)runtime_value;
+    return cast_fraction;
+}

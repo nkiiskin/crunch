@@ -1,0 +1,15 @@
+struct Pair {
+    int first;
+    int second;
+};
+
+int main() {
+    struct Pair pair;
+    pair.first = 20;
+    pair.second = 22;
+    int *cursor = &pair.first;
+    cursor = cursor + 1;
+    if (*cursor != 22) return 1;
+    *cursor = 42;
+    return pair.second;
+}

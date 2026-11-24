@@ -1,0 +1,35 @@
+.TH OPENAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+openat \- open a path relative to a directory descriptor
+.SH SYNOPSIS
+.nf
+.B #include <fcntl.h>
+.PP
+.BI "int openat(int " directory ", const char* " path ", int " flags ", mode_t " mode ");"
+.fi
+.SH DESCRIPTION
+For a relative path,
+.B openat
+uses the open directory descriptor as the starting point; use
+.B AT_FDCWD
+to start at the current working directory. An absolute path ignores the
+directory descriptor. All four arguments are required; pass zero for
+.I mode
+when no creation permissions are needed. Mode and flags have the same
+meaning as in
+.BR open (3crunch).
+The header also supplies
+.BR O_DIRECTORY ,
+.BR O_NOFOLLOW ,
+and
+.BR O_CLOEXEC .
+.SH RETURN VALUE
+Returns a descriptor on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.B errno .
+.SH NOTES
+The interface targets Linux x86\-64; Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR openat (2)

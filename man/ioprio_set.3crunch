@@ -1,0 +1,15 @@
+.TH IOPRIO_SET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ioprio_set \- Linux x86-64 syscall 251
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int ioprio_set(int which, int who, int priority);
+.fi
+.SH DESCRIPTION
+Sets I/O scheduling priority.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR ioprio_set (2)

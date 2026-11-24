@@ -1,0 +1,38 @@
+.TH FEOF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+feof \- test a Crunch stream's end-of-file indicator
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int feof(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR feof ()
+tests the stream's end-of-file indicator without changing it.
+The indicator is set when a read encounters end-of-file, not merely when
+the current position reaches the end.
+It remains set until a successful
+.BR fseek (3crunch),
+.BR rewind (3crunch),
+.BR clearerr (3crunch),
+or until the stream is closed.
+.SH RETURN VALUE
+Returns nonzero if the indicator is set and zero otherwise.
+For a null stream, returns \-1 and sets
+.B errno
+to
+.BR EINVAL ;
+null is not a valid C stream argument.
+Valid calls leave
+.B errno
+unchanged.
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR clearerr (3crunch),
+.BR ferror (3crunch),
+.BR fread (3crunch),
+.BR fseek (3crunch)

@@ -1,0 +1,88 @@
+#include <sys/syscall_220_259.h>
+#include <sys/epoll.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+
+struct itimerspec timer_layout;
+struct crunch_mq_attr mq_layout;
+
+void link_privileged_only(void) {
+    clock_settime(CLOCK_REALTIME, 0);
+    crunch_vserver();
+    mbind(0, 0, 0, 0, 0, 0);
+    set_mempolicy(0, 0, 0);
+    get_mempolicy(0, 0, 0, 0, 0);
+    crunch_mq_notify(-1, 0);
+    crunch_kexec_load(0, 0, 0, 0);
+    add_key(0, 0, 0, 0, 0);
+    request_key(0, 0, 0, 0);
+    crunch_keyctl(0, 0, 0, 0, 0);
+    ioprio_set(0, 0, 0);
+    migrate_pages(0, 0, 0, 0);
+}
+
+int main(void) {
+    struct timespec now, resolution, delay = {0, 0};
+    if (clock_gettime(CLOCK_MONOTONIC, &now) ||
+        clock_getres(CLOCK_MONOTONIC, &resolution) ||
+        now.tv_sec < 0 || resolution.tv_nsec < 0 ||
+        crunch_clock_nanosleep(CLOCK_MONOTONIC, 0, &delay, 0)) return 1;
+    if (clock_gettime(-1, &now) != -1 || errno != EINVAL) return 2;
+    int timer;
+    if (crunch_timer_create(CLOCK_MONOTONIC, 0, &timer)) return 3;
+    struct itimerspec state = {{0, 0}, {0, 0}}, old;
+    if (crunch_timer_settime(timer, 0, &state, &old) ||
+        crunch_timer_gettime(timer, &old) || crunch_timer_getoverrun(timer) < 0 ||
+        crunch_timer_delete(timer)) return 4;
+    int sem = semget(IPC_PRIVATE, 1, IPC_CREAT | 384);
+    if (sem < 0) return 5;
+    struct sembuf operation = {0, 0, 0};
+    if (semtimedop(sem, &operation, 1, &delay) || semctl_value(sem, 0, IPC_RMID, 0))
+        return 6;
+    int fd = open("file", O_CREAT | O_RDWR, 384);
+    if (fd < 0 || crunch_fadvise64(fd, 0, 0, 0)) return 7;
+    struct timeval times[2] = {{123456, 0}, {123457, 0}};
+    if (utimes("file", times)) return 8;
+    if (mknodat(AT_FDCWD, "fifo", 4480, 0) || unlink("fifo")) return 9;
+    int pipefd[2];
+    if (pipe(pipefd)) return 10;
+    int ep = epoll_create(1);
+    if (ep < 0) return 11;
+    unsigned char event[12] = {0};
+    unsigned int mask = EPOLLIN;
+    unsigned long data = 0x12345678UL;
+    memcpy(event, &mask, 4);
+    memcpy(event + 4, &data, 8);
+    if (epoll_ctl(ep, EPOLL_CTL_ADD, pipefd[0], event) ||
+        write(pipefd[1], "x", 1) != 1) return 12;
+    unsigned char received[12] = {0};
+    if (epoll_wait(ep, received, 1, 1000) != 1) return 13;
+    unsigned long got = 0;
+    memcpy(&got, received + 4, 8);
+    if (got != data || !(received[0] & EPOLLIN) ||
+        epoll_ctl(ep, EPOLL_CTL_DEL, pipefd[0], 0)) return 14;
+    if (close(ep) || close(pipefd[0]) || close(pipefd[1])) return 15;
+    int notify = inotify_init();
+    if (notify < 0) return 16;
+    int watch = inotify_add_watch(notify, ".", IN_CREATE);
+    if (watch < 0 || inotify_rm_watch(notify, watch) || close(notify)) return 17;
+    if (tgkill(getpid(), gettid(), 0) || ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0)
+        return 18;
+    if (crunch_mq_open("", O_RDONLY, 0, 0) != -1 || !errno ||
+        crunch_mq_unlink("") != -1 || !errno ||
+        crunch_mq_timedsend(-1, "x", 1, 0, 0) != -1 || !errno ||
+        crunch_mq_timedreceive(-1, (char*)event, 12, 0, 0) != -1 || !errno ||
+        crunch_mq_getsetattr(-1, 0, 0) != -1 || !errno) return 19;
+    pid_t child = fork();
+    if (child < 0) return 20;
+    if (!child) crunch_exit_group(37);
+    siginfo_t info = {0};
+    struct rusage usage;
+    if (crunch_waitid(P_PID, child, &info, WEXITED, &usage) ||
+        info.data.queued.pid != child || info.data.queued.value.sival_int != 37) return 21;
+    if (close(fd) || unlink("file")) return 22;
+    return 42;
+}

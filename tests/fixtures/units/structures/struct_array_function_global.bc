@@ -1,0 +1,17 @@
+struct metric {
+    long value;
+};
+
+struct metric global_metrics[2];
+
+long read_metric(struct metric metrics[], int index) {
+    return metrics[index].value;
+}
+
+int main() {
+    global_metrics[0].value = (long)12;
+    global_metrics[1].value = (long)42;
+    if (read_metric(global_metrics, 0) != (long)12) return 1;
+    if (read_metric(global_metrics, 1) != (long)42) return 2;
+    return 42;
+}

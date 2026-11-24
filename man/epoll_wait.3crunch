@@ -1,0 +1,15 @@
+.TH EPOLL_WAIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+epoll_wait \- Linux x86-64 syscall 232
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int epoll_wait(int epoll, void* events, int maximum, int timeout);
+.fi
+.SH DESCRIPTION
+Waits for events. Each Linux x86-64 kernel event is 12 bytes: a 32-bit event mask followed by eight data bytes; the data is unaligned.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR epoll_wait (2)

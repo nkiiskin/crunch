@@ -1,0 +1,14 @@
+.TH SIGPENDING 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigpending \- reads pending signals using the eight-byte linux kernel signal-set layout
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigpending(sigset_t* set);
+.fi
+.SH DESCRIPTION
+Reads pending signals using the eight-byte Linux kernel signal-set layout.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR sigpending (2)

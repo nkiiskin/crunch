@@ -1,0 +1,43 @@
+void* global;
+struct holder { void* pointer; };
+
+void* identity(void* value) {
+    return value;
+}
+
+int* converted(void* value) {
+    return value;
+}
+
+const void* readonly(const int* value) {
+    return value;
+}
+
+int main() {
+    void* empty;
+    if (empty || global) return 6;
+    int number = 42;
+    int* typed = &number;
+    void* opaque = identity(typed);
+    global = opaque;
+    struct holder item;
+    item.pointer = global;
+    if (item.pointer != opaque || opaque != typed || opaque == 0) return 1;
+    int* recovered = converted(item.pointer);
+    if (*recovered != 42 || *(int*)opaque != 42) return 2;
+    const void* cv = readonly(typed);
+    const int* ci = cv;
+    if (*ci != 42) return 3;
+    void* selected = 1 ? typed : opaque;
+    if (selected != opaque) return 4;
+    selected = 0 ? opaque : typed;
+    if (selected != opaque) return 5;
+    char a[] = "same";
+    char b[] = "same";
+    void* address = a;
+    if (a == b || address == b) return 7;
+    if ((1 ? a : address) == b || (0 ? address : a) == b) return 8;
+    const void* const_address = 1 ? a : cv;
+    if (const_address != address) return 9;
+    return 42;
+}

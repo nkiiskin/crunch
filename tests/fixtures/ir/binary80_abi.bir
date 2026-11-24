@@ -1,0 +1,120 @@
+CRUNCH-IR 35
+extern_func host_mixed 12 ext long long long long long long long ext long ext real long
+globalblock zero 16 16
+globalblock expected 16 16
+blockdata expected 0000000000000080fd3f
+func crunch_mixed 12 ext
+param 0 0 long
+param 1 1 long
+param 2 2 long
+param 3 3 long
+param 4 4 long
+param 5 5 long
+param 6 6 long
+param 7 7 ext
+param 8 8 long
+param 9 9 ext
+param 10 10 real
+param 11 11 long
+localblock result 16 16
+localalias result_address result 0 byte
+load 6
+push 7
+eq long
+jz L100
+load 8
+push 8
+eq long
+jz L100
+load 11
+push 9
+eq long
+jz L100
+load 10
+pushr 0x4004000000000000
+eq real
+jz L100
+laddr result_address
+load 7
+load 9
+extadd
+retagg ext
+label L100
+gaddr zero
+retagg ext
+end
+func crunch_call 2 ext
+param 0 0 ptr
+param 1 1 ptr
+localblock result 16 16
+localalias result_address result 0 byte
+laddr result_address
+push 1
+push 2
+push 3
+push 4
+push 5
+push 6
+push 7
+load 0
+push 8
+load 1
+pushr 0x4004000000000000
+push 9
+callagg host_mixed 12
+retagg ext
+end
+func crunch_callptr 2 ext
+param 0 0 ptr
+param 1 1 ptr
+localblock result 16 16
+localalias result_address result 0 byte
+laddr result_address
+fnaddr host_mixed
+push 1
+push 2
+push 3
+push 4
+push 5
+push 6
+push 7
+load 0
+push 8
+load 1
+pushr 0x4004000000000000
+push 9
+callptr 12 ext long long long long long long long ext long ext real long
+retagg ext
+end
+func crunch_named_variadic 9 int
+param 0 0 long
+param 1 1 long
+param 2 2 long
+param 3 3 long
+param 4 4 long
+param 5 5 long
+param 6 6 long
+param 7 7 ext
+param 8 8 long
+variadic
+localblock list 24 8
+localalias ap list 0 byte
+laddr ap
+vastart
+laddr ap
+vaarg gp
+loadind long
+push 10
+eq long
+jz L101
+laddr ap
+vaarg ext
+gaddr expected
+exteq
+jz L101
+push 1
+ret int
+label L101
+push 0
+ret int
+end

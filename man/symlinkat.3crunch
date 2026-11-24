@@ -1,0 +1,25 @@
+.TH SYMLINKAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+symlinkat \- create a directory-relative symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int symlinkat(const char* " target ", int " directory ", const char* " path ");"
+.fi
+.SH DESCRIPTION
+Creates a symbolic link at a path relative to the open directory descriptor,
+or the current directory for
+.BR AT_FDCWD .
+An absolute link path ignores the descriptor. The target text is stored
+unchanged, need not exist, and is not resolved against the descriptor.
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR readlinkat (3crunch),
+.BR symlinkat (2)

@@ -1,0 +1,18 @@
+.TH CRUNCH_SYSFS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_sysfs \- invokes the obsolete linux sysfs syscall with raw arguments
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B long crunch_sysfs(int option, unsigned long argument1, unsigned long argument2);
+.fi
+.SH DESCRIPTION
+Invokes the obsolete Linux sysfs syscall with raw integer arguments. Use
+.BR crunch_sysfs_index (3crunch)
+and
+.BR crunch_sysfs_name (3crunch)
+for operations requiring pointers. Availability and permissions depend on the kernel.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR sysfs (2)

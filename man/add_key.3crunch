@@ -1,0 +1,15 @@
+.TH ADD_KEY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+add_key \- Linux x86-64 syscall 248
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long add_key(const char* type, const char* description, const void* payload, size_t length, int keyring);
+.fi
+.SH DESCRIPTION
+Adds a key to a Linux keyring.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR add_key (2)

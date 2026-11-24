@@ -1,0 +1,38 @@
+static const {
+    int eq = 1.5 == 1.5, ne = 1.5 != 2.0;
+    int lt = 1.5 < 2.0, le = 1.5 <= 1.5;
+    int gt = 2.0 > 1.5, ge = 1.5 >= 1.5;
+};
+
+int zero_equal = -0.0 == 0.0;
+int mixed = 9007199254740993 == 9007199254740992.0;
+int infinity = (1.0 / 0.0) > 1.0e308;
+int nan_equal = (0.0 / 0.0) == 1.0;
+int nan_unequal = (0.0 / 0.0) != 1.0;
+int nan_less = (0.0 / 0.0) < 1.0;
+int nan_less_equal = (0.0 / 0.0) <= 1.0;
+int nan_greater = (0.0 / 0.0) > 1.0;
+int nan_greater_equal = (0.0 / 0.0) >= 1.0;
+int nested = ((1.5 < 2.0) ? 40 : 1 / 0) + (2.0 == 2);
+int short_circuit = (1.0 < 2.0) || (1 / 0);
+int skipped = 0 && (1.0 < (1 / 0));
+int right_nan = 1.0 != (0.0 / 0.0);
+double widened = 3.0 + (1.0 < 2.0);
+double direct = 1.0 < 2.0;
+
+int main() {
+    double a = 1.5, b = 2.0, zero = 0.0, negative_zero = -0.0;
+    long large = 9007199254740993;
+    double rounded = 9007199254740992.0;
+    double nan = zero / zero, inf = 1.0 / zero;
+    if (eq != (a == a) || ne != (a != b) || lt != (a < b) ||
+        le != (a <= a) || gt != (b > a) || ge != (a >= a)) return 1;
+    if (zero_equal != (negative_zero == zero) || mixed != (large == rounded) ||
+        infinity != (inf > 1.0e308)) return 2;
+    if (nan_equal != (nan == a) || nan_unequal != (nan != a) ||
+        nan_less != (nan < a) || nan_less_equal != (nan <= a) ||
+        nan_greater != (nan > a) || nan_greater_equal != (nan >= a)) return 3;
+    if (nested != 41 || short_circuit != 1 || skipped != 0 ||
+        right_nan != (a != nan) || widened != 4.0 || direct != 1.0) return 4;
+    return 42;
+}

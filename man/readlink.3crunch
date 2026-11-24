@@ -1,0 +1,28 @@
+.TH READLINK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+readlink \- read a symbolic link target
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "ssize_t readlink(const char* " path ", char* " buffer ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+.B readlink
+copies up to
+.I byte_count
+bytes from the symbolic link target to the writable buffer. It does not append
+a NUL terminator. A result equal to the buffer size may indicate truncation.
+The caller must supply enough writable storage for the count.
+.SH RETURN VALUE
+Returns the number of bytes copied on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.B errno .
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR lstat (3crunch),
+.BR readlink (2)

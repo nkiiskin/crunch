@@ -1,0 +1,16 @@
+.TH CRUNCH_SYSFS_INDEX 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_sysfs_index \- look up a filesystem type index
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int crunch_sysfs_index(const char *name);
+.fi
+.SH DESCRIPTION
+Uses the obsolete Linux sysfs syscall to look up a filesystem type by name.
+Availability and permissions depend on the kernel.
+.SH RETURN VALUE
+Returns the index, or \-1 with errno set.
+.SH SEE ALSO
+.BR crunch_sysfs (3crunch),
+.BR sysfs (2)

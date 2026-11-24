@@ -1,0 +1,1 @@
+int main() { int value = 1; long *pointer = &value; return 0; }

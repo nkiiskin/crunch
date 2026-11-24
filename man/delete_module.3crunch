@@ -1,0 +1,14 @@
+.TH DELETE_MODULE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+delete_module \- removes a kernel module; requires cap_sys_module and may be disabled
+.SH SYNOPSIS
+.nf
+.B #include <sys/module.h>
+.B int delete_module(const char* name, unsigned int flags);
+.fi
+.SH DESCRIPTION
+Removes a kernel module; requires CAP_SYS_MODULE and may be disabled.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR delete_module (2)

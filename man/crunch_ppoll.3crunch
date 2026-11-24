@@ -1,0 +1,15 @@
+.TH CRUNCH_PPOLL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_ppoll \- Linux x86-64 syscall 271
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int crunch_ppoll(struct pollfd* descriptors, nfds_t count, struct timespec* timeout, const sigset_t* mask);
+.fi
+.SH DESCRIPTION
+Invokes raw ppoll with an eight-byte kernel signal set. The kernel may modify timeout, including on interruption.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR ppoll (2)

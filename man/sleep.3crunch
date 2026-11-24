@@ -1,0 +1,16 @@
+.TH SLEEP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sleep \- suspend execution for seconds
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B unsigned int sleep(unsigned int seconds);
+.fi
+.SH DESCRIPTION
+Sleeps for a relative interval using Linux nanosleep.
+.SH RETURN VALUE
+Returns zero on completion, or the remaining seconds rounded up after a signal.
+On another syscall error, returns the requested seconds and sets errno.
+.SH SEE ALSO
+.BR nanosleep (3crunch),
+.BR sleep (3)

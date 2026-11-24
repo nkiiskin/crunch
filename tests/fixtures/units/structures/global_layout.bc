@@ -1,0 +1,13 @@
+struct Point {
+    char tag;
+    int count;
+    long total;
+    char name[16];
+};
+
+struct Point origin;
+
+int main() {
+    origin.count = 42;
+    return origin.count;
+}

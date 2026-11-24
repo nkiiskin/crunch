@@ -1,0 +1,14 @@
+.TH RT_SIGQUEUEINFO 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+rt_sigqueueinfo \- sends a signal using the raw linux rt_sigqueueinfo syscall
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int rt_sigqueueinfo(pid_t process, int signal, const siginfo_t* information);
+.fi
+.SH DESCRIPTION
+Sends a signal using the raw Linux rt_sigqueueinfo syscall. information uses the kernel layout and must satisfy Linux si_code and permission rules; queued data is in data.queued.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR rt_sigqueueinfo (2)

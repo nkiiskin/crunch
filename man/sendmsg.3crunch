@@ -1,0 +1,19 @@
+.TH SENDMSG 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sendmsg \- send a scatter/gather socket message
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B ssize_t sendmsg(int descriptor, const struct msghdr* message, int flags);
+.fi
+.SH DESCRIPTION
+Sends data described by message and its iovec array.
+Optional destination and control buffers use Linux kernel layouts.
+The MSG_NOSIGNAL flag suppresses SIGPIPE for this call.
+Crunch structures use the Linux x86\-64 ABI and are not portable layouts.
+.SH RETURN VALUE
+Returns bytes sent, possibly fewer than requested, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR recvmsg (3crunch),
+.BR sendmsg (2)

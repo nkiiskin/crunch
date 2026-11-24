@@ -1,0 +1,49 @@
+void *malloc(unsigned long);
+void free(void *);
+
+typedef int Values[];
+struct Record { long header; char flag; char data[]; };
+struct Matrix { int count; int rows[][2]; };
+struct Aliased { int count; Values values; };
+struct Aligned { long count; long double data[]; };
+union Wrapped { struct Aligned item; long value; };
+union Element { int small; long large; };
+struct WithUnion { long count; union Element elements[]; };
+
+struct Record global_record = { 7, 3 };
+static struct Aliased static_record = { 4 };
+
+struct Aligned make(long n) {
+    struct Aligned value = { n };
+    return value;
+}
+
+long take(struct Aligned value, long n) { return value.count + n; }
+
+int main(void) {
+    struct Record *p = malloc(sizeof(struct Record) + 10);
+    struct Matrix *m = malloc(sizeof(struct Matrix) + 2 * sizeof(int[2]));
+    struct Aliased *a = malloc(sizeof(struct Aliased) + 2 * sizeof(int));
+    struct Aligned x = make(10), y;
+    struct WithUnion first = { 12 }, second;
+    union Wrapped wrapped;
+    int i = 0;
+    if (!p || !m || !a) return 1;
+    p->header = 20;
+    p->flag = 2;
+    p->data[i++] = 5;
+    m->rows[1][1] = 12;
+    a->values[1] = 3;
+    y = x;
+    second = first;
+    wrapped.item = y;
+    if (sizeof(struct Record) != 16 || (char *)p->data - (char *)p != 9 ||
+        sizeof(struct Aligned) != 16 || take(wrapped.item, 32) != 42 ||
+        global_record.header != 7 || static_record.count != 4 || second.count != 12 ||
+        i != 1 || p->data[0] != 5 || m->rows[1][1] != 12 || a->values[1] != 3)
+        return 2;
+    free(p);
+    free(m);
+    free(a);
+    return 42;
+}

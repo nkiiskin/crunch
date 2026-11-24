@@ -1,0 +1,14 @@
+.TH GETSID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getsid \- returns a process session id; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B pid_t getsid(pid_t process);
+.fi
+.SH DESCRIPTION
+Returns a process session ID; process zero selects the caller.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR getsid (2)

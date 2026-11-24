@@ -1,0 +1,73 @@
+float too_large = 1e40;
+float near_limit = 3.4028235e38;
+float values[] = {1e40};
+int from_float = 1e20f;
+int from_double_cast = (int)1e20;
+int nested_cast = (int)1e20f + 2;
+int from_infinity = (int)(1.0 / 0.0);
+int from_nan = (int)(0.0f / 0.0f);
+int integers[] = {1e20f, (int)1e20};
+unsigned int from_negative = (unsigned int)-1.0;
+char from_integer = (char)256;
+char from_float_char = (char)300.0f;
+int below_int_min = (int)-2147483648.5;
+int at_int_min = (int)-2147483648.0;
+long below_long_min = (long)-9223372036854777856.0;
+long at_long_min = (long)-9223372036854775808.0;
+unsigned int unsigned_fraction = (unsigned int)-0.5;
+unsigned int unsigned_upper = (unsigned int)4294967296.0;
+char char_fraction = (char)-0.5f;
+char char_upper = (char)255.75f;
+char char_over = (char)256.0f;
+
+float returns_large() {
+    return 1e40;
+}
+
+int array_value() {
+    static int value[] = {1e20f, (int)1e20};
+    return value[0] + value[1];
+}
+
+int accept(float x) {
+    return x > near_limit;
+}
+
+int main() {
+    double large = 1e40;
+    double near = 3.4028235e38;
+    float runtime_large = large;
+    float runtime_near = near;
+    float local = 1e40;
+    int number = 1e20f;
+    double below = -2147483648.5;
+    double at = -2147483648.0;
+    double below_long = -9223372036854777856.0;
+    double at_long = -9223372036854775808.0;
+    double fraction = -0.5;
+    double unsigned_limit = 4294967296.0;
+    float byte_fraction = -0.5f;
+    float byte_upper = 255.75f;
+    float byte_limit = 256.0f;
+    local = 1e40;
+    number = 1e20f;
+    if (too_large != runtime_large || values[0] != runtime_large ||
+        near_limit != runtime_near || returns_large() != local || !accept(1e40))
+        return 1;
+    if (from_float != 0 || from_double_cast != 0 || nested_cast != 2 ||
+        from_infinity != 0 || from_nan != 0 ||
+        integers[0] != 0 || integers[1] != 0 || from_negative != 0U ||
+        from_integer != 0 || from_float_char != 0 || number != 0 || array_value() != 0)
+        return 2;
+    if (below_int_min != -2147483648 || below_int_min != (int)below ||
+        at_int_min != -2147483648 || at_int_min != (int)at ||
+        below_long_min != 0 || below_long_min != (long)below_long ||
+        at_long_min != (-9223372036854775807 - 1) || at_long_min != (long)at_long ||
+        unsigned_fraction != 0U || unsigned_fraction != (unsigned int)fraction ||
+        unsigned_upper != 0U || unsigned_upper != (unsigned int)unsigned_limit ||
+        char_fraction != 0 || char_fraction != (char)byte_fraction ||
+        char_upper != 255 || char_upper != (char)byte_upper ||
+        char_over != 0 || char_over != (char)byte_limit)
+        return 3;
+    return 42;
+}

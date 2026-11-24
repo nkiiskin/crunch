@@ -1,0 +1,18 @@
+.TH WAITPID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+waitpid \- wait for a child process
+.SH SYNOPSIS
+.nf
+.B #include <sys/wait.h>
+.B pid_t waitpid(pid_t process, int* status, int options);
+.fi
+.SH DESCRIPTION
+Waits for a child selected by the Linux process or process\-group selector.
+Status may be NULL. WIFEXITED, WEXITSTATUS, WIFSIGNALED and WTERMSIG
+inspect a returned status; options use Linux wait flags.
+.SH RETURN VALUE
+Returns the child PID, zero for a nonblocking wait with no result, or \-1
+with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR waitpid (2)

@@ -1,0 +1,15 @@
+#include <float.h>
+#include <float.h>
+#include <stdint.h>
+
+int main() {
+    union { float value; uint32_t bits; } number;
+    number.value = FLT_MAX;
+    if (sizeof(FLT_MAX) != sizeof(float)) return 1;
+    if (number.bits != UINT32_C(0x7f7fffff)) return 2;
+    union { double value; uint64_t bits; } wide;
+    wide.value = DBL_MAX;
+    if (sizeof(DBL_MAX) != sizeof(double)) return 3;
+    if (wide.bits != UINT64_C(0x7fefffffffffffff)) return 4;
+    return 42;
+}

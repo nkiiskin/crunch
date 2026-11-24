@@ -1,0 +1,17 @@
+.TH IOCTL_VALUE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ioctl_value \- control a device with an integer argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/ioctl.h>
+.B int ioctl_value(int descriptor, unsigned long request, unsigned long argument);
+.fi
+.SH DESCRIPTION
+Like ioctl, but passes an integer rather than a pointer as the third
+argument. The caller must use the argument type required by the request.
+.SH RETURN VALUE
+Returns the request\-specific result, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR ioctl (3crunch),
+.BR ioctl (2)

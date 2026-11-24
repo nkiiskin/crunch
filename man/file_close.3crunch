@@ -1,0 +1,15 @@
+.TH FILE_CLOSE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+file_close \- close a Crunch file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B long file_close(long descriptor);
+.fi
+.SH DESCRIPTION
+Closes a descriptor such as one returned by file_open.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR file_open (3crunch),
+.BR close (3crunch)

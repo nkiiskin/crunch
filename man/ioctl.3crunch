@@ -1,0 +1,20 @@
+.TH IOCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ioctl \- control a device
+.SH SYNOPSIS
+.nf
+.B #include <sys/ioctl.h>
+.B int ioctl(int descriptor, unsigned long request, void* argument);
+.fi
+.SH DESCRIPTION
+Passes a request and its argument to the Linux ioctl syscall. Unlike glibc's
+variadic interface, Crunch requires all three arguments. Pass zero when no
+argument is required; use ioctl_value for an integer argument.
+The header defines FIONREAD, FIONBIO, FIOCLEX, FIONCLEX, TIOCGWINSZ,
+TIOCSWINSZ and the Linux winsize structure. Consult the device's documentation
+for the correct argument type and required storage.
+.SH RETURN VALUE
+Returns the request\-specific result, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR ioctl (2)

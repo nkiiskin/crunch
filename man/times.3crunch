@@ -1,0 +1,14 @@
+.TH TIMES 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+times \- reads process and child cpu times in clock ticks; the return value is elapsed ticks from an arbitrary origin
+.SH SYNOPSIS
+.nf
+.B #include <sys/times.h>
+.B clock_t times(struct tms* buffer);
+.fi
+.SH DESCRIPTION
+Reads process and child CPU times in clock ticks; the return value is elapsed ticks from an arbitrary origin.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR times (2)

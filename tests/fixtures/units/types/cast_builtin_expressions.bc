@@ -1,0 +1,11 @@
+unsigned long strlen(const char* text);
+int main() {
+    char text[] = "Hello";
+    double r = (double)strlen(text);
+    int back = (int)r;
+    int negated = -(int)strlen(text);
+    int scaled = (int)strlen(text) * 2 + (int)(strlen(text) + 1);
+    if (back != 5 || negated != -5) return 1;
+    if (scaled != 16) return 2;
+    return 42;
+}

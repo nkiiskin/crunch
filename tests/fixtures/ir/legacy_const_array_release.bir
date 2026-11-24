@@ -1,0 +1,274 @@
+CRUNCH-IR 3
+extern_func mapped 1 int ptr
+global global ptr 0
+global global$length int 7
+globalbytes global 676c6f62616c00
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+push 0
+push 0
+push 5
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+bool ptr
+jz L0
+load 0
+push 0
+ptradd byte
+push 78
+storeind byte
+drop
+load 0
+push 1
+ptradd byte
+push 105
+storeind byte
+drop
+load 0
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+load 0
+push 3
+ptradd byte
+push 107
+storeind byte
+drop
+load 0
+push 4
+ptradd byte
+push 0
+storeind byte
+drop
+label L0
+local 2 ptr
+load 0
+store 2 ptr
+load 1
+push 5
+ne int
+bool int
+jnz L5
+load 0
+push 0
+ptradd byte
+loadind byte
+push 78
+ne byte
+bool
+jmp L6
+label L5
+push 1
+label L6
+bool int
+jnz L3
+load 2
+call mapped 1
+push 0
+ne int
+bool
+jmp L4
+label L3
+push 1
+label L4
+bool int
+jz L1
+push 1
+ret int
+label L1
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jnz L11
+load 0
+push 0
+ne ptr
+bool
+jmp L12
+label L11
+push 1
+label L12
+bool int
+jnz L9
+load 2
+call mapped 1
+push 12
+neg int
+ne int
+bool
+jmp L10
+label L9
+push 1
+label L10
+bool int
+jz L7
+push 2
+ret int
+label L7
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+local 3 ptr
+local 4 int
+push 0
+store 3 ptr
+push 0
+store 4 int
+push 0
+push 0
+push 2
+array_resize int
+store 3 ptr
+store 4 int
+load 3
+bool ptr
+jz L13
+load 3
+push 0
+ptradd int
+push 1
+storeind int
+drop
+load 3
+push 1
+ptradd int
+push 2
+storeind int
+drop
+label L13
+load 3
+load 4
+push 0
+array_resize int
+store 3 ptr
+store 4 int
+load 4
+push 0
+ne int
+bool int
+jnz L18
+load 3
+push 0
+ne ptr
+bool
+jmp L19
+label L18
+push 1
+label L19
+bool int
+jnz L16
+load 4
+push 0
+ne int
+bool
+jmp L17
+label L16
+push 1
+label L17
+bool int
+jz L14
+push 3
+ret int
+label L14
+gload global ptr
+push 0
+ptradd byte
+loadind byte
+push 103
+ne byte
+bool int
+jnz L22
+gload global$length int
+push 7
+ne int
+bool
+jmp L23
+label L22
+push 1
+label L23
+bool int
+jz L20
+push 4
+ret int
+label L20
+gload global ptr
+gload global$length int
+push 0
+array_resize byte
+gstore global ptr
+gstore global$length int
+gload global ptr
+push 0
+ne ptr
+bool int
+jnz L26
+gload global$length int
+push 0
+ne int
+bool
+jmp L27
+label L26
+push 1
+label L27
+bool int
+jz L24
+push 5
+ret int
+label L24
+local 5 int
+localblock __local_struct_5 16 8
+localalias __local_struct_address_5 __local_struct_5 0 byte
+localalias h.values __local_struct_5 0 ptr
+localalias h.values$length __local_struct_5 8 int
+push 0
+lstore h.values ptr
+push 0
+lstore h.values$length int
+lload h.values ptr
+lload h.values$length int
+push 0
+array_resize int
+lstore h.values ptr
+lstore h.values$length int
+lload h.values$length int
+push 0
+ne int
+bool int
+jnz L30
+lload h.values ptr
+push 0
+ne ptr
+bool
+jmp L31
+label L30
+push 1
+label L31
+bool int
+jz L28
+push 6
+ret int
+label L28
+push 42
+ret int
+push 0
+ret int
+end

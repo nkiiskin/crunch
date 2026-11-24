@@ -1,0 +1,31 @@
+#include <stdlib.h>
+#include <errno.h>
+
+int main() {
+    errno = ERANGE;
+    char* a = malloc(100);
+    char* b = malloc(100);
+    if (!a || !b || errno != ERANGE) return 1;
+    for (int i = 0; i < 100; i++) {
+        a[i] = (char)i;
+        b[i] = (char)(100 - i);
+    }
+    char* larger = realloc(a, 16384);
+    if (!larger || errno != ERANGE) return 2;
+    for (int i = 0; i < 100; i++)
+        if (larger[i] != i || b[i] != 100 - i) return 3;
+    larger[16383] = (char)71;
+    char* second_growth = realloc(larger, 32768);
+    if (!second_growth || second_growth[0] != 0 || second_growth[99] != 99 ||
+        second_growth[16383] != 71 || errno != ERANGE) return 4;
+    free(b);
+    char* smaller = realloc(second_growth, 32);
+    if (!smaller || smaller[0] != 0 || smaller[31] != 31 || errno != ERANGE) return 5;
+    char* again = realloc(smaller, 20000);
+    if (!again || again[31] != 31 || errno != ERANGE) return 6;
+    free(again);
+    void* zero = realloc(0, 0);
+    if (!zero || errno != ERANGE) return 7;
+    free(zero);
+    return 42;
+}

@@ -1,0 +1,14 @@
+.TH SIGTIMEDWAIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigtimedwait \- waits for a signal in set, optionally with a timeout
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigtimedwait(const sigset_t* set, siginfo_t* information, const struct timespec* timeout);
+.fi
+.SH DESCRIPTION
+Waits for a signal in set, optionally with a timeout. siginfo_t uses the 128-byte Linux kernel layout, not libc's layout.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR sigtimedwait (2)

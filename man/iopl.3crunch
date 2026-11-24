@@ -1,0 +1,14 @@
+.TH IOPL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+iopl \- changes x86 i/o privilege level; this obsolete operation requires cap_sys_rawio and is architecture dependent
+.SH SYNOPSIS
+.nf
+.B #include <sys/io.h>
+.B int iopl(int level);
+.fi
+.SH DESCRIPTION
+Changes x86 I/O privilege level; this obsolete operation requires CAP_SYS_RAWIO and is architecture dependent.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR iopl (2)

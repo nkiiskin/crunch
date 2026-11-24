@@ -1,0 +1,14 @@
+.TH CRUNCH_REBOOT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_reboot \- invokes linux reboot with the required magic values and an optional restart argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/reboot.h>
+.B int crunch_reboot(unsigned int command, const char* argument);
+.fi
+.SH DESCRIPTION
+Invokes Linux reboot with the required magic values and an optional restart argument. This can reboot or power off the system and requires CAP_SYS_BOOT.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR reboot (2)

@@ -1,0 +1,18 @@
+.TH MSGGET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+msgget \- get or create a System V message queue
+.SH SYNOPSIS
+.nf
+.B #include <sys/msg.h>
+.B int msgget(key_t key, int flags);
+.fi
+.SH DESCRIPTION
+Creates or obtains a message queue.  Flags include permissions, IPC_CREAT
+and IPC_EXCL; IPC_PRIVATE creates a private queue.
+.SH RETURN VALUE
+Returns the queue identifier, or \-1 with errno set.
+.SH SEE ALSO
+.BR msgsnd (3crunch),
+.BR msgrcv (3crunch),
+.BR msgctl (3crunch),
+.BR msgget (2)

@@ -1,0 +1,79 @@
+.TH FPRINTF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fprintf \- write formatted output to a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fprintf(struct FILE* " stream ", const char* " format ");"
+.fi
+.SH DESCRIPTION
+Writes formatted bytes without adding a newline. The supported conversions are
+.BR %d ,
+.BR %ld ,
+.BR %lld ,
+.BR %u ,
+.BR %lu ,
+.BR %zu ,
+.BR %llu ,
+.BR %x ,
+.BR %lx ,
+.BR %llx ,
+.BR %f ,
+.BR %.17g ,
+.BR %Lf ,
+.BR %.17Lg ,
+.BR %s ,
+.BR %c ,
+and
+.BR %% .
+The compiler accepts up to 127 additional numeric or byte-pointer arguments
+for this library function.
+Extra arguments are evaluated but not used.
+Corresponding signed and unsigned integer argument types are accepted when
+the value is representable in both types.
+Conversions other than
+.B %%
+accept a literal decimal width up to 2147483647 and the
+.B \-
+and
+.B 0
+flags. Fields are right-aligned with spaces by default;
+.B \-
+left-aligns, while
+.B 0
+zero-pads numeric values after any minus sign.
+.B \-
+overrides
+.BR 0 ,
+which is ignored for strings and characters.
+.B %.17g
+rounds binary64 values to 17 significant digits, ties to even, independent of
+the floating-point environment.
+.B %Lf
+and
+.B %.17Lg
+format the full binary80 range, rounding ties to even independently of the
+floating-point environment. Non-finite values are printed as
+.B inf
+or
+.BR nan ,
+without zero padding.
+.SH RETURN VALUE
+Returns the number of bytes written, or \-1 for an invalid format, missing or
+incompatible argument, null format or string, unsupported real value,
+unrepresentable count, or output error. A prefix may already have been written.
+An output error sets
+.B errno
+and the stream error indicator. A null stream fails with
+.BR EINVAL ,
+even for an empty format. No particular errno or stream indicator is guaranteed
+for format errors.
+.SH NOTES
+I/O is unbuffered. Only Crunch streams are supported; they are not C library
+.B FILE
+objects. Other precisions, dynamic widths and other flags are not supported.
+.SH SEE ALSO
+.BR fwrite (3crunch),
+.BR fputs (3crunch),
+.BR ferror (3crunch)

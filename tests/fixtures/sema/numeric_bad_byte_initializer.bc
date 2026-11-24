@@ -1,0 +1,2 @@
+char invalid = 300;
+int main() { return 0; }

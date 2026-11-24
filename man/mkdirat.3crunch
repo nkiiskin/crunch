@@ -1,0 +1,28 @@
+.TH MKDIRAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mkdirat \- create a directory relative to a descriptor
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int mkdirat(int " directory ", const char* " path ", mode_t " mode ");"
+.fi
+.SH DESCRIPTION
+Creates a directory at a path relative to the open directory descriptor, or
+the current directory for
+.BR AT_FDCWD .
+An absolute path ignores the descriptor.
+Creation permissions are modified by the process umask and possibly a default
+ACL, as with
+.BR mkdir (3crunch).
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR mkdir (3crunch),
+.BR unlinkat (3crunch),
+.BR mkdirat (2)

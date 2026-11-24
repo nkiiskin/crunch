@@ -1,0 +1,16 @@
+.TH PAUSE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+pause \- wait for a signal
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int pause(void);
+.fi
+.SH DESCRIPTION
+Suspends the calling thread until a signal terminates it or a handler returns.
+There is a race if a signal arrives just before pause.
+.SH RETURN VALUE
+After a signal handler returns, returns \-1 with errno set to EINTR.
+.SH SEE ALSO
+.BR alarm (3crunch),
+.BR pause (2)

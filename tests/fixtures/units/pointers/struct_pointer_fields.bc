@@ -1,0 +1,114 @@
+struct Node { char tag; int value; struct Node* next; };
+struct Holder { char marker; struct Node* cursor; const struct Node* view; struct Node nodes[2]; struct Holder* peer; };
+struct Wrapper { struct Holder inner; };
+
+struct Node global;
+static struct Wrapper global_wrapper;
+int base_calls;
+int offset_calls;
+
+struct Holder* select(struct Holder* p) { base_calls = base_calls + 1; return p; }
+struct Wrapper* select_wrapper(struct Wrapper* p) { base_calls = base_calls + 1; return p; }
+struct Node* select_node(struct Node* p) { base_calls = base_calls + 1; return p; }
+int backward() { offset_calls = offset_calls + 1; return -1; }
+int plus_three() { offset_calls = offset_calls + 1; return 3; }
+
+int main() {
+    struct Node first;
+    struct Wrapper wrapper;
+    if (first.next != 0 || global.next != 0 || wrapper.inner.cursor != 0 ||
+        global_wrapper.inner.cursor != 0) return 1;
+    if (sizeof(struct Node) != 16 || sizeof(struct Holder) != 64) return 2;
+    wrapper.inner.marker = (char)255;
+    if ((select_wrapper(&wrapper)->inner.marker += (char)1) != 0 ||
+        wrapper.inner.marker != 0 || base_calls != 1) return 28;
+    base_calls = 0;
+
+    struct Node entries[4];
+    entries[0].value = 10;
+    entries[1].value = 20;
+    entries[2].value = 30;
+    entries[3].value = 40;
+    if ((select_node(entries)->value += plus_three()) != 13 ||
+        base_calls != 1 || offset_calls != 1 || entries[0].value != 13) return 26;
+    entries[0].value -= 3;
+    base_calls = 0;
+    if (select_node(entries)->value++ != 10 || base_calls != 1 ||
+        entries[0].value != 11 || --entries[0].value != 10) return 29;
+    int index = 1;
+    if ((entries[index++].value ^= 3) != 23 || index != 2 ||
+        entries[1].value != 23) return 27;
+    entries[1].value ^= 3;
+    index = 1;
+    if (entries[index++].value++ != 20 || index != 2 ||
+        entries[1].value != 21 || --entries[1].value != 20) return 30;
+    base_calls = 0;
+    offset_calls = 0;
+    entries[0].next = &entries[1];
+    entries[1].next = &entries[2];
+    entries[2].next = &entries[3];
+    entries[3].next = 0;
+    first.next = entries;
+    if (first.next->next->value != 20 || first.next->next->next->value != 30) return 3;
+    if (first.next + 2 != &entries[2] || 2 + first.next != &entries[2] ||
+        first.next->next - 1 != entries) return 24;
+    first.next->next->value = 21;
+    if (entries[1].value != 21 || *(&first.next->next->value) != 21) return 4;
+    global.next = &entries[2];
+    if (global.next->value != 30) return 5;
+
+    wrapper.inner.cursor = entries;
+    struct Node* old = wrapper.inner.cursor++;
+    if (old != &entries[0] || wrapper.inner.cursor != &entries[1]) return 6;
+    struct Node* now = ++wrapper.inner.cursor;
+    if (now != &entries[2]) return 7;
+    old = wrapper.inner.cursor--;
+    if (old != &entries[2] || --wrapper.inner.cursor != &entries[0]) return 8;
+    now = (wrapper.inner.cursor += 3);
+    if (now != &entries[3] || now->value != 40) return 9;
+    now = (wrapper.inner.cursor -= 2);
+    if (now != &entries[1]) return 10;
+    struct Holder holder;
+    holder.cursor = wrapper.inner.cursor;
+    now = (select(&holder)->cursor += backward());
+    if (base_calls != 1 || offset_calls != 1 || now != &entries[0]) return 11;
+    now = (select(&holder)->cursor -= backward());
+    if (base_calls != 2 || offset_calls != 2 || now != &entries[1]) return 12;
+
+    global_wrapper.inner.cursor = entries;
+    global_wrapper.inner.cursor += 4;
+    if (global_wrapper.inner.cursor != &entries[4]) return 13;
+    old = global_wrapper.inner.cursor--;
+    if (old != &entries[4] || global_wrapper.inner.cursor != &entries[3]) return 14;
+    global_wrapper.inner.cursor -= 3;
+    if (global_wrapper.inner.cursor != &entries[0]) return 15;
+    wrapper.inner.view = &entries[2];
+    if (wrapper.inner.view->value != 30) return 16;
+    const struct Holder* holder_view = &holder;
+    holder_view->cursor->value = 22;
+    if (entries[1].value != 22) return 17;
+
+    struct Holder copied = wrapper.inner;
+    if (copied.cursor != &entries[1] || copied.view != &entries[2]) return 18;
+    global_wrapper.inner = copied;
+    if (global_wrapper.inner.cursor != &entries[1] ||
+        global_wrapper.inner.view != &entries[2]) return 19;
+    base_calls = 0;
+    select_wrapper(&wrapper)->inner = select_wrapper(&global_wrapper)->inner;
+    if (base_calls != 2 || wrapper.inner.cursor != &entries[1]) return 22;
+
+    holder.peer = &copied;
+    base_calls = 0;
+    select(&holder)->peer->nodes[0].value = 33;
+    if (base_calls != 1) return 25;
+    if (copied.nodes[0].value != 33) return 23;
+
+    struct Holder holders[1];
+    holders[0].cursor = entries;
+    base_calls = 2;
+    old = select(holders)->cursor++;
+    if (base_calls != 3 || old != &entries[0] || holders[0].cursor != &entries[1]) return 20;
+    holders[0] = copied;
+    if (holders[0].cursor != &entries[1] || holders[0].view->value != 30) return 21;
+    return 42;
+}

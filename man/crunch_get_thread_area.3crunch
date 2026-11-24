@@ -1,0 +1,14 @@
+.TH CRUNCH_GET_THREAD_AREA 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_get_thread_area \- invokes syscall slot 211 with a raw descriptor; this legacy i386 interface is unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B int crunch_get_thread_area(void* descriptor);
+.fi
+.SH DESCRIPTION
+Invokes syscall slot 211 with a raw descriptor; this legacy i386 interface is unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR get_thread_area (2)

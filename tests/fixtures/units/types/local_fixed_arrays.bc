@@ -1,0 +1,62 @@
+struct Item {
+    int value;
+    char tag;
+};
+
+int sum(int *p) {
+    return p[0] + p[1] + p[2];
+}
+
+int next(int *p) {
+    *p = *p + 1;
+    return *p;
+}
+
+int main() {
+    int calls = 0;
+    int values[4] = {next(&calls), next(&calls)};
+    if (calls != 2 || values[0] != 1 || values[1] != 2 ||
+        values[2] != 0 || values[3] != 0 || sizeof(values) != 16)
+        return 1;
+    if (sum(values) != 3 || *(*(&values) + 1) != 2)
+        return 2;
+    if ((void *)(&values + 1) != (void *)(values + 4))
+        return 3;
+    int inferred[] = {4, 5, 6};
+    int *pointers[3] = {&inferred[1]};
+    if (sizeof(inferred) != 12 || *pointers[0] != 5 || pointers[1] != 0)
+        return 4;
+    float floats[3] = {1.5f, 2.0f};
+    if (floats[0] != 1.5f || floats[1] != 2.0f || floats[2] != 0.0f)
+        return 5;
+    char exact[3] = "abc";
+    char text[6] = "a\0b";
+    char inferred_text[] = "xy";
+    char same_text[] = "xy";
+    if (exact[2] != 'c' || text[0] != 'a' || text[1] != 0 ||
+        text[2] != 'b' || text[3] != 0 || text[5] != 0 ||
+        sizeof(inferred_text) != 3 || inferred_text[2] != 0)
+        return 6;
+    if (inferred_text == same_text)
+        return 9;
+    int uninitialized[2];
+    uninitialized[1] = 17;
+    if (uninitialized[1] != 17)
+        return 10;
+    struct Item source;
+    source.value = 9;
+    source.tag = 'q';
+    struct Item items[2] = {source};
+    if (items[0].value != 9 || items[0].tag != 'q' ||
+        items[1].value != 0 || items[1].tag != 0)
+        return 7;
+    int i = 0;
+    while (i < 3) {
+        int values[2] = {i};
+        if (values[0] != i || values[1] != 0)
+            return 8;
+        values[1] = 9;
+        i = i + 1;
+    }
+    return 42;
+}

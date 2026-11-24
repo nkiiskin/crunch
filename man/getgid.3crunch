@@ -1,0 +1,14 @@
+.TH GETGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getgid \- returns the calling process's real group id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B gid_t getgid(void);
+.fi
+.SH DESCRIPTION
+Returns the calling process's real group ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR getgid (2)

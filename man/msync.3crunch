@@ -1,0 +1,17 @@
+.TH MSYNC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+msync \- synchronize a mapped range
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int msync(void* address, size_t byte_count, int flags);
+.fi
+.SH DESCRIPTION
+Synchronizes changes in a mapped range with its backing file. The address must
+be page aligned. Flags include MS_SYNC, MS_ASYNC and MS_INVALIDATE.
+See Linux msync(2) for the kernel's synchronization guarantees.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR mmap (3crunch),
+.BR msync (2)

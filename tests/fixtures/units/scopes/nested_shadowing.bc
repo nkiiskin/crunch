@@ -1,0 +1,9 @@
+int main() {
+    int value = 10;
+    {
+        int value = 20;
+        if (value != 20) return 1;
+    }
+    if (value != 10) return 2;
+    return 42;
+}

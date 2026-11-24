@@ -1,0 +1,15 @@
+.TH PREADV 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+preadv \- Linux x86-64 syscall 295
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B ssize_t preadv(int descriptor, const struct iovec* vectors, int count, off_t offset);
+.fi
+.SH DESCRIPTION
+Reads vectors at a 64-bit offset without changing the file position. The wrapper splits the offset into kernel low and high words.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR preadv (2)

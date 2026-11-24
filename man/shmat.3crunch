@@ -1,0 +1,20 @@
+.TH SHMAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+shmat \- attach a System V shared memory segment
+.SH SYNOPSIS
+.nf
+.B #include <sys/shm.h>
+.B void* shmat(int id, const void* address, int flags);
+.fi
+.SH DESCRIPTION
+Attaches a segment, using a kernel\-chosen address when address is NULL.
+Flags include SHM_RDONLY, SHM_RND, SHM_REMAP and SHM_EXEC.
+Detach the returned address with shmdt.
+.SH RETURN VALUE
+Returns the attachment address, or the \-1 pointer sentinel with errno set.
+Use map_failed to check the sentinel without dereferencing it.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR shmdt (3crunch),
+.BR shmget (3crunch),
+.BR shmat (2)

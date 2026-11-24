@@ -1,0 +1,18 @@
+.TH SEMOP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+semop \- perform System V semaphore operations
+.SH SYNOPSIS
+.nf
+.B #include <sys/sem.h>
+.B int semop(int id, struct sembuf* operations, size_t count);
+.fi
+.SH DESCRIPTION
+Atomically performs count semaphore operations.  Each operation specifies a
+semaphore number, signed adjustment, and flags including IPC_NOWAIT and
+SEM_UNDO.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR semget (3crunch),
+.BR semctl (3crunch),
+.BR semop (2)

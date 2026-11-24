@@ -1,0 +1,38 @@
+.TH FWRITE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fwrite \- write items to a Crunch file stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "size_t fwrite(const void* " buffer ", size_t " size ", size_t " count ", struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Writes up to
+.I count
+items of
+.I size
+bytes from the buffer. A partial final item may be written but does not count
+as a complete item. A zero size or count returns zero without I/O.
+.SH RETURN VALUE
+Returns the number of complete items written. On error the stream error
+indicator is set and
+.B errno
+is set. A null nonempty buffer or stream sets
+.BR EINVAL ;
+a size/count product exceeding the supported signed 64-bit byte range sets
+.BR EOVERFLOW .
+.SH NOTES
+I/O is unbuffered; interrupted writes report an error.
+Use
+.BR ferror (3crunch)
+to inspect the stream error indicator.
+Crunch streams are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fopen (3crunch),
+.BR ferror (3crunch),
+.BR fseek (3crunch),
+.BR fread (3crunch),
+.BR write (3crunch)

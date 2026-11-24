@@ -1,0 +1,17 @@
+.TH GETTIMEOFDAY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+gettimeofday \- read wall-clock time
+.SH SYNOPSIS
+.nf
+.B #include <sys/time.h>
+.B int gettimeofday(struct timeval* value, void* zone);
+.fi
+.SH DESCRIPTION
+Writes seconds and microseconds since the Epoch to value.  Pass NULL for zone;
+the Linux timezone argument and struct timezone are obsolete.  This wrapper
+invokes the kernel syscall directly: unlike GNU libc's implementation, a
+non-NULL zone receives the kernel's timezone information.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR gettimeofday (2)

@@ -1,0 +1,4 @@
+int main() {
+    char invalid = (char)300;
+    return 0;
+}

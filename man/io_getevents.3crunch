@@ -1,0 +1,14 @@
+.TH IO_GETEVENTS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+io_getevents \- retrieves kernel aio completion events, optionally waiting up to timeout
+.SH SYNOPSIS
+.nf
+.B #include <sys/aio.h>
+.B long io_getevents(aio_context_t context, long minimum, long maximum, struct io_event* events, struct timespec* timeout);
+.fi
+.SH DESCRIPTION
+Retrieves kernel AIO completion events, optionally waiting up to timeout. Completion res fields contain raw negative Linux error numbers, not errno. This is the Linux kernel AIO ABI, not POSIX aio.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR io_getevents (2)

@@ -1,0 +1,1491 @@
+CRUNCH-IR 3
+extern_global fail_mode int
+extern_global alloc_calls int
+extern_global free_calls int
+global calls int 0
+globalblock global_box 32 8
+globalalias global_box__values global_box 0 ptr
+globalalias global_box__values$length global_box 8 int
+globalalias global_box__text global_box 16 ptr
+globalalias global_box__text$length global_box 24 int
+global global_values ptr 0
+global global_values$length int 0
+func next_value 0 int
+gload calls int
+push 1
+add int
+dup
+gstore calls int
+drop
+gload calls int
+ret int
+push 0
+ret int
+end
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+push 0
+push 0
+push 2
+array_resize int
+store 0 ptr
+store 1 int
+load 0
+bool ptr
+jz L0
+load 0
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+load 0
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L0
+local 2 ptr
+local 3 int
+push 0
+store 2 ptr
+push 0
+store 3 int
+push 0
+push 0
+push 5
+array_resize byte
+store 2 ptr
+store 3 int
+load 2
+bool ptr
+jz L1
+load 2
+push 0
+ptradd byte
+push 78
+storeind byte
+drop
+load 2
+push 1
+ptradd byte
+push 105
+storeind byte
+drop
+load 2
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+load 2
+push 3
+ptradd byte
+push 107
+storeind byte
+drop
+load 2
+push 4
+ptradd byte
+push 0
+storeind byte
+drop
+label L1
+local 4 ptr
+local 5 int
+push 0
+store 4 ptr
+push 0
+store 5 int
+push 0
+push 0
+push 6
+array_resize byte
+store 4 ptr
+store 5 int
+load 4
+bool ptr
+jz L2
+load 4
+push 0
+ptradd byte
+push 99
+storeind byte
+drop
+load 4
+push 1
+ptradd byte
+push 111
+storeind byte
+drop
+load 4
+push 2
+ptradd byte
+push 110
+storeind byte
+drop
+load 4
+push 3
+ptradd byte
+push 115
+storeind byte
+drop
+load 4
+push 4
+ptradd byte
+push 116
+storeind byte
+drop
+load 4
+push 5
+ptradd byte
+push 0
+storeind byte
+drop
+label L2
+local 6 ptr
+local 7 int
+push 0
+store 6 ptr
+push 0
+store 7 int
+push 0
+push 0
+push 1
+array_resize byte
+store 6 ptr
+store 7 int
+load 6
+bool ptr
+jz L3
+load 6
+push 0
+ptradd byte
+push 0
+storeind byte
+drop
+label L3
+local 8 ptr
+local 9 int
+push 0
+store 8 ptr
+push 0
+store 9 int
+push 0
+push 0
+push 2
+array_resize real
+store 8 ptr
+store 9 int
+load 8
+bool ptr
+jz L4
+load 8
+push 0
+ptradd real
+pushr 0x3ff8000000000000
+storeind real
+drop
+load 8
+push 1
+ptradd real
+pushr 0x4004000000000000
+storeind real
+drop
+label L4
+local 10 int
+localblock __local_struct_10 32 8
+localalias __local_struct_address_10 __local_struct_10 0 byte
+localalias local_box.values __local_struct_10 0 ptr
+localalias local_box.values$length __local_struct_10 8 int
+push 0
+lstore local_box.values ptr
+push 0
+lstore local_box.values$length int
+localalias local_box.text __local_struct_10 16 ptr
+localalias local_box.text$length __local_struct_10 24 int
+push 0
+lstore local_box.text ptr
+push 0
+lstore local_box.text$length int
+load 0
+bool ptr
+jnz L25
+load 1
+push 0
+ne int
+bool
+jmp L26
+label L25
+push 1
+label L26
+bool int
+jnz L23
+load 2
+bool
+jmp L24
+label L23
+push 1
+label L24
+bool int
+jnz L21
+load 3
+push 0
+ne int
+bool
+jmp L22
+label L21
+push 1
+label L22
+bool int
+jnz L19
+load 4
+bool
+jmp L20
+label L19
+push 1
+label L20
+bool int
+jnz L17
+load 5
+push 0
+ne int
+bool
+jmp L18
+label L17
+push 1
+label L18
+bool int
+jnz L15
+load 6
+bool
+jmp L16
+label L15
+push 1
+label L16
+bool int
+jnz L13
+load 7
+push 0
+ne int
+bool
+jmp L14
+label L13
+push 1
+label L14
+bool int
+jnz L11
+load 8
+bool
+jmp L12
+label L11
+push 1
+label L12
+bool int
+jnz L9
+load 9
+push 0
+ne int
+bool
+jmp L10
+label L9
+push 1
+label L10
+bool int
+jnz L7
+gload calls int
+push 0
+ne int
+bool
+jmp L8
+label L7
+push 1
+label L8
+bool int
+jz L5
+push 1
+ret int
+label L5
+lload local_box.values ptr
+lload local_box.values$length int
+push 2
+array_resize int
+lstore local_box.values ptr
+lstore local_box.values$length int
+lload local_box.values ptr
+bool ptr
+jz L27
+lload local_box.values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+lload local_box.values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L27
+lload local_box.text ptr
+lload local_box.text$length int
+push 6
+array_resize byte
+lstore local_box.text ptr
+lstore local_box.text$length int
+lload local_box.text ptr
+bool ptr
+jz L28
+lload local_box.text ptr
+push 0
+ptradd byte
+push 108
+storeind byte
+drop
+lload local_box.text ptr
+push 1
+ptradd byte
+push 111
+storeind byte
+drop
+lload local_box.text ptr
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+lload local_box.text ptr
+push 3
+ptradd byte
+push 97
+storeind byte
+drop
+lload local_box.text ptr
+push 4
+ptradd byte
+push 108
+storeind byte
+drop
+lload local_box.text ptr
+push 5
+ptradd byte
+push 0
+storeind byte
+drop
+label L28
+gload global_values ptr
+gload global_values$length int
+push 2
+array_resize int
+gstore global_values ptr
+gstore global_values$length int
+gload global_values ptr
+bool ptr
+jz L29
+gload global_values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L29
+gload global_box__values ptr
+gload global_box__values$length int
+push 2
+array_resize int
+gstore global_box__values ptr
+gstore global_box__values$length int
+gload global_box__values ptr
+bool ptr
+jz L30
+gload global_box__values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_box__values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L30
+gload global_box__text ptr
+gload global_box__text$length int
+push 7
+array_resize byte
+gstore global_box__text ptr
+gstore global_box__text$length int
+gload global_box__text ptr
+bool ptr
+jz L31
+gload global_box__text ptr
+push 0
+ptradd byte
+push 103
+storeind byte
+drop
+gload global_box__text ptr
+push 1
+ptradd byte
+push 108
+storeind byte
+drop
+gload global_box__text ptr
+push 2
+ptradd byte
+push 111
+storeind byte
+drop
+gload global_box__text ptr
+push 3
+ptradd byte
+push 98
+storeind byte
+drop
+gload global_box__text ptr
+push 4
+ptradd byte
+push 97
+storeind byte
+drop
+gload global_box__text ptr
+push 5
+ptradd byte
+push 108
+storeind byte
+drop
+gload global_box__text ptr
+push 6
+ptradd byte
+push 0
+storeind byte
+drop
+label L31
+lload local_box.values ptr
+bool ptr
+jnz L52
+lload local_box.values$length int
+push 0
+ne int
+bool
+jmp L53
+label L52
+push 1
+label L53
+bool int
+jnz L50
+lload local_box.text ptr
+bool
+jmp L51
+label L50
+push 1
+label L51
+bool int
+jnz L48
+lload local_box.text$length int
+push 0
+ne int
+bool
+jmp L49
+label L48
+push 1
+label L49
+bool int
+jnz L46
+gload global_values ptr
+bool
+jmp L47
+label L46
+push 1
+label L47
+bool int
+jnz L44
+gload global_values$length int
+push 0
+ne int
+bool
+jmp L45
+label L44
+push 1
+label L45
+bool int
+jnz L42
+gload global_box__values ptr
+bool
+jmp L43
+label L42
+push 1
+label L43
+bool int
+jnz L40
+gload global_box__values$length int
+push 0
+ne int
+bool
+jmp L41
+label L40
+push 1
+label L41
+bool int
+jnz L38
+gload global_box__text ptr
+bool
+jmp L39
+label L38
+push 1
+label L39
+bool int
+jnz L36
+gload global_box__text$length int
+push 0
+ne int
+bool
+jmp L37
+label L36
+push 1
+label L37
+bool int
+jnz L34
+gload calls int
+push 0
+ne int
+bool
+jmp L35
+label L34
+push 1
+label L35
+bool int
+jz L32
+push 2
+ret int
+label L32
+push 0
+dup
+gstore fail_mode int
+drop
+local 11 ptr
+local 12 int
+push 0
+store 11 ptr
+push 0
+store 12 int
+push 0
+push 0
+push 2
+array_resize int
+store 11 ptr
+store 12 int
+load 11
+bool ptr
+jz L54
+load 11
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+load 11
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L54
+local 13 ptr
+local 14 int
+push 0
+store 13 ptr
+push 0
+store 14 int
+push 0
+push 0
+push 3
+array_resize byte
+store 13 ptr
+store 14 int
+load 13
+bool ptr
+jz L55
+load 13
+push 0
+ptradd byte
+push 79
+storeind byte
+drop
+load 13
+push 1
+ptradd byte
+push 75
+storeind byte
+drop
+load 13
+push 2
+ptradd byte
+push 0
+storeind byte
+drop
+label L55
+load 12
+push 2
+ne int
+bool int
+jnz L68
+load 11
+push 0
+ptradd int
+loadind int
+push 1
+ne int
+bool
+jmp L69
+label L68
+push 1
+label L69
+bool int
+jnz L66
+load 11
+push 1
+ptradd int
+loadind int
+push 2
+ne int
+bool
+jmp L67
+label L66
+push 1
+label L67
+bool int
+jnz L64
+gload calls int
+push 2
+ne int
+bool
+jmp L65
+label L64
+push 1
+label L65
+bool int
+jnz L62
+load 14
+push 3
+ne int
+bool
+jmp L63
+label L62
+push 1
+label L63
+bool int
+jnz L60
+load 13
+push 0
+ptradd byte
+loadind byte
+push 79
+ne byte
+bool
+jmp L61
+label L60
+push 1
+label L61
+bool int
+jnz L58
+load 13
+push 2
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L59
+label L58
+push 1
+label L59
+bool int
+jz L56
+push 3
+ret int
+label L56
+lload local_box.values ptr
+lload local_box.values$length int
+push 2
+array_resize int
+lstore local_box.values ptr
+lstore local_box.values$length int
+lload local_box.values ptr
+bool ptr
+jz L70
+lload local_box.values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+lload local_box.values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L70
+lload local_box.text ptr
+lload local_box.text$length int
+push 6
+array_resize byte
+lstore local_box.text ptr
+lstore local_box.text$length int
+lload local_box.text ptr
+bool ptr
+jz L71
+lload local_box.text ptr
+push 0
+ptradd byte
+push 108
+storeind byte
+drop
+lload local_box.text ptr
+push 1
+ptradd byte
+push 111
+storeind byte
+drop
+lload local_box.text ptr
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+lload local_box.text ptr
+push 3
+ptradd byte
+push 97
+storeind byte
+drop
+lload local_box.text ptr
+push 4
+ptradd byte
+push 108
+storeind byte
+drop
+lload local_box.text ptr
+push 5
+ptradd byte
+push 0
+storeind byte
+drop
+label L71
+gload global_values ptr
+gload global_values$length int
+push 2
+array_resize int
+gstore global_values ptr
+gstore global_values$length int
+gload global_values ptr
+bool ptr
+jz L72
+gload global_values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L72
+gload global_box__values ptr
+gload global_box__values$length int
+push 2
+array_resize int
+gstore global_box__values ptr
+gstore global_box__values$length int
+gload global_box__values ptr
+bool ptr
+jz L73
+gload global_box__values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_box__values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L73
+gload global_box__text ptr
+gload global_box__text$length int
+push 7
+array_resize byte
+gstore global_box__text ptr
+gstore global_box__text$length int
+gload global_box__text ptr
+bool ptr
+jz L74
+gload global_box__text ptr
+push 0
+ptradd byte
+push 103
+storeind byte
+drop
+gload global_box__text ptr
+push 1
+ptradd byte
+push 108
+storeind byte
+drop
+gload global_box__text ptr
+push 2
+ptradd byte
+push 111
+storeind byte
+drop
+gload global_box__text ptr
+push 3
+ptradd byte
+push 98
+storeind byte
+drop
+gload global_box__text ptr
+push 4
+ptradd byte
+push 97
+storeind byte
+drop
+gload global_box__text ptr
+push 5
+ptradd byte
+push 108
+storeind byte
+drop
+gload global_box__text ptr
+push 6
+ptradd byte
+push 0
+storeind byte
+drop
+label L74
+gload calls int
+push 8
+ne int
+bool int
+jnz L91
+lload local_box.values ptr
+push 0
+ptradd int
+loadind int
+push 3
+ne int
+bool
+jmp L92
+label L91
+push 1
+label L92
+bool int
+jnz L89
+lload local_box.values ptr
+push 1
+ptradd int
+loadind int
+push 4
+ne int
+bool
+jmp L90
+label L89
+push 1
+label L90
+bool int
+jnz L87
+gload global_values ptr
+push 0
+ptradd int
+loadind int
+push 5
+ne int
+bool
+jmp L88
+label L87
+push 1
+label L88
+bool int
+jnz L85
+gload global_values ptr
+push 1
+ptradd int
+loadind int
+push 6
+ne int
+bool
+jmp L86
+label L85
+push 1
+label L86
+bool int
+jnz L83
+gload global_box__values ptr
+push 0
+ptradd int
+loadind int
+push 7
+ne int
+bool
+jmp L84
+label L83
+push 1
+label L84
+bool int
+jnz L81
+gload global_box__values ptr
+push 1
+ptradd int
+loadind int
+push 8
+ne int
+bool
+jmp L82
+label L81
+push 1
+label L82
+bool int
+jnz L79
+lload local_box.text ptr
+push 5
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L80
+label L79
+push 1
+label L80
+bool int
+jnz L77
+gload global_box__text ptr
+push 6
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L78
+label L77
+push 1
+label L78
+bool int
+jz L75
+push 4
+ret int
+label L75
+push 1
+dup
+gstore fail_mode int
+drop
+load 11
+load 12
+push 2
+array_resize int
+store 11 ptr
+store 12 int
+load 11
+bool ptr
+jz L93
+load 11
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+load 11
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L93
+load 13
+load 14
+push 4
+array_resize byte
+store 13 ptr
+store 14 int
+load 13
+bool ptr
+jz L94
+load 13
+push 0
+ptradd byte
+push 110
+storeind byte
+drop
+load 13
+push 1
+ptradd byte
+push 101
+storeind byte
+drop
+load 13
+push 2
+ptradd byte
+push 119
+storeind byte
+drop
+load 13
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L94
+lload local_box.values ptr
+lload local_box.values$length int
+push 2
+array_resize int
+lstore local_box.values ptr
+lstore local_box.values$length int
+lload local_box.values ptr
+bool ptr
+jz L95
+lload local_box.values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+lload local_box.values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L95
+lload local_box.text ptr
+lload local_box.text$length int
+push 4
+array_resize byte
+lstore local_box.text ptr
+lstore local_box.text$length int
+lload local_box.text ptr
+bool ptr
+jz L96
+lload local_box.text ptr
+push 0
+ptradd byte
+push 110
+storeind byte
+drop
+lload local_box.text ptr
+push 1
+ptradd byte
+push 101
+storeind byte
+drop
+lload local_box.text ptr
+push 2
+ptradd byte
+push 119
+storeind byte
+drop
+lload local_box.text ptr
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L96
+gload global_values ptr
+gload global_values$length int
+push 2
+array_resize int
+gstore global_values ptr
+gstore global_values$length int
+gload global_values ptr
+bool ptr
+jz L97
+gload global_values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L97
+gload global_box__values ptr
+gload global_box__values$length int
+push 2
+array_resize int
+gstore global_box__values ptr
+gstore global_box__values$length int
+gload global_box__values ptr
+bool ptr
+jz L98
+gload global_box__values ptr
+push 0
+ptradd int
+call next_value 0
+storeind int
+drop
+gload global_box__values ptr
+push 1
+ptradd int
+call next_value 0
+storeind int
+drop
+label L98
+gload global_box__text ptr
+gload global_box__text$length int
+push 4
+array_resize byte
+gstore global_box__text ptr
+gstore global_box__text$length int
+gload global_box__text ptr
+bool ptr
+jz L99
+gload global_box__text ptr
+push 0
+ptradd byte
+push 110
+storeind byte
+drop
+gload global_box__text ptr
+push 1
+ptradd byte
+push 101
+storeind byte
+drop
+gload global_box__text ptr
+push 2
+ptradd byte
+push 119
+storeind byte
+drop
+gload global_box__text ptr
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L99
+load 11
+bool ptr
+jnz L128
+load 12
+push 0
+ne int
+bool
+jmp L129
+label L128
+push 1
+label L129
+bool int
+jnz L126
+load 13
+bool
+jmp L127
+label L126
+push 1
+label L127
+bool int
+jnz L124
+load 14
+push 0
+ne int
+bool
+jmp L125
+label L124
+push 1
+label L125
+bool int
+jnz L122
+lload local_box.values ptr
+bool
+jmp L123
+label L122
+push 1
+label L123
+bool int
+jnz L120
+lload local_box.values$length int
+push 0
+ne int
+bool
+jmp L121
+label L120
+push 1
+label L121
+bool int
+jnz L118
+lload local_box.text ptr
+bool
+jmp L119
+label L118
+push 1
+label L119
+bool int
+jnz L116
+lload local_box.text$length int
+push 0
+ne int
+bool
+jmp L117
+label L116
+push 1
+label L117
+bool int
+jnz L114
+gload global_values ptr
+bool
+jmp L115
+label L114
+push 1
+label L115
+bool int
+jnz L112
+gload global_values$length int
+push 0
+ne int
+bool
+jmp L113
+label L112
+push 1
+label L113
+bool int
+jnz L110
+gload global_box__values ptr
+bool
+jmp L111
+label L110
+push 1
+label L111
+bool int
+jnz L108
+gload global_box__values$length int
+push 0
+ne int
+bool
+jmp L109
+label L108
+push 1
+label L109
+bool int
+jnz L106
+gload global_box__text ptr
+bool
+jmp L107
+label L106
+push 1
+label L107
+bool int
+jnz L104
+gload global_box__text$length int
+push 0
+ne int
+bool
+jmp L105
+label L104
+push 1
+label L105
+bool int
+jnz L102
+gload calls int
+push 8
+ne int
+bool
+jmp L103
+label L102
+push 1
+label L103
+bool int
+jz L100
+push 5
+ret int
+label L100
+gload alloc_calls int
+push 19
+lt int
+bool int
+jnz L132
+gload free_calls int
+push 7
+ne int
+bool
+jmp L133
+label L132
+push 1
+label L133
+bool int
+jz L130
+push 6
+ret int
+label L130
+push 0
+dup
+gstore fail_mode int
+drop
+local 15 int
+push 0
+store 15 int
+label L134
+load 15
+push 32
+lt int
+bool int
+jz L135
+load 11
+load 12
+push 2
+array_resize int
+store 11 ptr
+store 12 int
+load 11
+bool ptr
+jz L137
+load 11
+push 0
+ptradd int
+load 15
+storeind int
+drop
+load 11
+push 1
+ptradd int
+load 15
+push 1
+add int
+storeind int
+drop
+label L137
+load 13
+load 14
+push 5
+array_resize byte
+store 13 ptr
+store 14 int
+load 13
+bool ptr
+jz L138
+load 13
+push 0
+ptradd byte
+push 108
+storeind byte
+drop
+load 13
+push 1
+ptradd byte
+push 111
+storeind byte
+drop
+load 13
+push 2
+ptradd byte
+push 111
+storeind byte
+drop
+load 13
+push 3
+ptradd byte
+push 112
+storeind byte
+drop
+load 13
+push 4
+ptradd byte
+push 0
+storeind byte
+drop
+label L138
+load 11
+push 0
+ptradd int
+loadind int
+load 15
+ne int
+bool int
+jnz L143
+load 11
+push 1
+ptradd int
+loadind int
+load 15
+push 1
+add int
+ne int
+bool
+jmp L144
+label L143
+push 1
+label L144
+bool int
+jnz L141
+load 13
+push 4
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L142
+label L141
+push 1
+label L142
+bool int
+jz L139
+push 7
+ret int
+label L139
+label L136
+load 15
+dup
+push 1
+add int
+cast int int
+store 15 int
+drop
+jmp L134
+label L135
+load 11
+load 12
+push 0
+array_resize int
+store 11 ptr
+store 12 int
+load 13
+load 14
+push 0
+array_resize byte
+store 13 ptr
+store 14 int
+push 42
+ret int
+push 0
+ret int
+end

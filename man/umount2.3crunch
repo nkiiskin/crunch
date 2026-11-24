@@ -1,0 +1,14 @@
+.TH UMOUNT2 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+umount2 \- unmounts a filesystem using linux mnt_* flags, subject to privileges
+.SH SYNOPSIS
+.nf
+.B #include <sys/mount.h>
+.B int umount2(const char* target, int flags);
+.fi
+.SH DESCRIPTION
+Unmounts a filesystem using Linux MNT_* flags, subject to privileges.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR umount2 (2)

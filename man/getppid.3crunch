@@ -1,0 +1,14 @@
+.TH GETPPID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getppid \- returns the parent process id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B pid_t getppid(void);
+.fi
+.SH DESCRIPTION
+Returns the parent process ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR getppid (2)

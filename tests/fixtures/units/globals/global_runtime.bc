@@ -1,0 +1,15 @@
+int counter = 39;
+double ratio = 1.5;
+
+int bump_counter() {
+    counter = counter + 3;
+    return counter;
+}
+
+int main() {
+    counter = bump_counter();
+    if (ratio == 1.5) {
+        return counter;
+    }
+    return 1;
+}

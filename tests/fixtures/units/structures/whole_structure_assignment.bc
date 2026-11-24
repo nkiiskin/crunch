@@ -1,0 +1,31 @@
+struct Inner {
+    int x;
+};
+
+struct Outer {
+    struct Inner inner;
+    int y;
+};
+
+struct Outer global;
+
+int main() {
+    struct Outer source;
+    struct Outer destination;
+    source.inner.x = 10;
+    source.y = 32;
+    destination.inner.x = 1;
+    destination.y = 2;
+
+    destination = source;
+    if (destination.inner.x != 10 || destination.y != 32) return 1;
+
+    global = destination;
+    if (global.inner.x != 10 || global.y != 32) return 2;
+
+    source.inner.x = 5;
+    source = global;
+    if (source.inner.x != 10 || source.y != 32) return 3;
+
+    return source.inner.x + source.y;
+}

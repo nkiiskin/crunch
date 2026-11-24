@@ -1,0 +1,16 @@
+.TH SYMLINK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+symlink \- create a symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int symlink(const char* target, const char* path);
+.fi
+.SH DESCRIPTION
+Creates a symbolic link at path containing target.  The target need not exist.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR readlink (3crunch),
+.BR symlinkat (3crunch),
+.BR symlink (2)

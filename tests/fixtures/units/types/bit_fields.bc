@@ -1,0 +1,68 @@
+struct Fields {
+    unsigned a:3, :2, b:3;
+    signed c:5;
+    _Bool flag:1;
+    unsigned :0;
+    char tail;
+};
+union Bits { unsigned a:3; unsigned b:5; };
+union Nested { struct { unsigned a:3, b:3; } s; int n; };
+struct Numbers { unsigned a:3; signed b:4; _Bool c:1; };
+struct Full { unsigned a:32; signed b:32; char tail; };
+struct Wrapper { union Nested u; int tail; };
+struct Container { struct Numbers n; int tail; };
+
+struct Fields global = {5, 6, -3, 1, 42};
+struct Numbers global_numbers = {6, -3, 2};
+union Bits overlapping = {.b = 31, .a = 1};
+union Nested nested = {.s.a = 1, .s.b = 2};
+union Nested switched = {.s.a = 1, .n = 3, .s.b = 2};
+
+struct Numbers make_numbers(void) {
+    return (struct Numbers){.a = 3, .b = -2, .c = 1};
+}
+
+int next_static(void) {
+    static struct Numbers n = {2, -1, 1};
+    return n.a++;
+}
+
+int main(void) {
+    struct Fields x = {.b = 5, .a = 1, .c = -2, .flag = 1, .tail = 9};
+    struct Fields y = x;
+    struct Fields values[] = {{1, 2, -1, 0, 7}, {3, 4, 0, 1, 8}};
+    struct Fields *p = values;
+    volatile struct Fields v = {1, 2, -2, 1, 0};
+    union Bits u = {.b = 31, .a = 1};
+    struct Numbers n = {6, -3, 1};
+    struct Full f = {4294967295u, -1, 42};
+    union Nested other = {.n = 63};
+    struct Wrapper w = {.u.s.a = 1, .u = other, .u.s.b = 2, .tail = 9};
+    struct Container c = {.n = n, .n.a = 2, .n.b = -1, .tail = 8};
+    int old = (p++)->a++;
+    int assigned = (x.c = 30);
+    x.a += (x.b = 6);
+    v.a++;
+    v.c--;
+    n.a += -2.0L;
+    n.b += 2.5;
+    n.c -= 2;
+    f.a++;
+    f.b = -2147483647 - 1;
+    return global.a == 5 && global.b == 6 && global.c == -3 && global.tail == 42 &&
+           overlapping.b == 1 && u.b == 1 &&
+           nested.s.a == 1 && nested.s.b == 2 &&
+           switched.s.a == 0 && switched.s.b == 2 &&
+           w.u.s.a == 0 && w.u.s.b == 2 && w.tail == 9 &&
+           c.n.a == 2 && c.n.b == -1 && c.n.c == 0 && c.tail == 8 &&
+           global_numbers.a == 6 && global_numbers.b == -3 && global_numbers.c == 1 &&
+           make_numbers().a == 3 && next_static() == 2 && next_static() == 3 &&
+           y.a == 1 && y.b == 5 && y.c == -2 &&
+           x.a == 7 && x.b == 6 && assigned == -2 &&
+           old == 1 && p == values + 1 && values[0].a == 2 && values[1].b == 4 &&
+           v.a == 2 && v.c == -3 && v.flag &&
+           n.a == 4 && n.b == 0 && n.c == 1 &&
+           f.a == 0 && f.b == -2147483647 - 1 && f.tail == 42 &&
+           (x.a - 9 < 0) && ((x.a = 1) - 2 < 0) &&
+           ((x.a++) - 2 < 0) && x.a == 2 ? 42 : 1;
+}

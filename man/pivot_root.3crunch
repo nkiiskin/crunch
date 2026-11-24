@@ -1,0 +1,14 @@
+.TH PIVOT_ROOT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+pivot_root \- changes the root mount in the calling mount namespace; requires privileges and strict mount-point conditions
+.SH SYNOPSIS
+.nf
+.B #include <sys/mount.h>
+.B int pivot_root(const char* new_root, const char* put_old);
+.fi
+.SH DESCRIPTION
+Changes the root mount in the calling mount namespace; requires privileges and strict mount-point conditions.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR pivot_root (2)

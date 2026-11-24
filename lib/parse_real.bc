@@ -1,0 +1,332 @@
+#include <errno.h>
+#include <stdint.h>
+
+/* The binary80 midpoint at 2^-16446 has fewer than 12000 decimal digits.
+ * The word bound also accommodates the powers of five and rounding shifts. */
+enum { BIG_WORDS = 1400, DECIMAL_DIGITS = 800,
+       EXTENDED_DECIMAL_DIGITS = 12000, HEX_DIGITS = 256 };
+
+struct Big {
+    unsigned long word[BIG_WORDS];
+    int count;
+};
+
+static void big_set(struct Big *a, unsigned long value)
+{
+    a->count = value ? 1 : 0;
+    if (value) a->word[0] = value;
+}
+
+static void big_trim(struct Big *a)
+{
+    while (a->count && !a->word[a->count - 1]) --a->count;
+}
+
+static void big_mul_add(struct Big *a, unsigned int base, unsigned int digit)
+{
+    unsigned long carry = digit;
+    for (int i = 0; i < a->count; ++i) {
+        unsigned long value = a->word[i] * base + carry;
+        a->word[i] = value & 0xffffffffUL;
+        carry = value >> 32;
+    }
+    if (carry) a->word[a->count++] = carry;
+}
+
+static int big_bits(const struct Big *a)
+{
+    if (!a->count) return 0;
+    unsigned long top = a->word[a->count - 1];
+    int bits = (a->count - 1) * 32;
+    while (top) {
+        top >>= 1;
+        ++bits;
+    }
+    return bits;
+}
+
+static unsigned long shifted_word(const struct Big *a, int index, int shift)
+{
+    int words = shift / 32;
+    int bits = shift % 32;
+    int source = index - words;
+    unsigned long value = 0;
+    if (source >= 0 && source < a->count)
+        value = (a->word[source] << bits) & 0xffffffffUL;
+    if (bits && source > 0 && source - 1 < a->count)
+        value |= a->word[source - 1] >> (32 - bits);
+    return value;
+}
+
+static int big_compare_shift(const struct Big *a, const struct Big *b, int shift)
+{
+    if (shift < 0) return -big_compare_shift(b, a, -shift);
+    int abits = big_bits(a);
+    int bbits = big_bits(b);
+    if (bbits) bbits += shift;
+    if (abits != bbits) return abits > bbits ? 1 : -1;
+    int count = (abits + 31) / 32;
+    while (count) {
+        --count;
+        unsigned long av = count < a->count ? a->word[count] : 0;
+        unsigned long bv = shifted_word(b, count, shift);
+        if (av != bv) return av > bv ? 1 : -1;
+    }
+    return 0;
+}
+
+static void big_shift(struct Big *a, int shift)
+{
+    if (!a->count || !shift) return;
+    int count = (big_bits(a) + shift + 31) / 32;
+    for (int i = count - 1; i >= 0; --i)
+        a->word[i] = shifted_word(a, i, shift);
+    a->count = count;
+}
+
+static void big_subtract_shift(struct Big *a, const struct Big *b, int shift)
+{
+    unsigned long borrow = 0;
+    for (int i = 0; i < a->count; ++i) {
+        unsigned long part = shifted_word(b, i, shift) + borrow;
+        unsigned long value = a->word[i];
+        borrow = value < part;
+        a->word[i] = (value - part) & 0xffffffffUL;
+    }
+    big_trim(a);
+}
+
+static int digit_value(int ch, int base)
+{
+    int digit;
+    if (ch >= '0' && ch <= '9') digit = ch - '0';
+    else if (ch >= 'a' && ch <= 'f') digit = ch - 'a' + 10;
+    else if (ch >= 'A' && ch <= 'F') digit = ch - 'A' + 10;
+    else return -1;
+    return digit < base ? digit : -1;
+}
+
+static int word_matches(const char *text, const char *word)
+{
+    while (*word) {
+        int ch = *text;
+        if (ch >= 'A' && ch <= 'Z') ch += 'a' - 'A';
+        if (ch != *word) return 0;
+        ++text;
+        ++word;
+    }
+    return 1;
+}
+
+static int payload_char(int ch)
+{
+    return (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'z') ||
+           (ch >= 'A' && ch <= 'Z') || ch == '_';
+}
+
+static unsigned long parse_real_bits(const char *text, char **end, int format,
+                                     unsigned long *high)
+{
+    const long limit = 1152921504606846976L;
+    const char *p = text;
+    while (*p == ' ' || (*p >= '\t' && *p <= '\r')) ++p;
+    int negative = 0;
+    if (*p == '+' || *p == '-') {
+        negative = *p == '-';
+        ++p;
+    }
+    int extended = format == 2;
+    int single = format == 1;
+    unsigned long sign = negative && !extended
+                             ? (single ? 0x80000000UL : 0x8000000000000000UL) : 0;
+    unsigned long infinity = extended ? 0x8000000000000000UL :
+                             single ? 0x7f800000UL : 0x7ff0000000000000UL;
+    if (extended) *high = negative ? 0x8000UL : 0;
+    if (word_matches(p, "inf")) {
+        p += 3;
+        if (word_matches(p, "inity")) p += 5;
+        if (end) *end = (char *)p;
+        if (extended) *high |= 0x7fffUL;
+        return sign | infinity;
+    }
+    if (word_matches(p, "nan")) {
+        p += 3;
+        if (*p == '(') {
+            const char *q = p + 1;
+            while (payload_char(*q)) ++q;
+            if (*q == ')') p = q + 1;
+        }
+        if (end) *end = (char *)p;
+        if (extended) *high |= 0x7fffUL;
+        return sign | infinity | (extended ? 0x4000000000000000UL :
+                                  single ? 0x400000UL : 0x8000000000000UL);
+    }
+    int base = 10;
+    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) {
+        const char *q = p + 2;
+        if (digit_value(*q, 16) >= 0 || (*q == '.' && digit_value(q[1], 16) >= 0)) {
+            base = 16;
+            p = q;
+        }
+    }
+    struct Big numerator;
+    struct Big denominator;
+    big_set(&numerator, 0);
+    big_set(&denominator, 1);
+    long fractional = 0;
+    long dropped = 0;
+    int kept = 0, seen = 0, significant = 0, point = 0, sticky = 0;
+    int max_digits = base == 10 ? (extended ? EXTENDED_DECIMAL_DIGITS : DECIMAL_DIGITS)
+                                : HEX_DIGITS;
+    while (1) {
+        int digit = digit_value(*p, base);
+        if (digit >= 0) {
+            seen = 1;
+            if (point && fractional < limit) ++fractional;
+            if (digit || significant) {
+                significant = 1;
+                if (kept < max_digits) {
+                    big_mul_add(&numerator, base, digit);
+                    ++kept;
+                } else {
+                    if (dropped < limit) ++dropped;
+                    if (digit) sticky = 1;
+                }
+            }
+            ++p;
+        } else if (*p == '.' && !point) {
+            point = 1;
+            ++p;
+        } else break;
+    }
+    if (!seen) {
+        if (end) *end = (char *)text;
+        if (extended) *high = 0;
+        return 0;
+    }
+    long exponent = 0;
+    if ((base == 10 && (*p == 'e' || *p == 'E')) ||
+        (base == 16 && (*p == 'p' || *p == 'P'))) {
+        const char *q = p + 1;
+        int exp_negative = 0;
+        if (*q == '+' || *q == '-') {
+            exp_negative = *q == '-';
+            ++q;
+        }
+        if (*q >= '0' && *q <= '9') {
+            do {
+                int digit = *q - '0';
+                if (exponent <= (limit - 9) / 10) exponent = exponent * 10 + digit;
+                else exponent = limit;
+                ++q;
+            } while (*q >= '0' && *q <= '9');
+            if (exp_negative) exponent = -exponent;
+            p = q;
+        }
+    }
+    if (end) *end = (char *)p;
+    if (!significant) return sign;
+    /* Discarded digits contribute to the exponent; sticky distinguishes ties. */
+    long scale = exponent + (dropped - fractional) * (base == 16 ? 4 : 1);
+    int precision = extended ? 64 : single ? 24 : 53;
+    int max_exp = extended ? 16383 : single ? 127 : 1023;
+    int min_normal = extended ? -16382 : single ? -126 : -1022;
+    int min_subnormal = extended ? -16445 : single ? -149 : -1074;
+    if (base == 10) {
+        long decimal_order = scale + kept - 1;
+        if (decimal_order > (extended ? 4933 : single ? 39 : 309)) {
+            errno = ERANGE;
+            if (extended) *high |= 0x7fffUL;
+            return sign | infinity;
+        }
+        if (decimal_order < (extended ? -4952 : single ? -46 : -325)) {
+            errno = ERANGE;
+            return sign;
+        }
+        if (scale >= 0) {
+            for (long i = 0; i < scale; ++i) big_mul_add(&numerator, 5, 0);
+        } else {
+            for (long i = 0; i < -scale; ++i) big_mul_add(&denominator, 5, 0);
+        }
+    }
+    int ratio_exp = big_bits(&numerator) - big_bits(&denominator);
+    if (big_compare_shift(&numerator, &denominator, ratio_exp) < 0) --ratio_exp;
+    long binary_exp = (long)ratio_exp + scale;
+    if (binary_exp > max_exp) {
+        errno = ERANGE;
+        if (extended) *high |= 0x7fffUL;
+        return sign | infinity;
+    }
+    if (binary_exp < min_subnormal - 1) {
+        errno = ERANGE;
+        return sign;
+    }
+    long unit_exp = binary_exp - (precision - 1);
+    if (unit_exp < min_subnormal) unit_exp = min_subnormal;
+    long shift = scale - unit_exp;
+    if (shift >= 0) big_shift(&numerator, (int)shift);
+    else big_shift(&denominator, (int)-shift);
+    unsigned long quotient = 0;
+    for (int bit = extended ? 63 : precision; bit >= 0; --bit) {
+        if (big_compare_shift(&numerator, &denominator, bit) >= 0) {
+            big_subtract_shift(&numerator, &denominator, bit);
+            quotient |= 1UL << bit;
+        }
+    }
+    int inexact = numerator.count || sticky;
+    int half = -big_compare_shift(&denominator, &numerator, 1);
+    int carry = 0;
+    if (half > 0 || (half == 0 && (sticky || (quotient & 1)))) {
+        ++quotient;
+        if (extended && !quotient) carry = 1;
+    }
+    unsigned long normal_bit = 1UL << (precision - 1);
+    if (binary_exp < min_normal) {
+        if (quotient < normal_bit) {
+            if (inexact) errno = ERANGE;
+            return sign | quotient;
+        }
+        binary_exp = min_normal;
+    } else if (carry || (!extended && quotient == (normal_bit << 1))) {
+        quotient = carry ? normal_bit : quotient >> 1;
+        ++binary_exp;
+        if (binary_exp > max_exp) {
+            errno = ERANGE;
+            if (extended) *high |= 0x7fffUL;
+            return sign | infinity;
+        }
+    }
+    if (extended) {
+        *high |= (unsigned long)(binary_exp + 16383);
+        return quotient;
+    }
+    unsigned long biased = (unsigned long)(binary_exp + (single ? 127 : 1023));
+    return sign | (biased << (precision - 1)) | (quotient - normal_bit);
+}
+
+double _crunch_real_to_double(const char *text, char **end)
+{
+    union { unsigned long bits; double value; } result;
+    result.bits = parse_real_bits(text, end, 0, 0);
+    return result.value;
+}
+
+float _crunch_real_to_float(const char *text, char **end)
+{
+    union { unsigned int bits; float value; } result;
+    result.bits = (unsigned int)parse_real_bits(text, end, 1, 0);
+    return result.value;
+}
+
+long double _crunch_real_to_extended(const char *text, char **end)
+{
+    unsigned long high = 0;
+    unsigned long low = parse_real_bits(text, end, 2, &high);
+    long double result;
+    unsigned char *bytes = (unsigned char *)&result;
+    for (int i = 0; i < 8; ++i)
+        bytes[i] = (unsigned char)(low >> (i * 8));
+    bytes[8] = (unsigned char)high;
+    bytes[9] = (unsigned char)(high >> 8);
+    return result;
+}

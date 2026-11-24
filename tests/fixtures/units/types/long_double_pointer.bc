@@ -1,0 +1,26 @@
+#include <stdlib.h>
+
+typedef long double extended;
+
+extended *advance_extended(extended *p, int n) {
+    return &p[n];
+}
+
+int main(void) {
+    char *bytes = malloc(64);
+    if (!bytes)
+        return 1;
+    typedef long double local_extended;
+    local_extended *p = (local_extended *)bytes;
+    long double *q = advance_extended(p, 2);
+    if ((char *)q != bytes + 32)
+        return 2;
+    q--;
+    if ((char *)q != bytes + 16)
+        return 3;
+    q -= 1;
+    if (q != p)
+        return 4;
+    free(bytes);
+    return 0;
+}

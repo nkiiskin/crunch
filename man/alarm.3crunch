@@ -1,0 +1,16 @@
+.TH ALARM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+alarm \- schedule a SIGALRM
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B unsigned int alarm(unsigned int seconds);
+.fi
+.SH DESCRIPTION
+Schedules SIGALRM after seconds, replacing any previous real\-time alarm.
+Zero cancels the alarm. alarm and ITIMER_REAL share the same timer.
+.SH RETURN VALUE
+Returns the seconds remaining on the previous alarm, or zero. errno is unchanged.
+.SH SEE ALSO
+.BR setitimer (3crunch),
+.BR alarm (2)

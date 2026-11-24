@@ -1,0 +1,60 @@
+struct Item {
+    int number;
+    char tag;
+};
+
+int values[4] = {40, 2};
+extern int values[4];
+static int hidden[] = {7, -3};
+int zeroed[3];
+char exact[3] = "abc";
+char text[6] = "a\0b";
+char inferred[] = "xy";
+int *pointers[7] = {values, &values[1], 0, values + 3, &hidden[0],
+                    values + 1u, &values[1] - 1};
+int *selected = values + 1;
+char *strings[3] = {"hello", text, 0};
+char *label = "word";
+float floats[3] = {1.5f, 2.0f};
+double reals[2] = {2.5};
+unsigned int unsigneds[2] = {4294967295u};
+unsigned long wide[2] = {0xffffffffffffffffUL};
+struct Item items[2];
+struct Item item;
+int *field = &item.number;
+int *array_field = &items[1].number;
+char *array_tag = &items[1].tag;
+
+int sum(int *p) {
+    return p[0] + p[1] + p[2];
+}
+
+int main() {
+    if (sizeof(values) != 16 || sizeof(inferred) != 3 ||
+        sum(values) != 42 || values[3] != 0 || hidden[1] != -3)
+        return 1;
+    if (zeroed[0] != 0 || zeroed[2] != 0 ||
+        exact[2] != 'c' || text[1] != 0 || text[2] != 'b' || text[5] != 0)
+        return 2;
+    if (*pointers[0] != 40 || *pointers[1] != 2 || *selected != 2 || pointers[2] != 0 ||
+        (void *)pointers[3] != (void *)&values[3] || *pointers[4] != 7 ||
+        *pointers[5] != 2 || *pointers[6] != 40)
+        return 3;
+    if (strings[0][1] != 'e' || strings[1][2] != 'b' || strings[2] != 0 || label[1] != 'o')
+        return 4;
+    if (floats[0] != 1.5f || floats[2] != 0.0f ||
+        reals[0] != 2.5 || reals[1] != 0.0 || unsigneds[0] != 4294967295u ||
+        wide[0] != 0xffffffffffffffffUL || wide[1] != 0UL)
+        return 5;
+    if (items[0].number != 0 || items[1].tag != 0)
+        return 6;
+    items[1].number = 9;
+    *array_tag = 'z';
+    *field = 11;
+    if (item.number != 11 || *array_field != 9 || items[1].tag != 'z')
+        return 8;
+    values[2] = items[1].number;
+    if (values[2] != 9 || (void *)(&values + 1) != (void *)(values + 4))
+        return 7;
+    return 42;
+}

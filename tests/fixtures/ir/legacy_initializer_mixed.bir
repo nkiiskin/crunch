@@ -1,0 +1,315 @@
+CRUNCH-IR 5
+internal crunch_module_init_2
+initializer crunch_module_init_2
+func crunch_module_init_2 0 int
+gload values ptr
+gload values$length int
+call size 0
+array_resize int
+gstore values ptr
+gstore values$length int
+gload initial ptr
+gload initial$length int
+push 2
+array_resize int
+gstore initial ptr
+gstore initial$length int
+gload initial ptr
+bool ptr
+jz L0
+gload initial ptr
+push 0
+ptradd int
+call size 0
+storeind int
+drop
+gload initial ptr
+push 1
+ptradd int
+push 42
+storeind int
+drop
+label L0
+local 0 ptr
+local 1 long
+call text 0
+store 0 ptr
+load 0
+call strlen 1
+store 1 long
+load 1
+push 2147483646
+cast int long
+gt long
+jnz L1
+load 1
+push 1
+add long
+store 1 long
+load 1
+push 2147483647
+cast int long
+gt long
+jnz L1
+gload copy$length int
+cast int long
+load 1
+lt long
+jz L2
+gload copy ptr
+gload copy$length int
+load 1
+array_resize byte
+gstore copy ptr
+gstore copy$length int
+label L2
+gload copy$length int
+cast int long
+load 1
+lt long
+jnz L3
+gload copy ptr
+load 0
+load 1
+call memcpy 3
+drop
+jmp L3
+label L1
+label L3
+push 0
+ret int
+end
+global calls int 0
+global depth int 0
+global crunch_module_init_0 int 0
+global values ptr 0
+global values$length int 0
+global initial ptr 0
+global initial$length int 0
+global copy ptr 0
+global copy$length int 0
+extern_global module_values ptr
+extern_global module_values$length int
+func crunch_module_init_1 0 int
+push 1
+ret int
+end
+func size 0 int
+gload calls int
+push 1
+add int
+dup
+gstore calls int
+drop
+stringlit __crunch_string_0 00
+straddr __crunch_string_0
+call printf 1
+push 2
+add int
+ret int
+end
+func text 0 ptr
+gload calls int
+push 1
+add int
+dup
+gstore calls int
+drop
+stringlit __crunch_string_1 6f6b00
+straddr __crunch_string_1
+ret ptr
+end
+func main 3 int
+param 0 0 int
+param 1 1 ptr
+param 2 2 ptr
+gload depth int
+push 1
+add int
+dup
+gstore depth int
+drop
+gload module_values$length int
+push 2
+ne int
+bool int
+jz L4
+push 4
+ret int
+label L4
+load 0
+push 2
+ne int
+bool int
+jnz L10
+load 1
+push 1
+ptradd ptr
+loadind ptr
+push 0
+ptradd byte
+loadind byte
+push 120
+ne byte
+bool
+jmp L11
+label L10
+push 1
+label L11
+bool int
+jnz L8
+load 2
+push 0
+ptradd ptr
+loadind ptr
+push 0
+ptradd byte
+loadind byte
+push 67
+ne byte
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jz L6
+push 3
+ret int
+label L6
+gload depth int
+push 1
+eq int
+bool int
+jz L12
+gload calls int
+push 3
+ne int
+bool int
+jnz L18
+gload values$length int
+push 2
+ne int
+bool
+jmp L19
+label L18
+push 1
+label L19
+bool int
+jnz L16
+gload initial$length int
+push 2
+ne int
+bool
+jmp L17
+label L16
+push 1
+label L17
+bool int
+jz L14
+push 1
+ret int
+label L14
+gload values ptr
+push 0
+ptradd int
+push 77
+storeind int
+drop
+load 0
+load 1
+load 2
+call main 3
+ret int
+label L12
+gload calls int
+push 3
+ne int
+bool int
+jnz L30
+gload values$length int
+push 2
+ne int
+bool
+jmp L31
+label L30
+push 1
+label L31
+bool int
+jnz L28
+gload values ptr
+push 0
+ptradd int
+loadind int
+push 77
+ne int
+bool
+jmp L29
+label L28
+push 1
+label L29
+bool int
+jnz L26
+gload initial ptr
+push 0
+ptradd int
+loadind int
+push 2
+ne int
+bool
+jmp L27
+label L26
+push 1
+label L27
+bool int
+jnz L24
+gload initial ptr
+push 1
+ptradd int
+loadind int
+push 42
+ne int
+bool
+jmp L25
+label L24
+push 1
+label L25
+bool int
+jnz L22
+gload copy ptr
+push 0
+ptradd byte
+loadind byte
+push 111
+ne byte
+bool
+jmp L23
+label L22
+push 1
+label L23
+bool int
+jz L20
+push 2
+ret int
+label L20
+gload values ptr
+gload values$length int
+push 0
+array_resize int
+gstore values ptr
+gstore values$length int
+gload initial ptr
+gload initial$length int
+push 0
+array_resize int
+gstore initial ptr
+gstore initial$length int
+gload copy ptr
+gload copy$length int
+push 0
+array_resize byte
+gstore copy ptr
+gstore copy$length int
+push 42
+ret int
+end

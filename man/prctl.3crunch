@@ -1,0 +1,19 @@
+.TH PRCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+prctl \- invokes linux prctl with five fixed arguments
+.SH SYNOPSIS
+.nf
+.B #include <sys/prctl.h>
+.B int prctl(int option, unsigned long argument2, unsigned long argument3, unsigned long argument4, unsigned long argument5);
+.fi
+.SH DESCRIPTION
+Invokes Linux prctl with five fixed integer arguments. Pass zero for unused arguments.
+Use
+.BR prctl_ptr (3crunch)
+when the second argument is a pointer.
+The fixed signatures do not accept pointer arguments in positions three
+through five in Crunch source.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR prctl (2)

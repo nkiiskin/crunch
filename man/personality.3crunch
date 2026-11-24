@@ -1,0 +1,14 @@
+.TH PERSONALITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+personality \- sets the execution-domain personality; pass 0xfffffffful to query it without changing it
+.SH SYNOPSIS
+.nf
+.B #include <sys/personality.h>
+.B int personality(unsigned long persona);
+.fi
+.SH DESCRIPTION
+Sets the execution-domain personality; pass 0xffffffffUL to query it without changing it.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR personality (2)

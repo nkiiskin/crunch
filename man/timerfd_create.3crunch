@@ -1,0 +1,15 @@
+.TH TIMERFD_CREATE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+timerfd_create \- Linux x86-64 syscall 283
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int timerfd_create(int clock, int flags);
+.fi
+.SH DESCRIPTION
+Creates a timer descriptor.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR timerfd_create (2)

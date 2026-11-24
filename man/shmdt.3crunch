@@ -1,0 +1,17 @@
+.TH SHMDT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+shmdt \- detach a System V shared memory segment
+.SH SYNOPSIS
+.nf
+.B #include <sys/shm.h>
+.B int shmdt(const void* address);
+.fi
+.SH DESCRIPTION
+Detaches the segment at the original address returned by shmat. A segment
+marked for removal is destroyed after its last attachment is detached.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR shmat (3crunch),
+.BR shmctl (3crunch),
+.BR shmdt (2)

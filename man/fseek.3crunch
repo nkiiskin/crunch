@@ -1,0 +1,38 @@
+.TH FSEEK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fseek \- reposition a Crunch file stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fseek(struct FILE* " stream ", long " offset ", int " whence ");"
+.fi
+.SH DESCRIPTION
+Repositions the stream by a signed byte offset relative to
+.BR SEEK_SET ,
+.BR SEEK_CUR ,
+or
+.BR SEEK_END .
+On success the stream's end-of-file indicator is cleared; its error indicator
+is unchanged.
+.SH RETURN VALUE
+Returns zero on success or \-1 with
+.B errno
+set on failure. A null stream fails with
+.BR EINVAL .
+Nonseekable streams can fail with
+.BR ESPIPE .
+.SH NOTES
+Streams are unbuffered. On update streams, follow the C rules for positioning
+between reading and writing. Crunch streams are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fopen (3crunch),
+.BR ftell (3crunch),
+.BR rewind (3crunch),
+.BR feof (3crunch),
+.BR ferror (3crunch),
+.BR fread (3crunch),
+.BR fwrite (3crunch),
+.BR lseek (3crunch)

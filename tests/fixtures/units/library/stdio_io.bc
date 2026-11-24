@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+
+int main() {
+    struct FILE* f = fopen("data", "r+");
+    if (f == 0 || feof(f) != 0 || ferror(f) != 0 || ftell(f) != 0) return 1;
+    char buf[12];
+    if (fread(buf, 3, 3, f) != 2 || buf[0] != (char)'a' ||
+        buf[6] != (char)'g') return 2;
+    if (feof(f) == 0 || ferror(f) != 0 || fread(buf, 1, 1, f) != 0) return 3;
+    if (fseek(f, -1, SEEK_SET) != -1 || feof(f) == 0) return 16;
+    if (fseek(f, -2, SEEK_END) != 0 || feof(f) != 0 || ferror(f) != 0 ||
+        fread(buf, 1, 2, f) != 2 ||
+        buf[0] != (char)'f' || buf[1] != (char)'g') return 4;
+    if (fseek(f, 1, SEEK_SET) != 0 || fwrite("XY", 1, 2, f) != 2 ||
+        fseek(f, -2, SEEK_CUR) != 0 || fread(buf, 2, 1, f) != 1 ||
+        buf[0] != (char)'X' || buf[1] != (char)'Y') return 5;
+    if (fread(0, 0, 100, f) != 0 || fwrite(0, 20, 0, f) != 0) return 6;
+    if (fseek(f, -1, SEEK_SET) != -1 || errno != EINVAL) return 7;
+    if (fread(buf, (size_t)-1, 1, f) != 0 || errno != EOVERFLOW || ferror(f) == 0 ||
+        feof(f) != 0) return 8;
+    if (fseek(f, 0, SEEK_END) != 0 || ferror(f) == 0 || feof(f) != 0 ||
+        fread(buf, 1, 1, f) != 0 || feof(f) == 0 || ferror(f) == 0) return 17;
+    errno = EACCES;
+    if (ftell(f) != 7 || feof(f) == 0 || ferror(f) == 0 || errno != EACCES) return 18;
+    clearerr(f);
+    if (feof(f) != 0 || ferror(f) != 0 || errno != EACCES) return 20;
+    if (fread(buf, 1, 1, f) != 0 || feof(f) == 0 || ferror(f) != 0) return 21;
+    if (fread(buf, -1, 1, f) != 0 || ferror(f) == 0 || feof(f) == 0) return 25;
+    errno = EACCES;
+    rewind(f);
+    if (ftell(f) != 0 || feof(f) != 0 || ferror(f) != 0 || errno != EACCES ||
+        fread(buf, 1, 1, f) != 1 || buf[0] != (char)'a') return 26;
+    if (fseek(f, -1, SEEK_END) != 0 || fread(buf, 1, 1, f) != 1 ||
+        buf[0] != (char)'g' || feof(f) != 0 || ferror(f) != 0) return 22;
+    if (fwrite(buf, 9223372036854775807, 2, f) != 0 || errno != EOVERFLOW) return 9;
+    if (fclose(f) != 0) return 10;
+
+    f = fopen("data", "r");
+    if (f == 0 || fwrite("!", 1, 1, f) != 0 || errno != EBADF ||
+        ferror(f) == 0 || feof(f) != 0) return 11;
+    clearerr(f);
+    if (ferror(f) != 0 || feof(f) != 0 || errno != EBADF) return 23;
+    if (fclose(f) != 0) return 12;
+
+    f = fopen("append", "a+");
+    if (f == 0 || fseek(f, 0, SEEK_SET) != 0 || fwrite("!", 1, 1, f) != 1 ||
+        fclose(f) != 0) return 13;
+
+    f = fopen("sparse", "w+");
+    if (f == 0 || fseek(f, 4294967296, SEEK_SET) != 0 || ftell(f) != 4294967296 ||
+        fwrite("z", 1, 1, f) != 1 || ftell(f) != 4294967297 || fclose(f) != 0) return 14;
+    f = fopen("pipe", "r+");
+    if (f == 0 || ftell(f) != -1 || errno != ESPIPE) return 27;
+    if (fread(buf, -1, 1, f) != 0 || ferror(f) == 0) return 28;
+    errno = 0;
+    rewind(f);
+    if (errno != ESPIPE || ferror(f) != 0 || feof(f) != 0 || fclose(f) != 0) return 29;
+    if (fseek(0, 0, SEEK_SET) != -1 || errno != EINVAL) return 15;
+    if (feof(0) != -1 || errno != EINVAL || ferror(0) != -1 || errno != EINVAL) return 19;
+    errno = 0;
+    clearerr(0);
+    if (errno != EINVAL) return 24;
+    errno = 0;
+    if (ftell(0) != -1 || errno != EINVAL) return 30;
+    errno = 0;
+    rewind(0);
+    if (errno != EINVAL) return 31;
+    return 0;
+}

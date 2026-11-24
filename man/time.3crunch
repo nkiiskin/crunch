@@ -1,0 +1,14 @@
+.TH TIME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+time \- returns seconds since the unix epoch and optionally stores the result
+.SH SYNOPSIS
+.nf
+.B #include <time.h>
+.B time_t time(time_t* result);
+.fi
+.SH DESCRIPTION
+Returns seconds since the Unix epoch and optionally stores the result.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR time (2)

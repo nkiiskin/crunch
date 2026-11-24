@@ -1,0 +1,57 @@
+int printf(const char* format);
+
+struct Pair {
+    char tag;
+    float first;
+    float second;
+};
+
+float rounded = 16777216.0f + 1.0f;
+float from_integer = 16777217;
+double widened = 16777216.0f + 1.0f;
+int truncated = 3.75f;
+float integer_division = 1 / 2;
+float nested_division = (float)(3 / 2) * 2.0f;
+int division_comparison = 3 / 2 == 1.0f;
+float double_comparison = 3 / 2 == 1.0;
+float big_unsigned = 9223372586610589697UL;
+float negative_zero = -0.0f;
+float zero;
+float global_values[] = {1.5f, 2.5f};
+
+float combine(float x, double y) {
+    return x + y;
+}
+
+int main() {
+    if (rounded != 16777216.0f || from_integer != rounded ||
+        widened != 16777216.0 || truncated != 3 || zero != 0.0f ||
+        integer_division != 0.0f || nested_division != 2.0f || division_comparison != 1 ||
+        double_comparison != 1.0f ||
+        big_unsigned != (float)9223372586610589697UL || 1.0f / negative_zero >= 0.0f)
+        return 1;
+    if (sizeof(global_values) != 8 || global_values[1] != 2.5f)
+        return 2;
+    float x = 1.5f;
+    float* p = &x;
+    if ((*p)++ != 1.5f || x != 2.5f)
+        return 3;
+    x += 2;
+    x -= 0.5;
+    if (x != 4.0f || combine(x, 0.5) != 4.5f)
+        return 4;
+    float values[] = {x, 7};
+    if (values[0] != 4.0f || values[1] != 7.0f)
+        return 5;
+    struct Pair pair;
+    pair.first = values[1];
+    pair.second = 9.0f;
+    pair.first++;
+    if (pair.first != 8.0f || pair.second != 9.0f || sizeof(pair) != 12)
+        return 6;
+    if ((0 || x) != 1 || (1 && x) != 1 || !(x > 0) ||
+        (1 ? x : 1.0) != 4.0 || (0 ? 1 : 2.5f) != 2.5f)
+        return 7;
+    printf("%f", global_values[0]);
+    return 42;
+}

@@ -1,0 +1,15 @@
+.TH TEE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+tee \- Linux x86-64 syscall 276
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B ssize_t tee(int input, int output, size_t length, unsigned int flags);
+.fi
+.SH DESCRIPTION
+Duplicates bytes between pipes without consuming the input.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR tee (2)

@@ -1,0 +1,18 @@
+.TH SENDFILE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sendfile \- transfer bytes between descriptors
+.SH SYNOPSIS
+.nf
+.B #include <sys/sendfile.h>
+.B ssize_t sendfile(int output, int input, off_t* offset, size_t count);
+.fi
+.SH DESCRIPTION
+Transfers up to count bytes from input to output. If offset is non\-NULL,
+the pointed\-to offset is updated and the input file position is unchanged.
+Otherwise the input file position is advanced. Transfers may be short;
+Linux descriptor and offset restrictions apply.
+.SH RETURN VALUE
+Returns bytes transferred, zero at EOF, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR sendfile (2)

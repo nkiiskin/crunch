@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(void) {
+    char text[128];
+    if (sprintf(text, "%s:%04d %f %ld", "item", 7, 1.5, 123L) != 22 ||
+        strcmp(text, "item:0007 1.500000 123")) return 1;
+    if (sprintf(text, "%d%d%d%d%d%d%d", 1, 2, 3, 4, 5, 6, 7) != 7 ||
+        strcmp(text, "1234567")) return 2;
+    FILE* stream = fopen("first", "w+");
+    if (!stream) return 3;
+    int descriptor = fileno(stream);
+    if (putc(255, stream) != 255 || putc('A', stream) != 'A' ||
+        fseek(stream, 0, SEEK_SET) || fgetc(stream) != 255) return 4;
+    if (freopen(0, "r", stream) != stream || fileno(stream) != descriptor ||
+        fgetc(stream) != 255) return 5;
+    if (freopen("second", "w", stream) != stream || fileno(stream) != descriptor ||
+        putc('Z', stream) != 'Z' || fclose(stream)) return 6;
+    errno = ENOENT;
+    perror("test");
+    if (errno != ENOENT) return 7;
+    perror("");
+    if (errno != ENOENT) return 8;
+    perror(0);
+    if (errno != ENOENT) return 9;
+    stream = fopen("first", "r");
+    if (!stream) return 10;
+    descriptor = fileno(stream);
+    if (freopen("missing/file", "r", stream) || errno != ENOENT ||
+        close(descriptor) != -1 || errno != EBADF) return 11;
+    pid_t child = fork();
+    int status;
+    if (child < 0) return 12;
+    if (child == 0) {
+        if (freopen("standard", "w", stdout) != stdout ||
+            fileno(stdout) != 1 || putc('S', stdout) != 'S') _exit(1);
+        if (freopen("missing/file", "r", stdin) || errno != ENOENT ||
+            fileno(stdin) != -1) _exit(2);
+        _exit(0);
+    }
+    if (waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) return 13;
+    return 0;
+}

@@ -1,0 +1,14 @@
+int first_byte(char values[]) {
+    return values[0];
+}
+
+int main(int argc, char argv[][], char envp[][]) {
+    if (argc != 2) return 1;
+    if (argv[1][0] != (char)'x') return 2;
+    if (argv[1][1] != (char)'y') return 3;
+    if (argv[1][2] != 0) return 4;
+    if (argv[2]) return 5;
+    if (first_byte(argv[1]) != (char)'x') return 6;
+    if (!envp) return 7;
+    return 42;
+}

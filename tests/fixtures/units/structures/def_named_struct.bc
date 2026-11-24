@@ -1,0 +1,16 @@
+typedef struct point {
+    double x, y;
+} Point, *PointPtr;
+
+int main() {
+    Point origin;
+    struct point tagged;
+    PointPtr view = &origin;
+
+    origin.x = 2.5;
+    origin.y = 3.5;
+    tagged = origin;
+    if (view[0].x != 2.5 || tagged.y != 3.5)
+        return 1;
+    return 42;
+}

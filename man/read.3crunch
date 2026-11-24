@@ -1,0 +1,61 @@
+.TH READ 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+read \- read bytes from a file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "ssize_t read(int " descriptor ", void* " buffer ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+.BR read ()
+requests up to
+.I byte_count
+bytes from
+.I descriptor
+into
+.IR buffer .
+The caller must provide enough writable storage for the count.
+The function does not append a NUL byte or check the buffer capacity.
+.PP
+Short reads are possible. A call interrupted before transferring data is
+reported as an error; this wrapper does not retry automatically.
+.B STDIN_FILENO
+in
+.B <unistd.h>
+names the standard input descriptor.
+.SH RETURN VALUE
+On success, the number of bytes read is returned; zero can indicate end of
+file, or a zero\-length request.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+Possible errors include
+.BR EBADF ,
+.BR EFAULT ,
+.BR EAGAIN ,
+and
+.BR EINTR ;
+other Linux
+.BR read (2)
+errors are possible.
+.SH NOTES
+This Crunch function uses the Linux x86\-64 syscall and is linked from
+.BR libcrunch.a .
+Its
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR write (3crunch),
+.BR lseek (3crunch),
+.BR input (3crunch),
+.BR read (2)

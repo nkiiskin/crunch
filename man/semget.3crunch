@@ -1,0 +1,17 @@
+.TH SEMGET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+semget \- get or create a System V semaphore set
+.SH SYNOPSIS
+.nf
+.B #include <sys/sem.h>
+.B int semget(key_t key, int count, int flags);
+.fi
+.SH DESCRIPTION
+Creates or obtains a semaphore set.  Flags include permissions, IPC_CREAT and
+IPC_EXCL; IPC_PRIVATE creates a private set.
+.SH RETURN VALUE
+Returns the set identifier, or \-1 with errno set.
+.SH SEE ALSO
+.BR semop (3crunch),
+.BR semctl (3crunch),
+.BR semget (2)

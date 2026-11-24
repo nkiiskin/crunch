@@ -1,0 +1,12 @@
+#include <stdio.h>
+
+struct Record { int id; int score; };
+
+int main() {
+    struct Record records[3] = {{3, 10}, {1, 25}, {2, 15}};
+    struct Record *p = &records[0];
+    int total = 0;
+    for (int i = 0; i < 3; i++) total += (p + i)->id * (p + i)->score;
+    printf("records:%d\n", total);
+    return total == 85 ? 0 : 1;
+}

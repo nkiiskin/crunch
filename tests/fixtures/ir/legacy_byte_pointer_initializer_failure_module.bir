@@ -1,0 +1,317 @@
+CRUNCH-IR 3
+extern_global fail_mode int
+extern_global alloc_calls int
+extern_global free_calls int
+global calls int 0
+func source 0 ptr
+gload calls int
+push 1
+add int
+dup
+gstore calls int
+drop
+stringlit __crunch_string_0 61626300
+straddr __crunch_string_0
+ret ptr
+push 0
+ret ptr
+end
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+local 2 ptr
+local 3 long
+call source 0
+store 2 ptr
+load 2
+runtime_call strlen 1
+store 3 long
+load 3
+push 2147483646
+cast int long
+gt long
+jnz L0
+load 3
+push 1
+add long
+store 3 long
+load 3
+push 2147483647
+cast int long
+gt long
+jnz L0
+load 1
+cast int long
+load 3
+lt long
+jz L1
+load 0
+load 1
+load 3
+array_resize byte
+store 0 ptr
+store 1 int
+label L1
+load 1
+cast int long
+load 3
+lt long
+jnz L2
+load 0
+load 2
+load 3
+runtime_call memcpy 3
+drop
+jmp L2
+label L0
+label L2
+local 4 ptr
+local 5 int
+push 0
+store 4 ptr
+push 0
+store 5 int
+local 6 ptr
+local 7 long
+call source 0
+store 6 ptr
+load 6
+runtime_call strlen 1
+store 7 long
+load 7
+push 2147483646
+cast int long
+gt long
+jnz L3
+load 7
+push 1
+add long
+store 7 long
+load 7
+push 2147483647
+cast int long
+gt long
+jnz L3
+load 5
+cast int long
+load 7
+lt long
+jz L4
+load 4
+load 5
+load 7
+array_resize byte
+store 4 ptr
+store 5 int
+label L4
+load 5
+cast int long
+load 7
+lt long
+jnz L5
+load 4
+load 6
+load 7
+runtime_call memcpy 3
+drop
+jmp L5
+label L3
+label L5
+load 0
+bool ptr
+jnz L18
+load 1
+push 0
+ne int
+bool
+jmp L19
+label L18
+push 1
+label L19
+bool int
+jnz L16
+load 4
+bool
+jmp L17
+label L16
+push 1
+label L17
+bool int
+jnz L14
+load 5
+push 0
+ne int
+bool
+jmp L15
+label L14
+push 1
+label L15
+bool int
+jnz L12
+gload calls int
+push 2
+ne int
+bool
+jmp L13
+label L12
+push 1
+label L13
+bool int
+jnz L10
+gload alloc_calls int
+push 2
+ne int
+bool
+jmp L11
+label L10
+push 1
+label L11
+bool int
+jnz L8
+gload free_calls int
+push 0
+ne int
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jz L6
+push 1
+ret int
+label L6
+push 0
+dup
+gstore fail_mode int
+drop
+local 8 ptr
+local 9 int
+push 0
+store 8 ptr
+push 0
+store 9 int
+local 10 ptr
+local 11 long
+call source 0
+store 10 ptr
+load 10
+runtime_call strlen 1
+store 11 long
+load 11
+push 2147483646
+cast int long
+gt long
+jnz L20
+load 11
+push 1
+add long
+store 11 long
+load 11
+push 2147483647
+cast int long
+gt long
+jnz L20
+load 9
+cast int long
+load 11
+lt long
+jz L21
+load 8
+load 9
+load 11
+array_resize byte
+store 8 ptr
+store 9 int
+label L21
+load 9
+cast int long
+load 11
+lt long
+jnz L22
+load 8
+load 10
+load 11
+runtime_call memcpy 3
+drop
+jmp L22
+label L20
+label L22
+gload calls int
+push 3
+ne int
+bool int
+jnz L31
+gload alloc_calls int
+push 3
+ne int
+bool
+jmp L32
+label L31
+push 1
+label L32
+bool int
+jnz L29
+load 9
+push 4
+ne int
+bool
+jmp L30
+label L29
+push 1
+label L30
+bool int
+jnz L27
+load 8
+push 0
+ptradd byte
+loadind byte
+push 97
+ne byte
+bool
+jmp L28
+label L27
+push 1
+label L28
+bool int
+jnz L25
+load 8
+push 3
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L26
+label L25
+push 1
+label L26
+bool int
+jz L23
+push 2
+ret int
+label L23
+load 8
+load 9
+push 0
+array_resize byte
+store 8 ptr
+store 9 int
+gload free_calls int
+push 1
+ne int
+bool int
+jz L33
+push 3
+ret int
+label L33
+push 42
+ret int
+push 0
+ret int
+end

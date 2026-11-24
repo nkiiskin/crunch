@@ -1,0 +1,94 @@
+CRUNCH-IR 31
+extern_func inspect_simple 1 int ptr
+extern_func inspect_stack 1 int ptr
+extern_func inspect_mixed 1 int ptr
+extern_func inspect_hidden 1 int ptr
+extern_func inspect_vector 1 int ptr
+func probe_simple 1 int
+param 0 0 int
+variadic
+local 1 int
+localblock list 24 8
+localalias list_address list 0 byte
+laddr list_address
+vastart
+laddr list_address
+call inspect_simple 1
+store 1 int
+laddr list_address
+vastart
+laddr list_address
+call inspect_simple 1
+load 1
+add int
+ret int
+end
+func probe_vector 1 int
+param 0 0 int
+variadic
+localblock list 24 8
+localalias list_address list 0 byte
+laddr list_address
+vastart
+laddr list_address
+call inspect_vector 1
+ret int
+end
+func probe_stack 16 int
+param 0 0 long
+param 1 1 long
+param 2 2 long
+param 3 3 long
+param 4 4 long
+param 5 5 long
+param 6 6 long
+param 7 7 real
+param 8 8 real
+param 9 9 real
+param 10 10 real
+param 11 11 real
+param 12 12 real
+param 13 13 real
+param 14 14 real
+param 15 15 real
+variadic
+localblock list 24 8
+localalias list_address list 0 byte
+laddr list_address
+vastart
+laddr list_address
+call inspect_stack 1
+ret int
+end
+func probe_mixed 7 int
+param 0 0 long
+param 1 1 long
+param 2 2 long
+param 3 3 long
+param 4 4 long
+param 5 5 long
+param 6 6 agg16is
+variadic
+localblock list 24 8
+localalias list_address list 0 byte
+laddr list_address
+vastart
+laddr list_address
+call inspect_mixed 1
+ret int
+end
+func probe_hidden 1 mem24
+param 0 0 int
+variadic
+localblock list 24 8
+localblock result 24 8
+localalias list_address list 0 byte
+localalias result_address result 0 byte
+laddr list_address
+vastart
+laddr list_address
+call inspect_hidden 1
+drop
+laddr result_address
+retagg mem24
+end

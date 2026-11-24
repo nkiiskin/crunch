@@ -1,0 +1,13 @@
+#include <stdlib.h>
+#include <stdlib.h>
+#include <limits.h>
+
+int byte = 40;
+double real = 2.0;
+
+int main() {
+    char value = (char)255;
+    if (CHAR_MIN != 0 || CHAR_MAX != 255 || value != 255) return 1;
+    if (byte + (int)real != 42) return 2;
+    exit(42);
+}

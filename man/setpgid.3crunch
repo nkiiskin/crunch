@@ -1,0 +1,14 @@
+.TH SETPGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setpgid \- sets the process group for a process, subject to linux session and permission rules
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int setpgid(pid_t process, pid_t group);
+.fi
+.SH DESCRIPTION
+Sets the process group for a process, subject to Linux session and permission rules.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setpgid (2)

@@ -1,0 +1,15 @@
+.TH RT_TGSIGQUEUEINFO 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+rt_tgsigqueueinfo \- Linux x86-64 syscall 297
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int rt_tgsigqueueinfo(pid_t process, pid_t thread, int signal, const siginfo_t* information);
+.fi
+.SH DESCRIPTION
+Queues signal information to a specific thread.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR rt_tgsigqueueinfo (2)

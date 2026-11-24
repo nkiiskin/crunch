@@ -1,0 +1,17 @@
+.TH MPROTECT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mprotect \- change memory mapping protection
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int mprotect(void* address, size_t byte_count, int protection);
+.fi
+.SH DESCRIPTION
+Changes protection for a mapped range beginning at a page\-aligned address.
+Protection combines PROT_READ, PROT_WRITE and PROT_EXEC, or is PROT_NONE.
+Invalid access to a protected mapping may deliver SIGSEGV.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR mmap (3crunch),
+.BR mprotect (2)

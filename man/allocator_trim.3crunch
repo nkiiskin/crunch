@@ -1,0 +1,41 @@
+.TH ALLOCATOR_TRIM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+allocator_trim \- retry releasing retained allocator mappings
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.B int allocator_trim();
+.fi
+.SH DESCRIPTION
+.BR allocator_trim ()
+retries unmapping unused storage retained after an allocator cleanup failure:
+large replacement mappings retained during failed
+.BR realloc (3crunch)
+rollback and completely empty pool arenas whose release failed.
+It does not release or move live allocations.
+.PP
+The function attempts every eligible mapping even if one unmap fails.
+Successfully unmapped entries are removed; entries that still cannot be
+unmapped remain available for reuse and can be retried by a later call.
+There is no guarantee of a memory limit if unmapping continues to fail.
+.SH RETURN VALUE
+Zero means all eligible mappings were released, or none were retained.
+On success,
+.B errno
+is unchanged.
+If any unmap fails, the function returns \-1 and sets
+.B errno
+to the first unmap error. Other entries may still have been released.
+.SH NOTES
+This is a Crunch\-specific operation, not the C library's
+.BR malloc_trim .
+The allocator is not thread\-safe, and Crunch
+.B errno
+is process\-wide.
+.SH SEE ALSO
+.BR malloc (3crunch),
+.BR realloc (3crunch),
+.BR free (3crunch),
+.BR munmap (2),
+.BR crunch (1)

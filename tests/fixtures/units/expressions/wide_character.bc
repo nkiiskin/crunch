@@ -1,0 +1,22 @@
+_Static_assert(sizeof(L'a') == sizeof(int), "wide type");
+_Static_assert(L'\u03a9' == 937, "universal");
+_Static_assert(L'\U0001F600' == 128512, "supplementary");
+_Static_assert(L'\xffffffff' == -1, "signed");
+_Static_assert(L'\777' == 511 && L'\x1234' == 4660, "numeric");
+enum { wide_enum = L'Ω', wide_negative = L'\xffffffff' };
+int global_wide = L'😀';
+int global_negative = L'\x80000000';
+int global_array[L'\x3'];
+
+int main(void)
+{
+    int local = L'Ω';
+    switch (local) {
+    case L'\u03a9': break;
+    default: return 1;
+    }
+    return global_wide != 128512 || global_negative != (-2147483647 - 1) ||
+           wide_enum != 937 || wide_negative != -1 || sizeof(global_array) != 12 ||
+           L'\n' != 10 || L'\0' != 0 || L'\'' != 39 ||
+           L'\xffffffff' >= 0 || L'😀' != 128512;
+}

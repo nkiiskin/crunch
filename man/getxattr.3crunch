@@ -1,0 +1,14 @@
+.TH GETXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getxattr \- reads an extended attribute by path, following symbolic links
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B ssize_t getxattr(const char* path, const char* name, void* value, size_t size);
+.fi
+.SH DESCRIPTION
+Reads an extended attribute by path, following symbolic links. A zero size queries the required length.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR getxattr (2)

@@ -1,0 +1,15 @@
+.TH SEMTIMEDOP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+semtimedop \- Linux x86-64 syscall 220
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int semtimedop(int id, struct sembuf* operations, size_t count, const struct timespec* timeout);
+.fi
+.SH DESCRIPTION
+Performs an atomic semaphore operation with an optional relative timeout.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR semtimedop (2)

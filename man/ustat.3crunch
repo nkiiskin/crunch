@@ -1,0 +1,16 @@
+.TH USTAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ustat \- query obsolete filesystem statistics
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int ustat(unsigned int device, struct ustat* buffer);
+.fi
+.SH DESCRIPTION
+Invokes the obsolete Linux ustat syscall. device is a raw kernel device
+number and buffer must point to a writable Linux x86-64 kernel ustat structure.
+Prefer statfs for new programs. An invalid device can fail with EINVAL.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR ustat (2)

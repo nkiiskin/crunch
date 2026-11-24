@@ -1,0 +1,16 @@
+.TH FILE_WRITE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+file_write \- write bytes to a descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B long file_write(long descriptor, const char* buffer, long byte_count);
+.fi
+.SH DESCRIPTION
+Writes bytes from buffer. Writes may be short and are not retried.
+Supply a nonnegative byte count and sufficient buffer space.
+.SH RETURN VALUE
+Returns bytes written, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR file_open (3crunch),
+.BR write (3crunch)

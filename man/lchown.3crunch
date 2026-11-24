@@ -1,0 +1,17 @@
+.TH LCHOWN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+lchown \- change ownership without following a symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int lchown(const char* path, uid_t owner, gid_t group);
+.fi
+.SH DESCRIPTION
+Changes ownership of path without following the final symbolic link.
+Either ID may be \-1, converted to its respective unsigned type, to leave
+that ID unchanged.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR chown (3crunch),
+.BR lchown (2)

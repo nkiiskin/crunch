@@ -1,0 +1,14 @@
+.TH READAHEAD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+readahead \- schedules file data for read-ahead without changing the file offset
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B ssize_t readahead(int descriptor, off_t offset, size_t byte_count);
+.fi
+.SH DESCRIPTION
+Schedules file data for read-ahead without changing the file offset.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR readahead (2)

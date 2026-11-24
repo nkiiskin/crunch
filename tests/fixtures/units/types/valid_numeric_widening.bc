@@ -1,0 +1,9 @@
+long widen_int(int value) { return value; }
+double widen_long(long value) { return value; }
+int main() {
+    char b = (char)7;
+    int i = b;
+    long l = i;
+    double r = l;
+    return (int)r;
+}

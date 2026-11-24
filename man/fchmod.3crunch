@@ -1,0 +1,15 @@
+.TH FCHMOD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fchmod \- change permissions of an open file
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.B int fchmod(int descriptor, mode_t mode);
+.fi
+.SH DESCRIPTION
+Changes permissions of the file referred to by descriptor to Linux mode bits.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR chmod (3crunch),
+.BR fchmod (2)

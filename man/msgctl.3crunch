@@ -1,0 +1,17 @@
+.TH MSGCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+msgctl \- control a System V message queue
+.SH SYNOPSIS
+.nf
+.B #include <sys/msg.h>
+.B int msgctl(int id, int command, struct msqid_ds* buffer);
+.fi
+.SH DESCRIPTION
+IPC_STAT reads queue metadata; IPC_SET updates permitted fields; IPC_RMID
+removes the queue.  Pass NULL when no buffer is required.  The structure uses
+the Linux x86\-64 layout.
+.SH RETURN VALUE
+Returns the command result, or \-1 with errno set.
+.SH SEE ALSO
+.BR msgget (3crunch),
+.BR msgctl (2)

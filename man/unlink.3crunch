@@ -1,0 +1,43 @@
+.TH UNLINK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+unlink \- remove a filesystem entry
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int unlink(const char* " path ");"
+.fi
+.SH DESCRIPTION
+.BR unlink ()
+removes the named non\-directory entry. A symbolic link itself is removed,
+not its target. An open file remains accessible through existing descriptors
+after its last name is removed, until those descriptors are closed.
+Use
+.BR rmdir (3crunch)
+for an empty directory.
+.SH RETURN VALUE
+Zero on success, leaving
+.B errno
+unchanged; \-1 on failure with
+.B errno
+set to the positive Linux error number.
+.SH ERRORS
+Possible errors include
+.BR ENOENT ,
+.BR EACCES ,
+.BR EISDIR ,
+and
+.BR EROFS .
+Other Linux
+.BR unlink (2)
+errors are possible.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR rmdir (3crunch),
+.BR rename (3crunch),
+.BR unlink (2)

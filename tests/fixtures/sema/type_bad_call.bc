@@ -1,0 +1,2 @@
+int take(int value) { return value; }
+int main() { return take(); }

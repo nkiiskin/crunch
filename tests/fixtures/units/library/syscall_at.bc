@@ -1,0 +1,58 @@
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <errno.h>
+
+int main() {
+    struct stat info;
+    struct stat linkinfo;
+    char buf[8];
+    errno = ERANGE;
+    if (mkdirat(AT_FDCWD, "left", 493) != 0 ||
+        mkdirat(AT_FDCWD, "right", 448) != 0 || errno != ERANGE) return 1;
+    int left = open("left", O_RDONLY | O_DIRECTORY, 0);
+    int right = open("right", O_RDONLY | O_DIRECTORY, 0);
+    if (left < 0 || right < 0) return 2;
+    if (fstatat(AT_FDCWD, "left", &info, 0) != 0 ||
+        (info.st_mode & 511) != 493 || errno != ERANGE) return 3;
+    int fd = openat(left, "file", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (fd < 0 || write(fd, "abc", 3) != 3) return 4;
+    if (fstatat(fd, "", &info, AT_EMPTY_PATH) != 0 || info.st_size != 3) return 5;
+    if (symlinkat("file", left, "link") != 0 ||
+        symlinkat("missing", left, "dangling") != 0 || errno != ERANGE) return 6;
+    if (fstatat(left, "link", &info, 0) != 0 || info.st_size != 3 ||
+        (info.st_mode & 61440) != 32768) return 7;
+    if (fstatat(left, "link", &linkinfo, AT_SYMLINK_NOFOLLOW) != 0 ||
+        (linkinfo.st_mode & 61440) != 40960 || linkinfo.st_size != 4) return 8;
+    if (fstatat(left, "dangling", &info, 0) != -1 || errno != ENOENT) return 9;
+    errno = ERANGE;
+    if (fstatat(left, "dangling", &info, AT_SYMLINK_NOFOLLOW) != 0 ||
+        info.st_size != 7) return 10;
+    buf[2] = 'Z';
+    if (readlinkat(left, "link", buf, 2) != 2 || buf[0] != 'f' ||
+        buf[1] != 'i' || buf[2] != 'Z' || errno != ERANGE) return 11;
+    int replaced = openat(right, "moved", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (replaced < 0 || write(replaced, "old!", 4) != 4) return 25;
+    if (renameat(left, "file", right, "moved") != 0 ||
+        fstatat(right, "moved", &info, 0) != 0 || info.st_size != 3 ||
+        fstat(replaced, &info) != 0 || info.st_size != 4 ||
+        info.st_nlink != 0 || close(replaced) != 0) return 12;
+    if (unlinkat(right, "moved", 0) != 0 ||
+        fstat(fd, &info) != 0 || info.st_nlink != 0 || close(fd) != 0) return 13;
+    if (unlinkat(left, "link", 0) != 0 || unlinkat(left, "dangling", 0) != 0) return 14;
+    if (mkdirat(left, "sub", 448) != 0 || unlinkat(left, "sub", AT_REMOVEDIR) != 0) return 15;
+    if (fstatat(-1, "/", &info, 0) != 0 || errno != ERANGE) return 16;
+    if (unlinkat(left, "missing", 0) != -1 || errno != ENOENT) return 17;
+    if (unlinkat(left, "missing", 1) != -1 || errno != EINVAL) return 26;
+    if (fstatat(-1, "x", &info, 0) != -1 || errno != EBADF) return 18;
+    if (fstatat(left, ".", &info, 1) != -1 || errno != EINVAL) return 19;
+    if (readlinkat(left, ".", buf, 8) != -1 || errno != EINVAL) return 20;
+    if (mkdirat(-1, "x", 448) != -1 || errno != EBADF) return 21;
+    if (renameat(left, "missing", right, "x") != -1 || errno != ENOENT) return 22;
+    if (symlinkat("x", -1, "link") != -1 || errno != EBADF) return 23;
+    if (close(left) != 0 || close(right) != 0 ||
+        unlinkat(AT_FDCWD, "left", AT_REMOVEDIR) != 0 ||
+        unlinkat(AT_FDCWD, "right", AT_REMOVEDIR) != 0) return 24;
+    return 0;
+}

@@ -1,0 +1,14 @@
+.TH SCHED_GET_PRIORITY_MAX 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_get_priority_max \- returns the maximum priority for the specified scheduling policy
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_get_priority_max(int policy);
+.fi
+.SH DESCRIPTION
+Returns the maximum priority for the specified scheduling policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_get_priority_max (2)

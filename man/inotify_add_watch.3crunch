@@ -1,0 +1,15 @@
+.TH INOTIFY_ADD_WATCH 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+inotify_add_watch \- Linux x86-64 syscall 254
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int inotify_add_watch(int descriptor, const char* path, unsigned int mask);
+.fi
+.SH DESCRIPTION
+Adds or updates an inotify watch.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR inotify_add_watch (2)

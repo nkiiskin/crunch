@@ -1,0 +1,24 @@
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+
+int main(int argc, char argv[][]) {
+    if (argc != 2) return 1;
+    int fd = open(argv[1], O_RDWR, 0);
+    if (fd < 0) return 2;
+    errno = ERANGE;
+    char* shared = mmap(0, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    char* private_copy = mmap(0, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+    if (map_failed(shared) || map_failed(private_copy) || errno != ERANGE) return 3;
+    if (shared[0] != 'A' || private_copy[0] != 'A') return 4;
+    private_copy[0] = (char)'P';
+    shared[0] = (char)'S';
+    if (private_copy[0] != 'P' || shared[0] != 'S') return 5;
+    if (munmap(private_copy, 4096) != 0 || munmap(shared, 4096) != 0 ||
+        errno != ERANGE) return 6;
+    char result[1];
+    if (read(fd, result, 1) != 1 || result[0] != 'S') return 7;
+    if (close(fd) != 0) return 8;
+    return 42;
+}

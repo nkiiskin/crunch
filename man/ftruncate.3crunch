@@ -1,0 +1,15 @@
+.TH FTRUNCATE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ftruncate \- change the length of an open file
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int ftruncate(int descriptor, off_t length);
+.fi
+.SH DESCRIPTION
+Sets the length of the file identified by descriptor to length bytes.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR truncate (3crunch),
+.BR ftruncate (2)

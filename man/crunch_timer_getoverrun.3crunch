@@ -1,0 +1,15 @@
+.TH CRUNCH_TIMER_GETOVERRUN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_timer_getoverrun \- Linux x86-64 syscall 225
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_timer_getoverrun(int timer);
+.fi
+.SH DESCRIPTION
+Returns the timer overrun count.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR timer_getoverrun (2)

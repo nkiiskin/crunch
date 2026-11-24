@@ -1,0 +1,15 @@
+.TH SYNC_FILE_RANGE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sync_file_range \- Linux x86-64 syscall 277
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int sync_file_range(int descriptor, off_t offset, off_t length, unsigned int flags);
+.fi
+.SH DESCRIPTION
+Synchronizes part of a file using Linux sync_file_range.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR sync_file_range (2)

@@ -1,0 +1,15 @@
+.TH CRUNCH_MQ_GETSETATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_mq_getsetattr \- Linux x86-64 syscall 245
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_mq_getsetattr(int queue, const struct crunch_mq_attr* attributes, struct crunch_mq_attr* previous);
+.fi
+.SH DESCRIPTION
+Queries or changes queue flags via the raw kernel ABI.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR mq_getsetattr (2)

@@ -1,0 +1,14 @@
+.TH SETGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setgid \- sets group ids according to linux credential and privilege rules
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int setgid(gid_t group);
+.fi
+.SH DESCRIPTION
+Sets group IDs according to Linux credential and privilege rules. This is a direct per-thread syscall.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setgid (2)

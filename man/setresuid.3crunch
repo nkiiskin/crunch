@@ -1,0 +1,14 @@
+.TH SETRESUID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setresuid \- sets real, effective and saved user ids; (uid_t)-1 leaves an id unchanged
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int setresuid(uid_t real, uid_t effective, uid_t saved);
+.fi
+.SH DESCRIPTION
+Sets real, effective and saved user IDs; (uid_t)-1 leaves an ID unchanged. This is a direct per-thread syscall.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setresuid (2)

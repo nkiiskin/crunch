@@ -1,0 +1,23 @@
+#include <math.h>
+
+int main(void) {
+    long double zero = 0.0L;
+    long double infinity = 1.0L / zero;
+    long double nan = zero / zero;
+    long double huge = 1e4932L;
+    long double tiny = 0x1p-16445L;
+    if (!isfinite(huge) || !isfinite(tiny) || isfinite(infinity) ||
+        isfinite(nan) || !isnan(nan) || isnan(infinity) || isnan(huge))
+        return 1;
+    if (!signbit(-zero) || signbit(fabsl(-zero)) ||
+        fabsl(-0x1.0000000000000002p0L) != 0x1.0000000000000002p0L)
+        return 2;
+    if (truncl(-0.75L) != 0 || !signbit(truncl(-0.75L)) ||
+        truncl(-123.75L) != -123 || truncl(0x1.fffffffffffffffep62L) !=
+        0x1.fffffffffffffffcp62L)
+        return 3;
+    if (truncl(huge) != huge || !isnan(truncl(nan)) ||
+        truncl(infinity) != infinity)
+        return 4;
+    return 0;
+}

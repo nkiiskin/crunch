@@ -1,0 +1,1 @@
+int main() { double value = 2.5; char b = (char)value; return b; }

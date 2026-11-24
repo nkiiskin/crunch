@@ -1,0 +1,15 @@
+.TH MAP_FAILED 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+map_failed \- test a mapping failure sentinel
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int map_failed(const void* address);
+.fi
+.SH DESCRIPTION
+Tests a result from mmap or mremap without dereferencing it.
+.SH RETURN VALUE
+Returns one for the MAP_FAILED sentinel, otherwise zero.
+.SH SEE ALSO
+.BR mmap (3crunch),
+.BR mremap (3crunch)

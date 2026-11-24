@@ -1,0 +1,31 @@
+.TH FTELL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ftell \- get a Crunch stream's current position
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "long ftell(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR ftell ()
+returns the current byte position in an unbuffered stream.
+It does not change the stream's position or its end-of-file and error indicators.
+.SH RETURN VALUE
+Returns the current position, or \-1 with
+.B errno
+set on failure. A null stream fails with
+.BR EINVAL ;
+a nonseekable stream can fail with
+.BR ESPIPE .
+Success leaves
+.B errno
+unchanged.
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fseek (3crunch),
+.BR rewind (3crunch),
+.BR lseek (3crunch)

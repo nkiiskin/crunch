@@ -1,0 +1,7 @@
+int main() {
+    int a = 5;
+    long b = 4294967296;
+    double r = .5;
+    if ((a + 3 * 2 == 11) && (b > 10) && (r < 1.0)) return 42;
+    return 1;
+}

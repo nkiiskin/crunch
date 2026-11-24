@@ -1,0 +1,25 @@
+#include <stdlib.h>
+#include <errno.h>
+
+int main() {
+    errno = ERANGE;
+    free(0);
+    char* zero = malloc(0);
+    if (!zero || errno != ERANGE) return 1;
+    free(zero);
+    char* p = realloc(0, 10);
+    if (!p || errno != ERANGE) return 2;
+    p[0] = (char)42;
+    p[9] = (char)99;
+    char* grown = realloc(p, 8192);
+    if (!grown || grown[0] != 42 || grown[9] != 99 || errno != ERANGE) return 3;
+    grown[8191] = (char)13;
+    char* shrunk = realloc(grown, 4);
+    if (!shrunk || shrunk[0] != 42 || errno != ERANGE) return 4;
+    char* failed = realloc(shrunk, -1);
+    if (failed || errno != ENOMEM || shrunk[0] != 42) return 5;
+    errno = ERANGE;
+    if (realloc(shrunk, 0) || errno != ERANGE) return 6;
+    if (malloc(-1) || errno != ENOMEM) return 7;
+    return 42;
+}

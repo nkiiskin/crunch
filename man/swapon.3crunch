@@ -1,0 +1,14 @@
+.TH SWAPON 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+swapon \- enables swap on a file or device; requires cap_sys_admin
+.SH SYNOPSIS
+.nf
+.B #include <sys/swap.h>
+.B int swapon(const char* path, int flags);
+.fi
+.SH DESCRIPTION
+Enables swap on a file or device; requires CAP_SYS_ADMIN.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR swapon (2)

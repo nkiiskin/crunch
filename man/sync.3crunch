@@ -1,0 +1,14 @@
+.TH SYNC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sync \- requests writeback of filesystem data and metadata
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B void sync(void);
+.fi
+.SH DESCRIPTION
+Requests writeback of filesystem data and metadata. Linux provides no error result for this syscall.
+.SH RETURN VALUE
+No value is returned.
+.SH SEE ALSO
+.BR sync (2)

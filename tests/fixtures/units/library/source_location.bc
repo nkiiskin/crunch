@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include <string.h>
+
+#define CHECK(condition) ((condition) ? 0 : \
+    (fprintf(stderr, "%s:%d: %s: %s\n", __FILE__, __LINE__, __func__, #condition), 1))
+
+int example(void) {
+    if (sizeof(__func__) != 8) return 1;
+    if (strcmp(__func__, "example")) return 2;
+    if (&__func__[0] != &__func__[0]) return 3;
+    { const char *name = "shadow"; const char *__func__ = name;
+      if (strcmp(__func__, "shadow")) return 4; }
+    return CHECK(__LINE__ == 13);
+}
+
+int main(void) {
+    if (sizeof(__func__) != 5 || strcmp(__func__, "main")) return 5;
+    return example();
+}

@@ -1,0 +1,17 @@
+.TH CONNECT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+connect \- connect a socket to a peer
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int connect(int descriptor, const struct sockaddr* address, socklen_t length);
+.fi
+.SH DESCRIPTION
+Connects a socket to an address of the specified byte length.
+Linux nonblocking and address\-family semantics apply.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+For a nonblocking socket, EINPROGRESS can indicate a pending connection.
+.SH SEE ALSO
+.BR socket (3crunch),
+.BR connect (2)

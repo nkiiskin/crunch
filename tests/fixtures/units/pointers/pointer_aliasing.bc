@@ -1,0 +1,9 @@
+int main() {
+    int value = 10;
+    int *first = &value;
+    int *second = first;
+    *second = 41;
+    if (*first != 41) return 1;
+    value = 42;
+    return *second;
+}

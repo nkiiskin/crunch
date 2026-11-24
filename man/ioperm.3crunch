@@ -1,0 +1,14 @@
+.TH IOPERM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ioperm \- changes x86 i/o port permissions; enabling access requires cap_sys_rawio
+.SH SYNOPSIS
+.nf
+.B #include <sys/io.h>
+.B int ioperm(unsigned long first, unsigned long count, int enable);
+.fi
+.SH DESCRIPTION
+Changes x86 I/O port permissions; enabling access requires CAP_SYS_RAWIO.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR ioperm (2)

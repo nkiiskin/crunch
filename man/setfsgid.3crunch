@@ -1,0 +1,14 @@
+.TH SETFSGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setfsgid \- attempts to set the filesystem group id
+.SH SYNOPSIS
+.nf
+.B #include <sys/fsuid.h>
+.B gid_t setfsgid(gid_t group);
+.fi
+.SH DESCRIPTION
+Attempts to set the filesystem group ID. Linux returns the previous ID even when the change is refused; this call does not report failure through errno.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR setfsgid (2)

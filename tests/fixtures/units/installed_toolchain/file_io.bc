@@ -1,0 +1,14 @@
+#include <stdio.h>
+
+int main() {
+    struct FILE *file = fopen("corpus-output.txt", "w");
+    if (file == 0) return 1;
+    if (fwrite("one\ntwo\n", 1, 8, file) != 8) return 2;
+    if (fclose(file) != 0) return 3;
+    file = fopen("corpus-output.txt", "r");
+    if (file == 0) return 4;
+    char buffer[8];
+    if (fread(buffer, 1, 8, file) != 8 || fclose(file) != 0) return 5;
+    printf("file:%c%c%c\n", buffer[4], buffer[5], buffer[6]);
+    return 0;
+}

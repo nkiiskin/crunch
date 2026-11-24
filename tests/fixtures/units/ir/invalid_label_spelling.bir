@@ -1,0 +1,6 @@
+CRUNCH-IR 2
+func main 0 int
+label L+1
+push 0
+ret int
+end

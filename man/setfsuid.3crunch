@@ -1,0 +1,14 @@
+.TH SETFSUID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setfsuid \- attempts to set the filesystem user id
+.SH SYNOPSIS
+.nf
+.B #include <sys/fsuid.h>
+.B uid_t setfsuid(uid_t user);
+.fi
+.SH DESCRIPTION
+Attempts to set the filesystem user ID. Linux returns the previous ID even when the change is refused; this call does not report failure through errno.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR setfsuid (2)

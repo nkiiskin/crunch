@@ -1,0 +1,14 @@
+.TH MLOCKALL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mlockall \- locks current or future process mappings according to mcl_* flags and resource limits
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int mlockall(int flags);
+.fi
+.SH DESCRIPTION
+Locks current or future process mappings according to MCL_* flags and resource limits.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR mlockall (2)

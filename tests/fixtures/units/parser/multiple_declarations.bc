@@ -1,0 +1,62 @@
+struct point {
+    int x, y;
+    char tag, tags[2];
+    long wide, wides[1];
+};
+
+int global_a, global_b;
+double global_real_a, global_real_b;
+char global_byte, global_bytes[1];
+long global_long, global_longs[1];
+struct point p1, p2, p3;
+
+int main() {
+    int x, y;
+    double real_a, real_b;
+    int integers[2], more_integers[1];
+    char b, bytes[2], other_bytes[1];
+    long wide, wides[1], other_longs[1];
+    double real_values, reals[1];
+    struct point q1, q2, q3;
+
+    integers[0] = 14;
+    bytes[0] = (char)10;
+    wides[0] = (long)12;
+    x = 2;
+    y = 3;
+    real_a = 1.5;
+    real_b = 2.5;
+    b = (char)1;
+    wide = (long)2;
+    real_values = 3.5;
+    global_byte = (char)3;
+    p1.x = 4;
+    p2.y = 5;
+    p3.x = 6;
+    p1.tag = (char)7;
+    p2.wide = (long)8;
+    q1.x = 7;
+    q2.y = 8;
+    q3.x = 9;
+    q1.tag = (char)10;
+    q2.wide = (long)11;
+    p1.tags[0] = (char)12;
+    q1.tags[1] = (char)15;
+    if (real_values > 0.0) {
+        b += 1;
+    }
+
+    for (int i = 0, j = 1; i < 1; i++) {
+        x += j;
+    }
+
+    global_a = x;
+    global_b = y;
+    global_real_a = real_a;
+    global_real_b = real_b;
+    global_bytes[0] = (char)16;
+    global_longs[0] = (long)17;
+    return global_a + global_b + p1.x + p2.y + p3.x + q1.x + q2.y + q3.x
+        + b + 14 + (int)wide + 12 + 16 + 17 + p1.tags[0] + q1.tags[1]
+        + p1.tag + q1.tag + (int)(p2.wide) + (int)(q2.wide) + global_byte;
+}

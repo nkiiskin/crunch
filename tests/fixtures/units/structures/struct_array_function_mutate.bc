@@ -1,0 +1,20 @@
+struct cell {
+    int value;
+};
+
+int update_cells(struct cell cells[], int count) {
+    for (int i = 0; i < count; i++) {
+        cells[i].value = cells[i].value + i + 10;
+    }
+    return cells[count - 1].value;
+}
+
+int main() {
+    struct cell cells[3];
+    cells[0].value = 1;
+    cells[1].value = 2;
+    cells[2].value = 3;
+    if (update_cells(cells, (int)(sizeof(cells) / sizeof(cells[0]))) != 15) return 1;
+    if (cells[0].value != 11 || cells[1].value != 13) return 2;
+    return cells[2].value + 27;
+}

@@ -1,0 +1,28 @@
+enum { WIDTH = 3 };
+_Static_assert(sizeof(int) == 4 && WIDTH == 3, "integer layout");
+_Static_assert(1 || 1 / 0, "short circuit");
+_Static_assert((int)1.0, "integer cast");
+struct Grid {
+    int rows[2][WIDTH];
+    _Static_assert(WIDTH == 3, "grid width");
+    _Static_assert(sizeof(struct Grid *) == 8, "incomplete pointer");
+    int tail;
+};
+union Value {
+    _Static_assert(sizeof(long) == 8, "long width");
+    long number;
+};
+_Static_assert(sizeof(struct Grid) == 28, "grid layout");
+
+int main(void) {
+    enum { WIDTH = 2 };
+    _Static_assert(WIDTH == 2, "local enum");
+    struct Local {
+        int data[WIDTH];
+        _Static_assert(WIDTH == 2, "local field scope");
+    };
+    struct Grid grid = {{{1,2,3},{4,5,6}}, 36};
+    struct Local local = {{1,2}};
+    _Static_assert(sizeof(local) == 8, "local size");
+    return grid.rows[1][2] + grid.tail;
+}

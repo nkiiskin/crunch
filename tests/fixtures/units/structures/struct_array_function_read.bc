@@ -1,0 +1,23 @@
+struct point {
+    int x;
+    int y;
+};
+
+int sum_points(struct point points[], int count) {
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        sum += points[i].x + points[i].y;
+    }
+    return sum;
+}
+
+int main() {
+    struct point points[3];
+    points[0].x = 1;
+    points[0].y = 2;
+    points[1].x = 3;
+    points[1].y = 4;
+    points[2].x = 15;
+    points[2].y = 17;
+    return sum_points(points, (int)(sizeof(points) / sizeof(points[0])));
+}

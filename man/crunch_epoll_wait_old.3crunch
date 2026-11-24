@@ -1,0 +1,14 @@
+.TH CRUNCH_EPOLL_WAIT_OLD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_epoll_wait_old \- invokes obsolete epoll_wait_old syscall slot 215, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int crunch_epoll_wait_old(int epoll, void* events, int maximum, int timeout);
+.fi
+.SH DESCRIPTION
+Invokes obsolete epoll_wait_old syscall slot 215, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR epoll_wait_old (2)

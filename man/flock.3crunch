@@ -1,0 +1,16 @@
+.TH FLOCK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+flock \- apply or remove an advisory file lock
+.SH SYNOPSIS
+.nf
+.B #include <sys/file.h>
+.B int flock(int descriptor, int operation);
+.fi
+.SH DESCRIPTION
+Operation is LOCK_SH, LOCK_EX, or LOCK_UN, optionally combined with LOCK_NB.
+Linux associates the lock with the open file description.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR fcntl (3crunch),
+.BR flock (2)

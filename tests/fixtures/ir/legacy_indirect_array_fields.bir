@@ -1,0 +1,2288 @@
+CRUNCH-IR 2
+globalblock global 56 8
+globalalias global__marker global 0 byte
+globalalias global__inner__values global 8 ptr
+globalalias global__inner__values$length global 16 int
+globalalias global__inner__text global 24 ptr
+globalalias global__inner__text$length global 32 int
+globalalias global__elements global 40 ptr
+globalalias global__elements$length global 48 int
+global base_calls int 0
+global index_calls int 0
+global count_calls int 0
+func select 1 ptr
+param 0 0 ptr
+gload base_calls int
+push 1
+add int
+dup
+gstore base_calls int
+drop
+load 0
+ret ptr
+end
+func index 0 int
+gload index_calls int
+push 1
+add int
+dup
+gstore index_calls int
+drop
+push 0
+ret int
+end
+func count 0 int
+gload count_calls int
+push 1
+add int
+dup
+gstore count_calls int
+drop
+push 3
+ret int
+end
+func main 0 int
+local 0 int
+localblock __local_struct_0 56 8
+localalias __local_struct_address_0 __local_struct_0 0 byte
+localalias local.marker __local_struct_0 0 byte
+localalias local.inner.values __local_struct_0 8 ptr
+localalias local.inner.values$length __local_struct_0 16 int
+push 0
+lstore local.inner.values ptr
+push 0
+lstore local.inner.values$length int
+localalias local.inner.text __local_struct_0 24 ptr
+localalias local.inner.text$length __local_struct_0 32 int
+push 0
+lstore local.inner.text ptr
+push 0
+lstore local.inner.text$length int
+localalias local.elements __local_struct_0 40 ptr
+localalias local.elements$length __local_struct_0 48 int
+push 0
+lstore local.elements ptr
+push 0
+lstore local.elements$length int
+local 1 ptr
+laddr __local_struct_address_0
+store 1 ptr
+local 2 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 2 ptr
+load 2
+loadind ptr
+load 2
+push 8
+ptradd byte
+loadind int
+call count 0
+array_resize int
+local 3 ptr
+local 4 int
+store 3 ptr
+store 4 int
+load 2
+load 3
+storeind ptr
+drop
+load 2
+push 8
+ptradd byte
+load 4
+storeind int
+drop
+gload base_calls int
+push 1
+ne int
+bool int
+jnz L4
+gload count_calls int
+push 1
+ne int
+bool
+jmp L5
+label L4
+push 1
+label L5
+bool int
+jnz L2
+local 5 ptr
+load 1
+push 8
+ptradd byte
+store 5 ptr
+load 5
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool
+jmp L3
+label L2
+push 1
+label L3
+bool int
+jz L0
+push 1
+ret int
+label L0
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+push 10
+storeind int
+drop
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+push 20
+storeind int
+drop
+local 6 ptr
+load 1
+push 8
+ptradd byte
+store 6 ptr
+load 6
+loadind ptr
+load 6
+push 8
+ptradd byte
+loadind int
+push 5
+array_resize int
+local 7 ptr
+local 8 int
+store 7 ptr
+store 8 int
+load 6
+load 7
+storeind ptr
+drop
+load 6
+push 8
+ptradd byte
+load 8
+storeind int
+drop
+local 9 ptr
+load 1
+push 8
+ptradd byte
+store 9 ptr
+load 9
+push 8
+ptradd byte
+loadind int
+push 5
+ne int
+bool int
+jnz L10
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 10
+ne int
+bool
+jmp L11
+label L10
+push 1
+label L11
+bool int
+jnz L8
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+loadind int
+push 20
+ne int
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jz L6
+push 2
+ret int
+label L6
+local 10 ptr
+load 1
+push 8
+ptradd byte
+store 10 ptr
+load 10
+loadind ptr
+load 10
+push 8
+ptradd byte
+loadind int
+push 1
+array_resize int
+local 11 ptr
+local 12 int
+store 11 ptr
+store 12 int
+load 10
+load 11
+storeind ptr
+drop
+load 10
+push 8
+ptradd byte
+load 12
+storeind int
+drop
+local 13 ptr
+load 1
+push 8
+ptradd byte
+store 13 ptr
+load 13
+push 8
+ptradd byte
+loadind int
+push 1
+ne int
+bool int
+jnz L14
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 10
+ne int
+bool
+jmp L15
+label L14
+push 1
+label L15
+bool int
+jz L12
+push 3
+ret int
+label L12
+local 14 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 14 ptr
+load 14
+push 8
+ptradd byte
+loadind int
+push 1
+ne int
+bool int
+jnz L18
+gload base_calls int
+push 2
+ne int
+bool
+jmp L19
+label L18
+push 1
+label L19
+bool int
+jz L16
+push 4
+ret int
+label L16
+local 15 int
+local 16 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 16 ptr
+local 17 ptr
+load 16
+push 0
+ptradd_bytes 32
+store 17 ptr
+load 17
+loadind ptr
+load 17
+push 8
+ptradd byte
+loadind int
+call count 0
+array_resize int
+local 18 ptr
+local 19 int
+store 18 ptr
+store 19 int
+load 17
+load 18
+storeind ptr
+drop
+load 17
+push 8
+ptradd byte
+load 19
+storeind int
+drop
+local 20 ptr
+load 16
+push 0
+ptradd_bytes 32
+store 20 ptr
+load 20
+push 8
+ptradd byte
+loadind int
+store 15 int
+load 15
+push 3
+ne int
+bool int
+jnz L26
+gload base_calls int
+push 3
+ne int
+bool
+jmp L27
+label L26
+push 1
+label L27
+bool int
+jnz L24
+gload count_calls int
+push 2
+ne int
+bool
+jmp L25
+label L24
+push 1
+label L25
+bool int
+jnz L22
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 10
+ne int
+bool
+jmp L23
+label L22
+push 1
+label L23
+bool int
+jz L20
+push 5
+ret int
+label L20
+local 21 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 21 ptr
+load 21
+loadind ptr
+load 21
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize int
+local 22 ptr
+local 23 int
+store 22 ptr
+store 23 int
+load 21
+load 22
+storeind ptr
+drop
+load 21
+push 8
+ptradd byte
+load 23
+storeind int
+drop
+load 21
+loadind ptr
+bool ptr
+jz L28
+load 21
+loadind ptr
+push 0
+ptradd int
+push 11
+storeind int
+drop
+load 21
+loadind ptr
+push 1
+ptradd int
+push 12
+storeind int
+drop
+label L28
+gload base_calls int
+push 4
+ne int
+bool int
+jnz L35
+local 24 ptr
+load 1
+push 8
+ptradd byte
+store 24 ptr
+load 24
+push 8
+ptradd byte
+loadind int
+push 2
+ne int
+bool
+jmp L36
+label L35
+push 1
+label L36
+bool int
+jnz L33
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 11
+ne int
+bool
+jmp L34
+label L33
+push 1
+label L34
+bool int
+jnz L31
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+loadind int
+push 12
+ne int
+bool
+jmp L32
+label L31
+push 1
+label L32
+bool int
+jz L29
+push 6
+ret int
+label L29
+local 25 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 25 ptr
+load 25
+loadind ptr
+load 25
+push 8
+ptradd byte
+loadind int
+push 4
+array_resize byte
+local 26 ptr
+local 27 int
+store 26 ptr
+store 27 int
+load 25
+load 26
+storeind ptr
+drop
+load 25
+push 8
+ptradd byte
+load 27
+storeind int
+drop
+load 25
+loadind ptr
+bool ptr
+jz L37
+load 25
+loadind ptr
+push 0
+ptradd byte
+push 97
+storeind byte
+drop
+load 25
+loadind ptr
+push 1
+ptradd byte
+push 98
+storeind byte
+drop
+load 25
+loadind ptr
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+load 25
+loadind ptr
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L37
+gload base_calls int
+push 5
+ne int
+bool int
+jnz L44
+local 28 ptr
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 28 ptr
+load 28
+push 8
+ptradd byte
+loadind int
+push 4
+ne int
+bool
+jmp L45
+label L44
+push 1
+label L45
+bool int
+jnz L42
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+loadind ptr
+push 0
+ptradd byte
+loadind byte
+push 97
+ne byte
+bool
+jmp L43
+label L42
+push 1
+label L43
+bool int
+jnz L40
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+loadind ptr
+push 3
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L41
+label L40
+push 1
+label L41
+bool int
+jz L38
+push 7
+ret int
+label L38
+local 29 ptr
+local 30 int
+push 0
+store 29 ptr
+push 0
+store 30 int
+push 0
+push 0
+push 3
+array_resize int
+store 29 ptr
+store 30 int
+load 29
+bool ptr
+jz L46
+load 29
+push 0
+ptradd int
+push 21
+storeind int
+drop
+load 29
+push 1
+ptradd int
+push 22
+storeind int
+drop
+load 29
+push 2
+ptradd int
+push 23
+storeind int
+drop
+label L46
+local 31 ptr
+local 32 long
+load 29
+store 31 ptr
+load 30
+store 32 long
+load 32
+push 2147483647
+cast int long
+gt long
+jnz L47
+lload local.inner.values$length int
+cast int long
+load 32
+lt long
+jz L48
+lload local.inner.values ptr
+lload local.inner.values$length int
+load 32
+array_resize int
+lstore local.inner.values ptr
+lstore local.inner.values$length int
+label L48
+lload local.inner.values$length int
+cast int long
+load 32
+lt long
+jnz L49
+lload local.inner.values ptr
+load 31
+load 32
+push 4
+mul long
+call memcpy 3
+drop
+jmp L49
+label L47
+label L49
+lload local.inner.values$length int
+push 3
+ne int
+bool int
+jnz L52
+lload local.inner.values ptr
+push 2
+ptradd int
+loadind int
+push 23
+ne int
+bool
+jmp L53
+label L52
+push 1
+label L53
+bool int
+jz L50
+push 20
+ret int
+label L50
+local 33 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 33 ptr
+local 34 ptr
+local 35 long
+load 29
+store 34 ptr
+load 30
+store 35 long
+load 35
+push 2147483647
+cast int long
+gt long
+jnz L54
+load 33
+push 8
+ptradd byte
+loadind int
+cast int long
+load 35
+lt long
+jz L55
+load 33
+loadind ptr
+load 33
+push 8
+ptradd byte
+loadind int
+load 35
+array_resize int
+local 36 ptr
+local 37 int
+store 36 ptr
+store 37 int
+load 33
+load 36
+storeind ptr
+drop
+load 33
+push 8
+ptradd byte
+load 37
+storeind int
+drop
+label L55
+load 33
+push 8
+ptradd byte
+loadind int
+cast int long
+load 35
+lt long
+jnz L56
+load 33
+loadind ptr
+load 34
+load 35
+push 4
+mul long
+call memcpy 3
+drop
+jmp L56
+label L54
+label L56
+gload base_calls int
+push 6
+ne int
+bool int
+jnz L61
+local 38 ptr
+load 1
+push 8
+ptradd byte
+store 38 ptr
+load 38
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool
+jmp L62
+label L61
+push 1
+label L62
+bool int
+jnz L59
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 2
+ptradd int
+loadind int
+push 23
+ne int
+bool
+jmp L60
+label L59
+push 1
+label L60
+bool int
+jz L57
+push 8
+ret int
+label L57
+gload global__inner__values ptr
+gload global__inner__values$length int
+push 2
+array_resize int
+gstore global__inner__values ptr
+gstore global__inner__values$length int
+gload global__inner__values ptr
+bool ptr
+jz L63
+gload global__inner__values ptr
+push 0
+ptradd int
+push 31
+storeind int
+drop
+gload global__inner__values ptr
+push 1
+ptradd int
+push 32
+storeind int
+drop
+label L63
+local 39 ptr
+gaddr global
+store 39 ptr
+local 40 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+store 40 ptr
+local 41 ptr
+local 42 long
+local 43 ptr
+load 39
+call select 1
+push 8
+ptradd byte
+store 43 ptr
+load 43
+loadind ptr
+store 41 ptr
+load 43
+push 8
+ptradd byte
+loadind int
+store 42 long
+load 42
+push 2147483647
+cast int long
+gt long
+jnz L64
+load 40
+push 8
+ptradd byte
+loadind int
+cast int long
+load 42
+lt long
+jz L65
+load 40
+loadind ptr
+load 40
+push 8
+ptradd byte
+loadind int
+load 42
+array_resize int
+local 44 ptr
+local 45 int
+store 44 ptr
+store 45 int
+load 40
+load 44
+storeind ptr
+drop
+load 40
+push 8
+ptradd byte
+load 45
+storeind int
+drop
+label L65
+load 40
+push 8
+ptradd byte
+loadind int
+cast int long
+load 42
+lt long
+jnz L66
+load 40
+loadind ptr
+load 41
+load 42
+push 4
+mul long
+call memcpy 3
+drop
+jmp L66
+label L64
+label L66
+gload base_calls int
+push 8
+ne int
+bool int
+jnz L73
+local 46 ptr
+load 1
+push 8
+ptradd byte
+store 46 ptr
+load 46
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool
+jmp L74
+label L73
+push 1
+label L74
+bool int
+jnz L71
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 31
+ne int
+bool
+jmp L72
+label L71
+push 1
+label L72
+bool int
+jnz L69
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+loadind int
+push 32
+ne int
+bool
+jmp L70
+label L69
+push 1
+label L70
+bool int
+jz L67
+push 9
+ret int
+label L67
+local 47 ptr
+load 39
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 47 ptr
+load 47
+loadind ptr
+load 47
+push 8
+ptradd byte
+loadind int
+push 4
+array_resize byte
+local 48 ptr
+local 49 int
+store 48 ptr
+store 49 int
+load 47
+load 48
+storeind ptr
+drop
+load 47
+push 8
+ptradd byte
+load 49
+storeind int
+drop
+load 47
+loadind ptr
+bool ptr
+jz L75
+load 47
+loadind ptr
+push 0
+ptradd byte
+push 120
+storeind byte
+drop
+load 47
+loadind ptr
+push 1
+ptradd byte
+push 121
+storeind byte
+drop
+load 47
+loadind ptr
+push 2
+ptradd byte
+push 122
+storeind byte
+drop
+load 47
+loadind ptr
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L75
+local 50 ptr
+load 1
+call select 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 50 ptr
+local 51 ptr
+local 52 long
+load 39
+call select 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+loadind ptr
+store 51 ptr
+load 51
+call strlen 1
+store 52 long
+load 52
+push 2147483646
+cast int long
+gt long
+jnz L76
+load 52
+push 1
+add long
+store 52 long
+load 52
+push 2147483647
+cast int long
+gt long
+jnz L76
+load 50
+push 8
+ptradd byte
+loadind int
+cast int long
+load 52
+lt long
+jz L77
+load 50
+loadind ptr
+load 50
+push 8
+ptradd byte
+loadind int
+load 52
+array_resize byte
+local 53 ptr
+local 54 int
+store 53 ptr
+store 54 int
+load 50
+load 53
+storeind ptr
+drop
+load 50
+push 8
+ptradd byte
+load 54
+storeind int
+drop
+label L77
+load 50
+push 8
+ptradd byte
+loadind int
+cast int long
+load 52
+lt long
+jnz L78
+load 50
+loadind ptr
+load 51
+load 52
+call memcpy 3
+drop
+jmp L78
+label L76
+label L78
+gload base_calls int
+push 10
+ne int
+bool int
+jnz L85
+local 55 ptr
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 55 ptr
+load 55
+push 8
+ptradd byte
+loadind int
+push 4
+ne int
+bool
+jmp L86
+label L85
+push 1
+label L86
+bool int
+jnz L83
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+loadind ptr
+push 0
+ptradd byte
+loadind byte
+push 120
+ne byte
+bool
+jmp L84
+label L83
+push 1
+label L84
+bool int
+jnz L81
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+loadind ptr
+push 3
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L82
+label L81
+push 1
+label L82
+bool int
+jz L79
+push 10
+ret int
+label L79
+local 56 ptr
+load 1
+push 8
+ptradd byte
+store 56 ptr
+local 57 ptr
+local 58 long
+local 59 ptr
+load 1
+push 8
+ptradd byte
+store 59 ptr
+load 59
+loadind ptr
+store 57 ptr
+load 59
+push 8
+ptradd byte
+loadind int
+store 58 long
+load 58
+push 2147483647
+cast int long
+gt long
+jnz L87
+load 56
+push 8
+ptradd byte
+loadind int
+cast int long
+load 58
+lt long
+jz L88
+load 56
+loadind ptr
+load 56
+push 8
+ptradd byte
+loadind int
+load 58
+array_resize int
+local 60 ptr
+local 61 int
+store 60 ptr
+store 61 int
+load 56
+load 60
+storeind ptr
+drop
+load 56
+push 8
+ptradd byte
+load 61
+storeind int
+drop
+label L88
+load 56
+push 8
+ptradd byte
+loadind int
+cast int long
+load 58
+lt long
+jnz L89
+load 56
+loadind ptr
+load 57
+load 58
+push 4
+mul long
+call memcpy 3
+drop
+jmp L89
+label L87
+label L89
+local 62 ptr
+load 1
+push 8
+ptradd byte
+store 62 ptr
+load 62
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool int
+jnz L92
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+loadind int
+push 32
+ne int
+bool
+jmp L93
+label L92
+push 1
+label L93
+bool int
+jz L90
+push 11
+ret int
+label L90
+local 63 ptr
+load 1
+push 40
+ptradd byte
+store 63 ptr
+load 63
+loadind ptr
+load 63
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize_bytes 16
+local 64 ptr
+local 65 int
+store 64 ptr
+store 65 int
+load 63
+load 64
+storeind ptr
+drop
+load 63
+push 8
+ptradd byte
+load 65
+storeind int
+drop
+load 1
+push 40
+ptradd byte
+loadind ptr
+push 0
+ptradd_bytes 16
+push 4
+ptradd byte
+push 37
+storeind int
+drop
+load 1
+push 40
+ptradd byte
+loadind ptr
+push 1
+ptradd_bytes 16
+push 4
+ptradd byte
+push 42
+storeind int
+drop
+local 66 ptr
+load 39
+push 40
+ptradd byte
+store 66 ptr
+local 67 ptr
+local 68 long
+local 69 ptr
+load 1
+push 40
+ptradd byte
+store 69 ptr
+load 69
+loadind ptr
+store 67 ptr
+load 69
+push 8
+ptradd byte
+loadind int
+store 68 long
+load 68
+push 2147483647
+cast int long
+gt long
+jnz L94
+load 66
+push 8
+ptradd byte
+loadind int
+cast int long
+load 68
+lt long
+jz L95
+load 66
+loadind ptr
+load 66
+push 8
+ptradd byte
+loadind int
+load 68
+array_resize_bytes 16
+local 70 ptr
+local 71 int
+store 70 ptr
+store 71 int
+load 66
+load 70
+storeind ptr
+drop
+load 66
+push 8
+ptradd byte
+load 71
+storeind int
+drop
+label L95
+load 66
+push 8
+ptradd byte
+loadind int
+cast int long
+load 68
+lt long
+jnz L96
+load 66
+loadind ptr
+load 67
+load 68
+push 16
+mul long
+call memcpy 3
+drop
+jmp L96
+label L94
+label L96
+local 72 ptr
+load 39
+push 40
+ptradd byte
+store 72 ptr
+load 72
+push 8
+ptradd byte
+loadind int
+push 2
+ne int
+bool int
+jnz L101
+load 39
+push 40
+ptradd byte
+loadind ptr
+push 0
+ptradd_bytes 16
+push 4
+ptradd byte
+loadind int
+push 37
+ne int
+bool
+jmp L102
+label L101
+push 1
+label L102
+bool int
+jnz L99
+load 39
+push 40
+ptradd byte
+loadind ptr
+push 1
+ptradd_bytes 16
+push 4
+ptradd byte
+loadind int
+push 42
+ne int
+bool
+jmp L100
+label L99
+push 1
+label L100
+bool int
+jz L97
+push 24
+ret int
+label L97
+local 73 ptr
+load 1
+push 40
+ptradd byte
+store 73 ptr
+load 73
+loadind ptr
+load 73
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize_bytes 16
+local 74 ptr
+local 75 int
+store 74 ptr
+store 75 int
+load 73
+load 74
+storeind ptr
+drop
+load 73
+push 8
+ptradd byte
+load 75
+storeind int
+drop
+local 76 ptr
+load 39
+push 40
+ptradd byte
+store 76 ptr
+load 76
+loadind ptr
+load 76
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize_bytes 16
+local 77 ptr
+local 78 int
+store 77 ptr
+store 78 int
+load 76
+load 77
+storeind ptr
+drop
+load 76
+push 8
+ptradd byte
+load 78
+storeind int
+drop
+local 79 ptr
+local 80 int
+push 0
+store 79 ptr
+push 0
+store 80 int
+load 79
+load 80
+push 1
+array_resize_bytes 56
+store 79 ptr
+store 80 int
+local 81 ptr
+load 79
+call index 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 81 ptr
+load 81
+loadind ptr
+load 81
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize int
+local 82 ptr
+local 83 int
+store 82 ptr
+store 83 int
+load 81
+load 82
+storeind ptr
+drop
+load 81
+push 8
+ptradd byte
+load 83
+storeind int
+drop
+load 81
+loadind ptr
+bool ptr
+jz L103
+load 81
+loadind ptr
+push 0
+ptradd int
+push 41
+storeind int
+drop
+load 81
+loadind ptr
+push 1
+ptradd int
+push 42
+storeind int
+drop
+label L103
+gload index_calls int
+push 1
+ne int
+bool int
+jnz L108
+local 84 ptr
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 84 ptr
+load 84
+push 8
+ptradd byte
+loadind int
+push 2
+ne int
+bool
+jmp L109
+label L108
+push 1
+label L109
+bool int
+jnz L106
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+loadind ptr
+push 1
+ptradd int
+loadind int
+push 42
+ne int
+bool
+jmp L107
+label L106
+push 1
+label L107
+bool int
+jz L104
+push 12
+ret int
+label L104
+local 85 ptr
+load 79
+call index 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 85 ptr
+local 86 ptr
+load 85
+push 0
+ptradd_bytes 32
+store 86 ptr
+load 86
+loadind ptr
+load 86
+push 8
+ptradd byte
+loadind int
+call count 0
+array_resize int
+local 87 ptr
+local 88 int
+store 87 ptr
+store 88 int
+load 86
+load 87
+storeind ptr
+drop
+load 86
+push 8
+ptradd byte
+load 88
+storeind int
+drop
+local 89 ptr
+load 85
+push 0
+ptradd_bytes 32
+store 89 ptr
+load 89
+push 8
+ptradd byte
+loadind int
+dup
+store 15 int
+drop
+gload index_calls int
+push 2
+ne int
+bool int
+jnz L116
+gload count_calls int
+push 3
+ne int
+bool
+jmp L117
+label L116
+push 1
+label L117
+bool int
+jnz L114
+load 15
+push 3
+ne int
+bool
+jmp L115
+label L114
+push 1
+label L115
+bool int
+jnz L112
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 41
+ne int
+bool
+jmp L113
+label L112
+push 1
+label L113
+bool int
+jz L110
+push 13
+ret int
+label L110
+local 90 ptr
+load 79
+call index 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 90 ptr
+load 90
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool int
+jnz L120
+gload index_calls int
+push 3
+ne int
+bool
+jmp L121
+label L120
+push 1
+label L121
+bool int
+jz L118
+push 14
+ret int
+label L118
+local 91 ptr
+load 79
+call index 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 91 ptr
+local 92 ptr
+local 93 long
+local 94 ptr
+load 39
+call select 1
+push 8
+ptradd byte
+store 94 ptr
+load 94
+loadind ptr
+store 92 ptr
+load 94
+push 8
+ptradd byte
+loadind int
+store 93 long
+load 93
+push 2147483647
+cast int long
+gt long
+jnz L122
+load 91
+push 8
+ptradd byte
+loadind int
+cast int long
+load 93
+lt long
+jz L123
+load 91
+loadind ptr
+load 91
+push 8
+ptradd byte
+loadind int
+load 93
+array_resize int
+local 95 ptr
+local 96 int
+store 95 ptr
+store 96 int
+load 91
+load 95
+storeind ptr
+drop
+load 91
+push 8
+ptradd byte
+load 96
+storeind int
+drop
+label L123
+load 91
+push 8
+ptradd byte
+loadind int
+cast int long
+load 93
+lt long
+jnz L124
+load 91
+loadind ptr
+load 92
+load 93
+push 4
+mul long
+call memcpy 3
+drop
+jmp L124
+label L122
+label L124
+gload index_calls int
+push 4
+ne int
+bool int
+jnz L129
+gload base_calls int
+push 11
+ne int
+bool
+jmp L130
+label L129
+push 1
+label L130
+bool int
+jnz L127
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 31
+ne int
+bool
+jmp L128
+label L127
+push 1
+label L128
+bool int
+jz L125
+push 15
+ret int
+label L125
+local 97 ptr
+load 1
+push 8
+ptradd byte
+store 97 ptr
+local 98 ptr
+local 99 long
+local 100 ptr
+load 79
+call index 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 100 ptr
+load 100
+loadind ptr
+store 98 ptr
+load 100
+push 8
+ptradd byte
+loadind int
+store 99 long
+load 99
+push 2147483647
+cast int long
+gt long
+jnz L131
+load 97
+push 8
+ptradd byte
+loadind int
+cast int long
+load 99
+lt long
+jz L132
+load 97
+loadind ptr
+load 97
+push 8
+ptradd byte
+loadind int
+load 99
+array_resize int
+local 101 ptr
+local 102 int
+store 101 ptr
+store 102 int
+load 97
+load 101
+storeind ptr
+drop
+load 97
+push 8
+ptradd byte
+load 102
+storeind int
+drop
+label L132
+load 97
+push 8
+ptradd byte
+loadind int
+cast int long
+load 99
+lt long
+jnz L133
+load 97
+loadind ptr
+load 98
+load 99
+push 4
+mul long
+call memcpy 3
+drop
+jmp L133
+label L131
+label L133
+gload index_calls int
+push 5
+ne int
+bool int
+jnz L136
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ptradd int
+loadind int
+push 31
+ne int
+bool
+jmp L137
+label L136
+push 1
+label L137
+bool int
+jz L134
+push 21
+ret int
+label L134
+local 103 ptr
+local 104 long
+load 29
+store 103 ptr
+load 30
+store 104 long
+load 104
+push 2147483647
+cast int long
+gt long
+jnz L138
+gload global__inner__values$length int
+cast int long
+load 104
+lt long
+jz L139
+gload global__inner__values ptr
+gload global__inner__values$length int
+load 104
+array_resize int
+gstore global__inner__values ptr
+gstore global__inner__values$length int
+label L139
+gload global__inner__values$length int
+cast int long
+load 104
+lt long
+jnz L140
+gload global__inner__values ptr
+load 103
+load 104
+push 4
+mul long
+call memcpy 3
+drop
+jmp L140
+label L138
+label L140
+gload global__inner__values$length int
+push 3
+ne int
+bool int
+jnz L143
+gload global__inner__values ptr
+push 2
+ptradd int
+loadind int
+push 23
+ne int
+bool
+jmp L144
+label L143
+push 1
+label L144
+bool int
+jz L141
+push 22
+ret int
+label L141
+local 105 ptr
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 105 ptr
+load 105
+loadind ptr
+load 105
+push 8
+ptradd byte
+loadind int
+push 9223372036854775807
+array_resize int
+local 106 ptr
+local 107 int
+store 106 ptr
+store 107 int
+load 105
+load 106
+storeind ptr
+drop
+load 105
+push 8
+ptradd byte
+load 107
+storeind int
+drop
+local 108 ptr
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 108 ptr
+load 108
+push 8
+ptradd byte
+loadind int
+push 0
+ne int
+bool int
+jnz L147
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+loadind ptr
+bool
+jmp L148
+label L147
+push 1
+label L148
+bool int
+jz L145
+push 23
+ret int
+label L145
+local 109 ptr
+load 79
+push 0
+ptradd_bytes 56
+push 8
+ptradd byte
+store 109 ptr
+load 109
+loadind ptr
+load 109
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize int
+local 110 ptr
+local 111 int
+store 110 ptr
+store 111 int
+load 109
+load 110
+storeind ptr
+drop
+load 109
+push 8
+ptradd byte
+load 111
+storeind int
+drop
+load 79
+load 80
+push 0
+array_resize_bytes 56
+store 79 ptr
+store 80 int
+load 29
+load 30
+push 0
+array_resize int
+store 29 ptr
+store 30 int
+local 112 ptr
+load 1
+push 8
+ptradd byte
+store 112 ptr
+load 112
+loadind ptr
+load 112
+push 8
+ptradd byte
+loadind int
+push 1
+neg int
+array_resize int
+local 113 ptr
+local 114 int
+store 113 ptr
+store 114 int
+load 112
+load 113
+storeind ptr
+drop
+load 112
+push 8
+ptradd byte
+load 114
+storeind int
+drop
+local 115 ptr
+load 1
+push 8
+ptradd byte
+store 115 ptr
+load 115
+push 8
+ptradd byte
+loadind int
+push 0
+ne int
+bool int
+jnz L151
+load 1
+push 8
+ptradd byte
+loadind ptr
+push 0
+ne ptr
+bool
+jmp L152
+label L151
+push 1
+label L152
+bool int
+jz L149
+push 16
+ret int
+label L149
+local 116 ptr
+load 1
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 116 ptr
+load 116
+loadind ptr
+load 116
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize byte
+local 117 ptr
+local 118 int
+store 117 ptr
+store 118 int
+load 116
+load 117
+storeind ptr
+drop
+load 116
+push 8
+ptradd byte
+load 118
+storeind int
+drop
+local 119 ptr
+load 39
+push 8
+ptradd byte
+store 119 ptr
+load 119
+loadind ptr
+load 119
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize int
+local 120 ptr
+local 121 int
+store 120 ptr
+store 121 int
+load 119
+load 120
+storeind ptr
+drop
+load 119
+push 8
+ptradd byte
+load 121
+storeind int
+drop
+local 122 ptr
+load 39
+push 8
+ptradd byte
+push 16
+ptradd byte
+store 122 ptr
+load 122
+loadind ptr
+load 122
+push 8
+ptradd byte
+loadind int
+push 0
+array_resize byte
+local 123 ptr
+local 124 int
+store 123 ptr
+store 124 int
+load 122
+load 123
+storeind ptr
+drop
+load 122
+push 8
+ptradd byte
+load 124
+storeind int
+drop
+push 42
+ret int
+end

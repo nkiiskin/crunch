@@ -1,0 +1,9 @@
+long calculate(int x, long y) {
+    long result = x + y * 3;
+    if (result >= 10 && x != 0) {
+        result = result - 1;
+    } else {
+        result += 2;
+    }
+    return result;
+}

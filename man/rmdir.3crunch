@@ -1,0 +1,43 @@
+.TH RMDIR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+rmdir \- remove an empty directory
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int rmdir(const char* " path ");"
+.fi
+.SH DESCRIPTION
+.BR rmdir ()
+removes the directory named by
+.IR path .
+The directory must be empty.
+Use
+.BR unlink (3crunch)
+to remove non\-directory entries.
+.SH RETURN VALUE
+Zero on success, leaving
+.B errno
+unchanged; \-1 on failure with
+.B errno
+set to the positive Linux error number.
+.SH ERRORS
+Possible errors include
+.BR ENOENT ,
+.BR ENOTDIR ,
+.BR ENOTEMPTY ,
+and
+.BR EACCES .
+Other Linux
+.BR rmdir (2)
+errors are possible.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR mkdir (3crunch),
+.BR unlink (3crunch),
+.BR rmdir (2)

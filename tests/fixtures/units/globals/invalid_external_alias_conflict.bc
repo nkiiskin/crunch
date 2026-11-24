@@ -1,0 +1,7 @@
+typedef int Count;
+typedef long WideCount;
+
+extern Count total;
+extern WideCount total;
+
+int main() { return 0; }

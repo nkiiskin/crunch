@@ -1,0 +1,15 @@
+.TH TGKILL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+tgkill \- Linux x86-64 syscall 234
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int tgkill(pid_t process, pid_t thread, int signal);
+.fi
+.SH DESCRIPTION
+Sends a signal to a specific thread in a thread group.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR tgkill (2)

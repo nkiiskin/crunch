@@ -1,0 +1,15 @@
+#include <assert.h>
+
+int main(void) {
+    int value = 0;
+    assert(++value == 1);
+    if (value != 1) return 1;
+#define NDEBUG
+#include <assert.h>
+    assert(++value == 2);
+    if (value != 1) return 2;
+#undef NDEBUG
+#include <assert.h>
+    assert(++value == 2);
+    return value == 2 ? 0 : 3;
+}

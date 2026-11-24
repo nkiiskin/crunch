@@ -1,0 +1,18 @@
+.TH PWRITE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+pwrite \- write bytes at a file offset
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B ssize_t pwrite(int descriptor, const void* buffer, size_t byte_count, off_t offset);
+.fi
+.SH DESCRIPTION
+Writes bytes at offset without changing the open file's current position.
+Writes may be short; the caller must provide sufficient readable storage.
+On Linux, O_APPEND causes the write to append regardless of offset.
+.SH RETURN VALUE
+Returns bytes written, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR pread (3crunch),
+.BR write (3crunch),
+.BR pwrite (2)

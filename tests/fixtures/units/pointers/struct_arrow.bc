@@ -1,0 +1,76 @@
+struct Inner { char tag; int x; int y; int* cursor; int entries[1]; };
+struct Outer { char prefix; struct Inner inner; long total; int values[2]; };
+typedef struct { char marker; struct { int promoted; }; } Anonymous;
+
+struct Outer global;
+int calls;
+int offsets;
+
+struct Outer* select(struct Outer* p) { calls = calls + 1; return p; }
+int distance() { offsets = offsets + 1; return 2; }
+
+int main() {
+    int data[] = {10, 20, 30, 40};
+    struct Outer local;
+    struct Outer* p = &local;
+    p->prefix = (char)7;
+    p->inner.x = 11;
+    p->inner.y = 31;
+    p->total = (long)42;
+    if (p->prefix != 7 || p->inner.x + p->inner.y != 42 ||
+        p->total != (long)42) return 1;
+    int* address = &p->inner.x;
+    *address = 12;
+    if (local.inner.x != 12 || address != &p[0].inner.x) return 2;
+    struct Inner* nested = &p->inner;
+    nested->y = 30;
+    if (p->inner.y != 30) return 3;
+
+    p->inner.cursor = data;
+    if (select(p)->inner.cursor++ != &data[0] || calls != 1) return 4;
+    if (++select(p)->inner.cursor != &data[2] || calls != 2) return 5;
+    if (select(p)->inner.cursor-- != &data[2] || calls != 3) return 6;
+    if (--select(p)->inner.cursor != &data[0] || calls != 4) return 7;
+    if ((select(p)->inner.cursor += distance()) != &data[2] ||
+        calls != 5 || offsets != 1) return 8;
+    if ((select(p)->inner.cursor -= distance()) != &data[0] ||
+        calls != 6 || offsets != 2) return 9;
+    select(p)->inner.x = 21;
+    if (calls != 7 || select(p)->inner.x != 21 || calls != 8) return 10;
+    address = &select(p)->inner.x;
+    if (calls != 9 || *address != 21) return 11;
+
+    global.inner.x = 5;
+    global.inner.y = 6;
+    global.inner.cursor = &data[1];
+    global.inner.entries[0] = 33;
+    struct Outer* gp = &global;
+    calls = 0;
+    select(p)->inner = select(gp)->inner;
+    if (calls != 2 || local.inner.x != 5 || local.inner.y != 6 ||
+        local.inner.cursor != &data[1] || local.inner.entries[0] != 33) return 12;
+    calls = 0;
+    struct Inner saved = select(p)->inner;
+    if (calls != 1 || saved.x != 5 || saved.y != 6 ||
+        saved.cursor != &data[1]) return 13;
+
+    struct Outer array[2];
+    array[0].inner.x = 15;
+    array[1].inner.x = 25;
+    struct Outer* it = array;
+    if ((it++)->inner.x != 15 || it->inner.x != 25) return 14;
+    it->inner.x = 26;
+    if (array[1].inner.x != 26) return 15;
+    const struct Outer* view = it;
+    if (view->inner.x != 26) return 16;
+    const int* readonly = &view->inner.x;
+    if (*readonly != 26) return 19;
+    Anonymous anonymous;
+    Anonymous* ap = &anonymous;
+    ap->promoted = 42;
+    if (anonymous.promoted != 42 || *(&ap->promoted) != 42) return 17;
+
+    gp->values[0] = 9;
+    if (global.values[0] != 9) return 18;
+    return 42;
+}

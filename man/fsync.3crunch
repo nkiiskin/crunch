@@ -1,0 +1,15 @@
+.TH FSYNC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fsync \- synchronize file data and metadata
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int fsync(int descriptor);
+.fi
+.SH DESCRIPTION
+Flushes modified file data and associated metadata to stable storage.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR fdatasync (3crunch),
+.BR fsync (2)

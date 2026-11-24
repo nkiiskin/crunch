@@ -1,0 +1,15 @@
+.TH FCHDIR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fchdir \- change the working directory using a descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int fchdir(int descriptor);
+.fi
+.SH DESCRIPTION
+Changes the process's current working directory to the open directory.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR chdir (3crunch),
+.BR fchdir (2)

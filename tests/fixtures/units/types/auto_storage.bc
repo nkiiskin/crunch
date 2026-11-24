@@ -1,0 +1,15 @@
+int result(void) { return 7; }
+
+int main(void)
+{
+    auto char probe = 3;
+    int auto value = 4;
+    const auto int fixed = 5;
+    auto int a = 1, b = 2;
+    auto int (*function)(void) = result;
+    int *address = &value;
+    for (auto int i = 0; i < 2; ++i)
+        a += i;
+    return probe != 3 || *address != 4 || fixed != 5 || a != 2 || b != 2 ||
+           function() != 7;
+}

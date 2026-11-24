@@ -1,0 +1,37 @@
+struct globnames { char *name; int flags; };
+typedef long type;
+struct inner { char c; long value; };
+struct outer {
+    char first;
+    struct inner items[3];
+    union { int number; struct { char x; int promoted; }; };
+    char tail[];
+};
+union choice { char c; long n; };
+
+_Static_assert(__builtin_offsetof(struct globnames, name) == 0, "name");
+_Static_assert(__builtin_offsetof(struct { char __slot1; long __slot2; }, __slot2) == 8, "anonymous");
+_Static_assert(__builtin_offsetof(struct { char __slot1; type __slot2; }, __slot2) == 8, "typedef");
+_Static_assert(__builtin_offsetof(struct { char c; int a[2]; }, a[1]) == 8, "anonymous array");
+_Static_assert(__builtin_offsetof(struct named_inline { int b:1; int n; }, n) == 4, "named inline");
+_Static_assert(__builtin_offsetof(struct outer, items[2].value) == 48, "nested");
+_Static_assert(__builtin_offsetof(struct outer, promoted) == 60, "promoted");
+_Static_assert(__builtin_offsetof(union choice, n) == 0, "union");
+_Static_assert(__builtin_offsetof(struct outer, tail) == 64, "flexible");
+enum offsets { ITEM = __builtin_offsetof(struct outer, items[1].value) };
+int array[__builtin_offsetof(struct outer, items[0].value) == 16 ? 2 : 1];
+unsigned long global = __builtin_offsetof(struct outer, items[1].value);
+double real_global = __builtin_offsetof(struct outer, items[1].value);
+
+int main(void) {
+    int i = 1;
+    struct matrix { char c; int a[2][3]; };
+    if (ITEM != 32 || global != 32 || real_global != 32 || sizeof(array) != 8) return 1;
+    if (__builtin_offsetof(struct outer, items[i++].value) != 32 || i != 2) return 2;
+    if (__builtin_offsetof(struct outer, items[-1].value) != 0) return 3;
+    if (__builtin_offsetof(struct matrix, a[i - 1][2]) != 24) return 5;
+    if (__builtin_offsetof(struct matrix, a[-1][0]) != (unsigned long)-8) return 6;
+    if (sizeof(__builtin_offsetof(struct matrix, a[i++][0])) != 8 || i != 2) return 7;
+    switch (0) { case __builtin_offsetof(struct globnames, name): break; default: return 4; }
+    return 0;
+}

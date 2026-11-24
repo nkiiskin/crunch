@@ -1,0 +1,15 @@
+.TH CRUNCH_WAITID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_waitid \- Linux x86-64 syscall 247
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_waitid(int type, pid_t id, siginfo_t* information, int options, struct rusage* usage);
+.fi
+.SH DESCRIPTION
+Invokes the five-argument Linux waitid syscall, including its optional resource usage output.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR waitid (2)

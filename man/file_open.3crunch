@@ -1,0 +1,17 @@
+.TH FILE_OPEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+file_open \- open a file using Crunch modes
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B long file_open(const char* path, int mode);
+.fi
+.SH DESCRIPTION
+Opens path using FILE_READ, FILE_WRITE, or FILE_APPEND. Write and append
+modes create files with permissions 0644 modified by the process umask.
+Write truncates; append writes at the end.
+.SH RETURN VALUE
+Returns a descriptor, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR file_close (3crunch)

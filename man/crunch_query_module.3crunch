@@ -1,0 +1,14 @@
+.TH CRUNCH_QUERY_MODULE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_query_module \- invokes obsolete query_module syscall 178, unimplemented on linux x86-64 and returning enosys
+.SH SYNOPSIS
+.nf
+.B #include <sys/module.h>
+.B int crunch_query_module(const char* name, int which, void* buffer, size_t size, size_t* result);
+.fi
+.SH DESCRIPTION
+Invokes obsolete query_module syscall 178, unimplemented on Linux x86-64 and returning ENOSYS.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR query_module (2)

@@ -1,0 +1,40 @@
+.TH ACCESS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+access \- check access to a path
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int access(const char* " path ", int " mode ");"
+.fi
+.SH DESCRIPTION
+Checks the NUL\-terminated path using the process's real user and group IDs.
+Use
+.B F_OK
+to test existence, or combine
+.BR R_OK ,
+.BR W_OK ,
+and
+.B X_OK
+to test read, write, and execute permission.
+The check follows symbolic links.
+.SH RETURN VALUE
+Returns 0 on success, or \-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+for error constants. Errors include
+.BR EACCES ,
+.BR EFAULT ,
+.BR EINVAL ,
+and
+.BR ENOENT .
+Other Linux access errors are possible.
+.SH NOTES
+Do not use this check as authorization for a subsequent open: the path or
+permissions can change between the operations. Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR access (2)

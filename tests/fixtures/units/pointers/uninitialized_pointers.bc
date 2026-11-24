@@ -1,0 +1,39 @@
+struct InnerPointers {
+    int *integer_pointer;
+    long *long_pointer;
+};
+
+struct PointerSet {
+    char *byte_pointer;
+    double *real_pointer;
+    struct InnerPointers inner;
+};
+
+int *global_integer_pointer;
+long *global_long_pointer;
+char *global_byte_pointer;
+double *global_real_pointer;
+struct PointerSet global_pointers;
+
+int main() {
+    int *local_integer_pointer;
+    long *local_long_pointer;
+    char *local_byte_pointer;
+    double *local_real_pointer;
+    struct PointerSet local_pointers;
+    int value = 42;
+    int *initialized_pointer = &value;
+
+    if (global_integer_pointer || global_long_pointer ||
+        global_byte_pointer || global_real_pointer ||
+        global_pointers.byte_pointer || global_pointers.real_pointer ||
+        global_pointers.inner.integer_pointer ||
+        global_pointers.inner.long_pointer) return 1;
+    if (local_integer_pointer || local_long_pointer ||
+        local_byte_pointer || local_real_pointer ||
+        local_pointers.byte_pointer || local_pointers.real_pointer ||
+        local_pointers.inner.integer_pointer ||
+        local_pointers.inner.long_pointer) return 2;
+    if (!initialized_pointer || *initialized_pointer != value) return 3;
+    return 0;
+}

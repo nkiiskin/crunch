@@ -1,0 +1,41 @@
+int read_value(int *pointer) {
+    return *pointer;
+}
+
+int write_value(int *pointer, int value) {
+    *pointer = value;
+    return *pointer;
+}
+
+int main() {
+    char small = (char)7;
+    char *small_pointer = &small;
+    small_pointer[0] = (char)9;
+    if (*small_pointer != 9) {
+        return 1;
+    }
+
+    long wide = 12;
+    long *wide_pointer = &wide;
+    *wide_pointer = 13;
+    if (*wide_pointer != 13) {
+        return 2;
+    }
+
+    double fraction = 1.5;
+    double *fraction_pointer = &fraction;
+    *fraction_pointer = 2.5;
+    if (*fraction_pointer != 2.5) {
+        return 3;
+    }
+
+    int value = 10;
+    int *pointer = &value;
+    if (pointer == &value) {
+        pointer[0] = 20;
+        pointer += 0;
+        pointer++;
+        pointer--;
+    }
+    return read_value(&value) + 22;
+}

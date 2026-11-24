@@ -1,0 +1,33 @@
+.TH FCLOSE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fclose \- close a Crunch file stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fclose(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR fclose ()
+closes the underlying file descriptor and releases the stream.
+The pointer is invalid after the call, including when closing fails.
+Stream output is unbuffered, so there is no buffered output to flush.
+.SH RETURN VALUE
+Returns zero on success or
+.B EOF
+(\-1) with
+.B errno
+set on failure. A null stream fails with
+.BR EINVAL .
+.SH NOTES
+Only open Crunch streams, including
+.BR stdin ,
+.BR stdout ,
+.BR stderr ,
+and pointers returned by
+.BR fopen (3crunch),
+may be used; C library streams are not compatible.
+Crunch's allocator and errno are not thread-safe.
+.SH SEE ALSO
+.BR fopen (3crunch),
+.BR close (3crunch)

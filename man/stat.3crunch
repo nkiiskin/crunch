@@ -1,0 +1,85 @@
+.TH STAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+stat \- obtain file metadata
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int stat(const char* " path ", struct stat* " buffer ");"
+.fi
+.SH DESCRIPTION
+.BR stat ()
+follows symbolic links and stores information about the NUL\-terminated
+.I path
+in the writable structure at
+.IR buffer .
+.PP
+.B <sys/stat.h>
+declares the Linux x86\-64 kernel's 144\-byte
+.B struct stat
+layout. Named fields include
+.BR st_dev ,
+.BR st_ino ,
+.BR st_nlink ,
+.BR st_mode ,
+.BR st_uid ,
+.BR st_gid ,
+.BR st_rdev ,
+.BR st_size ,
+.BR st_blksize ,
+and
+.BR st_blocks .
+Time values are provided as seconds and nanoseconds in
+.B st_atime
+and
+.BR st_atime_nsec ,
+.B st_mtime
+and
+.BR st_mtime_nsec ,
+and
+.B st_ctime
+and
+.BR st_ctime_nsec .
+Other fields are reserved or padding and should not be used by applications.
+.PP
+Crunch's
+.B int
+and
+.B long
+are signed. Interpret fields that represent unsigned kernel values as their
+bit patterns. This layout is target\-specific, not a portable C library
+.BR "struct stat" .
+.SH RETURN VALUE
+Zero is returned on success.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+Possible errors include
+.BR EACCES ,
+.BR EFAULT ,
+.BR ELOOP ,
+.BR ENOENT ,
+and
+.BR ENOTDIR .
+Other Linux
+.BR newfstatat (2)
+errors are possible.
+.SH NOTES
+This Crunch library function is linked from
+.BR libcrunch.a .
+Its
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR lseek (3crunch),
+.BR fstat (3crunch),
+.BR stat (2)

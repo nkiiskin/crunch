@@ -1,0 +1,14 @@
+.TH CRUNCH_RESTART_SYSCALL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_restart_syscall \- invokes the internal linux restart_syscall entry point
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B long crunch_restart_syscall(void);
+.fi
+.SH DESCRIPTION
+Invokes the internal Linux restart_syscall entry point. It is intended for kernel signal-restart machinery, not ordinary application calls.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR restart_syscall (2)

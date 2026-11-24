@@ -1,0 +1,14 @@
+.TH KLOGCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+klogctl \- invokes the linux syslog system call
+.SH SYNOPSIS
+.nf
+.B #include <sys/klog.h>
+.B int klogctl(int type, char* buffer, int length);
+.fi
+.SH DESCRIPTION
+Invokes the Linux syslog system call. Operations and permissions depend on type and kernel configuration.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR syslog (2)

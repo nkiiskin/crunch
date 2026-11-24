@@ -1,0 +1,50 @@
+struct point {
+    int x;
+    int y;
+};
+
+struct record {
+    char kind;
+    struct point position;
+    long weight;
+    int samples[2];
+};
+
+int main() {
+    struct point p1;
+    p1.x = 3;
+    p1.y = 4;
+    struct point p2 = p1;
+    if (p2.x != 3 || p2.y != 4) return 5;
+    p1.x = 99;
+    if (p2.x != 3) return 6;
+
+    struct record original;
+    original.kind = (char)7;
+    original.position.x = 10;
+    original.position.y = 20;
+    original.weight = (long)5;
+    original.samples[0] = 30;
+    original.samples[1] = 31;
+
+    struct record copy = original;
+    if (copy.kind != (char)7 || copy.position.x != 10 ||
+        copy.position.y != 20 || copy.weight != (long)5 ||
+        copy.samples[1] != 31) return 1;
+
+    struct record records[2];
+    records[0] = original;
+    records[1] = copy;
+    original.position.x = 99;
+    if (records[0].position.x != 10 || records[1].position.y != 20 ||
+        records[0].samples[1] != 31) return 2;
+
+    copy = records[0];
+    if (copy.position.x != 10 || copy.kind != (char)7 ||
+        copy.samples[1] != 31) return 3;
+
+    records[1] = records[0];
+    if (records[1].position.x != 10 || records[1].weight != (long)5) return 4;
+
+    return records[1].position.x + records[1].position.y + 12;
+}

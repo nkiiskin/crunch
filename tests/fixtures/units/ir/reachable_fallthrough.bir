@@ -1,0 +1,4 @@
+CRUNCH-IR 2
+func main 0 int
+push 0
+end

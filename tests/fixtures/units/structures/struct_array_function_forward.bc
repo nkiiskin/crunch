@@ -1,0 +1,21 @@
+struct entry {
+    int value;
+};
+
+int read_entry(struct entry entries[], int index) {
+    return entries[index].value;
+}
+
+int combine_entries(struct entry left[], struct entry right[], int index) {
+    return read_entry(left, index) + read_entry(right, index);
+}
+
+int main() {
+    struct entry left[2];
+    struct entry right[2];
+    left[0].value = 10;
+    left[1].value = 20;
+    right[0].value = 12;
+    right[1].value = 22;
+    return combine_entries(left, right, 1) + 2;
+}

@@ -1,0 +1,14 @@
+.TH CRUNCH_EPOLL_CTL_OLD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_epoll_ctl_old \- invokes obsolete epoll_ctl_old syscall slot 214, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int crunch_epoll_ctl_old(int epoll, int operation, int descriptor, void* event);
+.fi
+.SH DESCRIPTION
+Invokes obsolete epoll_ctl_old syscall slot 214, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR epoll_ctl_old (2)

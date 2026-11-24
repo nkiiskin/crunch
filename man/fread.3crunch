@@ -1,0 +1,48 @@
+.TH FREAD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fread \- read items from a Crunch file stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "size_t fread(void* " buffer ", size_t " size ", size_t " count ", struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Reads up to
+.I count
+items of
+.I size
+bytes into the buffer. A partial final item may modify the buffer but does not
+count as a complete item. A zero size or count returns zero without I/O.
+.PP
+End-of-file and errors are recorded in the stream. End-of-file remains set
+until a successful
+.BR fseek (3crunch)
+or
+.BR clearerr (3crunch).
+Use
+.BR feof (3crunch)
+and
+.BR ferror (3crunch)
+to distinguish end-of-file from an error.
+.SH RETURN VALUE
+Returns the number of complete items read. A short count can mean end-of-file
+or an error. On error
+.B errno
+is set; a null nonempty buffer or stream sets
+.BR EINVAL .
+A size/count product exceeding the supported signed 64-bit byte range sets
+.BR EOVERFLOW .
+.SH NOTES
+I/O is unbuffered; interrupted reads report an error.
+Crunch streams are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fopen (3crunch),
+.BR clearerr (3crunch),
+.BR feof (3crunch),
+.BR ferror (3crunch),
+.BR fseek (3crunch),
+.BR fwrite (3crunch),
+.BR read (3crunch)

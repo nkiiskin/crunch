@@ -1,0 +1,32 @@
+.TH FGETC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fgetc \- read one byte from a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fgetc(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Reads one byte from the stream. The stream is unbuffered.
+.SH RETURN VALUE
+Returns the byte as an integer from 0 to 255, or
+.B EOF
+(\-1) on end-of-file or error. Use
+.BR feof (3crunch)
+and
+.BR ferror (3crunch)
+to distinguish them. A null stream returns
+.B EOF
+with
+.B errno
+set to
+.BR EINVAL .
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fputc (3crunch),
+.BR fread (3crunch),
+.BR stdin (3crunch)

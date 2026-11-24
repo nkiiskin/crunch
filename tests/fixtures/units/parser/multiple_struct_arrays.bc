@@ -1,0 +1,13 @@
+struct point {
+    int x, y;
+};
+
+struct point points[], more_points[];
+
+int main() {
+    char first, bytes[], other_bytes[];
+    long wide, longs[], other_longs[];
+    double value, reals[], other_reals[];
+    struct point local_points[], other_local_points[];
+    return 0;
+}

@@ -1,0 +1,41 @@
+struct Pair { int x; int y; };
+struct Container { int *p; struct Pair *pair; };
+struct Bits { unsigned int n : 3; int x; };
+union Number { int value; unsigned char bytes[4]; };
+#define LITERAL(v) &(int){v}
+
+struct Pair *pair = &(struct Pair){10, 32};
+int *numbers = (int[]){3, [3] = 9};
+int *selected = &((int[]){4, 5, 6})[1];
+int *field = &(struct Pair){.y = 7, .x = 2}.y;
+int *scalar = &(int){8};
+char *text = (char[]){"hi"};
+struct Container *container = &(struct Container){
+    .p = &(int){11}, .pair = &(struct Pair){12, 13}
+};
+struct Bits *bits = &(struct Bits){.n = 5, .x = 6};
+long double *wide = &(long double){2.5L};
+const int *qualified = &(const int){17};
+union Number *number = &(union Number){.value = 19};
+int **null_pointer = &(int *){(void *)0};
+int *macro_a = LITERAL(21);
+int *macro_b = LITERAL(22);
+int *chosen = 1 ? &(int){23} : &(int){24};
+int *unchosen = 0 ? &(int){25} : (void *)0;
+int **nested_choice = &(int *){1 ? &(int){26} : (void *)0};
+int array_size = sizeof((int[]){1, 2, 3});
+
+int main(void) {
+    if (pair->x + pair->y != 42 || numbers[0] != 3 || numbers[1] ||
+        numbers[3] != 9 || *selected != 5 || *field != 7) return 1;
+    if (*scalar != 8 || text[0] != 'h' || text[1] != 'i' || text[2]) return 2;
+    if (*container->p != 11 || container->pair->y != 13 ||
+        bits->n != 5 || bits->x != 6 || *wide != 2.5L) return 3;
+    if (*qualified != 17 || number->value != 19 || *null_pointer ||
+        *macro_a != 21 || *macro_b != 22 || *chosen != 23 || unchosen ||
+        **nested_choice != 26 || array_size != 3 * sizeof(int)) return 5;
+    pair->x = 20;
+    *scalar = 18;
+    if (pair->x != 20 || *scalar != 18) return 4;
+    return 42;
+}

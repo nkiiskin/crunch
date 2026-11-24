@@ -1,0 +1,96 @@
+struct Holder {
+    char* bytes;
+    int* ints;
+    long* longs;
+    double* reals;
+    const int* view;
+    int values[2];
+};
+struct Container { struct Holder inner; };
+
+struct Holder global;
+struct Holder global_items[1];
+static struct Container nested_global;
+int index_calls;
+int offset_calls;
+int base_calls;
+
+int index() { index_calls = index_calls + 1; return 0; }
+int distance() { offset_calls = offset_calls + 1; return 2; }
+struct Container* select(struct Container* p) { base_calls = base_calls + 1; return p; }
+
+int main() {
+    int numbers[] = {10, 20, 30, 40};
+    long wides[] = {(long)10, (long)20, (long)30};
+    double fractions[] = {1.0, 2.0, 3.0};
+    char text[] = "abc";
+    struct Container local;
+    local.inner.ints = numbers;
+    int* old = local.inner.ints++;
+    if (old != &numbers[0] || local.inner.ints != &numbers[1]) return 1;
+    int* current = ++local.inner.ints;
+    if (current != &numbers[2] || local.inner.ints != &numbers[2]) return 2;
+    old = local.inner.ints--;
+    if (old != &numbers[2] || local.inner.ints != &numbers[1]) return 3;
+    current = --local.inner.ints;
+    if (current != &numbers[0] || local.inner.ints != &numbers[0]) return 4;
+    local.inner.ints++;
+    local.inner.ints--;
+    current = (local.inner.ints += 3);
+    if (current != &numbers[3] || *current != 40) return 5;
+    current = (local.inner.ints -= 2);
+    if (current != &numbers[1]) return 6;
+    int negative = -1;
+    local.inner.ints += negative;
+    local.inner.ints -= negative;
+    if (local.inner.ints != &numbers[1]) return 7;
+    local.inner.view = numbers;
+    const int* previous = local.inner.view++;
+    if (*previous != 10 || *local.inner.view != 20) return 23;
+
+    global.ints = numbers;
+    if (global.ints++ != &numbers[0] || ++global.ints != &numbers[2]) return 8;
+    if (global.ints-- != &numbers[2] || --global.ints != &numbers[0]) return 9;
+    global.ints += 4;
+    if (global.ints != &numbers[4]) return 10;
+    global.ints--;
+    if (*global.ints != 40) return 11;
+    global.ints -= 3;
+    if (global.ints != &numbers[0]) return 12;
+    {
+        struct Holder global;
+        global.ints = &numbers[1];
+        if (global.ints++ != &numbers[1] || global.ints != &numbers[2]) return 24;
+    }
+    if (global.ints != &numbers[0]) return 25;
+
+    nested_global.inner.longs = wides;
+    if (*(nested_global.inner.longs++) != (long)10) return 13;
+    if (*(++nested_global.inner.longs) != (long)30) return 14;
+    nested_global.inner.longs -= 2;
+    if (*nested_global.inner.longs != (long)10) return 15;
+    local.inner.reals = fractions;
+    if (*(local.inner.reals++) != 1.0 || *(++local.inner.reals) != 3.0) return 16;
+    local.inner.reals -= 2;
+    local.inner.bytes = text;
+    if (*(local.inner.bytes++) != 'a' || *(++local.inner.bytes) != 'c') return 17;
+    local.inner.bytes -= 2;
+    if (*local.inner.bytes != 'a') return 18;
+
+    struct Container array[1];
+    array[0].inner.ints = numbers;
+    old = select(array)[index()].inner.ints++;
+    if (base_calls != 1 || index_calls != 1 || old != &numbers[0] ||
+        array[0].inner.ints != &numbers[1]) return 19;
+    current = (select(array)[index()].inner.ints += distance());
+    if (base_calls != 2 || index_calls != 2 || offset_calls != 1 ||
+        current != &numbers[3]) return 20;
+    current = --array[index()].inner.ints;
+    if (index_calls != 3 || current != &numbers[2]) return 21;
+    current = (array[index()].inner.ints -= distance());
+    if (index_calls != 4 || offset_calls != 2 || current != &numbers[0]) return 22;
+    global_items[0].ints = numbers;
+    if (global_items[0].ints++ != &numbers[0] ||
+        (global_items[0].ints += 2) != &numbers[3]) return 26;
+    return 42;
+}

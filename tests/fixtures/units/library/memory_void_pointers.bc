@@ -1,0 +1,28 @@
+#include <string.h>
+
+void* memcpy(void* destination, const void* source, size_t count);
+void* memset(void* destination, int value, size_t count);
+int memcmp(const void* left, const void* right, size_t count);
+
+struct Item { int count; long value; };
+
+int main() {
+    struct Item source;
+    struct Item destination;
+    if (memset(&source, 0, sizeof(source)) != &source ||
+        memset(&destination, 0, sizeof(destination)) != &destination) return 1;
+    source.count = 42;
+    source.value = 123;
+    const struct Item* input = &source;
+    struct Item* result = memcpy(&destination, input, sizeof(source));
+    if (result != &destination || result->count != 42 || result->value != 123 ||
+        memcmp(input, &destination, sizeof(source)) != 0) return 2;
+    int data[2] = {5, 6};
+    int copy[2];
+    int* data_result = memcpy(copy, data, sizeof(data));
+    if (data_result != copy || copy[0] != 5 || copy[1] != 6 ||
+        memcmp(data, copy, sizeof(data)) != 0) return 3;
+    if (memset(copy, 0, sizeof(copy)) != copy || copy[0] || copy[1]) return 4;
+    if (memcpy(0, 0, 0) || memset(0, 1, 0) || memcmp(0, 0, 0)) return 5;
+    return 42;
+}

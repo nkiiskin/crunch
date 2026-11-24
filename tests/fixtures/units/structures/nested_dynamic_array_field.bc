@@ -1,0 +1,29 @@
+unsigned long strlen(const char* text);
+struct Inner {
+    char values[4];
+};
+
+struct Outer {
+    struct Inner inner;
+    int marker;
+};
+
+struct Outer global;
+
+int main() {
+    struct Outer local;
+    local.inner.values[0] = 'o';
+    local.inner.values[1] = 'k';
+    local.inner.values[2] = (char)0;
+    if (strlen(local.inner.values) != 2) return 1;
+    if (local.inner.values[0] != 'o' || local.inner.values[1] != 'k') return 2;
+
+    global.inner.values[0] = 'y';
+    global.inner.values[1] = 'e';
+    global.inner.values[2] = 's';
+    global.inner.values[3] = (char)0;
+    if (strlen(global.inner.values) != 3) return 3;
+    if (global.inner.values[2] != 's') return 4;
+    return (int)(strlen(local.inner.values) + 1) +
+           (int)(strlen(global.inner.values) + 1) * 10;
+}

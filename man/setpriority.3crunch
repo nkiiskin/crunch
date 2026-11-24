@@ -1,0 +1,14 @@
+.TH SETPRIORITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setpriority \- sets the nice value for matching processes, subject to resource limits and privileges
+.SH SYNOPSIS
+.nf
+.B #include <sys/resource.h>
+.B int setpriority(int which, unsigned int who, int priority);
+.fi
+.SH DESCRIPTION
+Sets the nice value for matching processes, subject to resource limits and privileges.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR setpriority (2)

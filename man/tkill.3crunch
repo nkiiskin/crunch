@@ -1,0 +1,14 @@
+.TH TKILL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+tkill \- sends a signal to a linux thread id
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B int tkill(pid_t thread, int signal);
+.fi
+.SH DESCRIPTION
+Sends a signal to a Linux thread ID. Prefer tgkill when available to avoid thread ID reuse races.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR tkill (2)

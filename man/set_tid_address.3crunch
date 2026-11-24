@@ -1,0 +1,14 @@
+.TH SET_TID_ADDRESS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+set_tid_address \- sets the calling thread clear-child-tid address and returns its thread id
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B pid_t set_tid_address(int* address);
+.fi
+.SH DESCRIPTION
+Sets the calling thread clear-child-TID address and returns its thread ID. The kernel writes zero and performs a futex wake at thread exit, so the address must remain writable until then. This changes thread runtime state.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR set_tid_address (2)

@@ -1,0 +1,19 @@
+.TH ACCEPT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+accept \- accept a pending connection
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int accept(int descriptor, struct sockaddr* address, socklen_t* length);
+.fi
+.SH DESCRIPTION
+Accepts a pending connection and returns a new descriptor.
+When address is non\-NULL, length supplies the address buffer capacity and
+receives the actual peer address length. Pass NULL for both to omit the peer
+address. The listening descriptor remains open.
+.SH RETURN VALUE
+Returns the new descriptor, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR listen (3crunch),
+.BR accept (2)

@@ -1,0 +1,15 @@
+.TH CRUNCH_FACCESSAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_faccessat \- Linux x86-64 syscall 269
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int crunch_faccessat(int directory, const char* path, int mode);
+.fi
+.SH DESCRIPTION
+Invokes the original three-argument Linux faccessat syscall; flags are not supported.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR faccessat (2)

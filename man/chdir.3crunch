@@ -1,0 +1,16 @@
+.TH CHDIR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+chdir \- change the working directory
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int chdir(const char* path);
+.fi
+.SH DESCRIPTION
+Changes the process's current working directory to path.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR fchdir (3crunch),
+.BR getcwd (3crunch),
+.BR chdir (2)

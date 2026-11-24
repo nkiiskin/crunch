@@ -1,0 +1,31 @@
+void extended_add(long double *out, const long double *a, const long double *b) {
+    *out = *a + *b;
+}
+
+void extended_subtract(long double *out, const long double *a, const long double *b) {
+    *out = *a - *b;
+}
+
+void extended_from_double(long double *out, double value) {
+    *out = value;
+}
+
+void extended_from_ulong(long double *out, unsigned long value) {
+    *out = value;
+}
+
+double extended_to_double(const long double *value) {
+    return *value;
+}
+
+unsigned long extended_to_ulong(const long double *value) {
+    return (unsigned long)*value;
+}
+
+int extended_check(const long double *a, const long double *b) {
+    return *a && *a > *b && !(-*b > *a) && (int)*a == 1;
+}
+
+void extended_index(long double *values) {
+    values[1] = values[0] * values[2];
+}

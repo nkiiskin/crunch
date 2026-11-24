@@ -1,0 +1,11 @@
+struct Animal {
+    double weight;
+    char name[10];
+};
+
+struct Animal pet;
+int main() {
+    pet.name[0] = 'E';
+    pet.weight = .5E-2;
+    return 0;
+}

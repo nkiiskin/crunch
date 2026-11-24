@@ -1,0 +1,37 @@
+static const {
+    double width = 1.5 < 2.0 ? 3.0 : 4.0;
+    double false_branch = 0 ? 1.0 : 2.5;
+};
+
+double signed_zero = -0.0 ? 10.0 : 20.0;
+double nan_condition = (0.0 / 0.0) ? 7.0 : 8.0;
+double mixed = 1 ? 9007199254740993 : 1.0;
+double nested = 1.5 < 2.0 ? (0 ? 1.0 : 2.0) : 3.0;
+double skip_false = 1 ? 2.0 : (1 / 0);
+double skip_true = 0 ? (1 / 0) : 2.5;
+double real_condition_integer_branches = 1.0 ? 40 : 1;
+int integer_result = 0.0 ? (1 / 0) : 42;
+int comparison = (0 ? 2.0 : 3.0) == 3.0;
+double with_sizeof = sizeof(int) ? 4.0 : 1.0;
+
+int main() {
+    double a = 1.5, b = 2.0, zero = 0.0, negative_zero = -0.0;
+    double nan = zero / zero;
+    long precise = 9007199254740993;
+    long count = 4294967296;
+    char small = (char)0;
+    double runtime_width = a < b ? 3.0 : 4.0;
+    double runtime_zero = negative_zero ? 10.0 : 20.0;
+    double runtime_nan = nan ? 7.0 : 8.0;
+    double runtime_mixed = count ? precise : 1.0;
+    int runtime_integer = zero ? 1 : 42;
+    if (width != runtime_width || false_branch != 2.5 ||
+        signed_zero != runtime_zero || nan_condition != runtime_nan) return 1;
+    if (mixed != runtime_mixed || mixed != 9007199254740992.0 ||
+        nested != 2.0 || with_sizeof != 4.0) return 2;
+    if (skip_false != 2.0 || skip_true != 2.5 ||
+        real_condition_integer_branches != 40.0 || integer_result != runtime_integer ||
+        comparison != 1) return 3;
+    if ((small ? 1 : 42) != 42 || (count ? 42 : 1) != 42) return 4;
+    return 42;
+}

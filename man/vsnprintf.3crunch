@@ -1,0 +1,28 @@
+.TH VSNPRINTF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+vsnprintf \- format a System V argument list into a bounded byte buffer
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int vsnprintf(char *" buffer ", size_t " capacity ", const char *" format ,
+.BI "              struct __crunch_va_list_tag *" arguments ");"
+.fi
+.SH DESCRIPTION
+Formats an existing Linux x86-64 System V argument list into a bounded buffer.
+It consumes the argument list, and supports the conversions documented in
+.BR snprintf (3crunch)
+and the additional string precision
+.BR %.*s .
+The destination and capacity rules are the same as for
+.BR snprintf (3crunch).
+Arguments and their types must match the format string.
+.PP
+Argument lists may be created using
+.B stdarg.h
+or supplied by interoperating C code.
+.SH RETURN VALUE
+Returns the number of bytes that would have been written, excluding the
+terminating NUL, or \-1 on error.
+.SH SEE ALSO
+.BR snprintf (3crunch)

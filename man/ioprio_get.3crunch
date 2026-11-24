@@ -1,0 +1,15 @@
+.TH IOPRIO_GET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ioprio_get \- Linux x86-64 syscall 252
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int ioprio_get(int which, int who);
+.fi
+.SH DESCRIPTION
+Gets encoded I/O scheduling priority.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR ioprio_get (2)

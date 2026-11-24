@@ -1,0 +1,18 @@
+.TH RECVMSG 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+recvmsg \- receive a scatter/gather socket message
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B ssize_t recvmsg(int descriptor, struct msghdr* message, int flags);
+.fi
+.SH DESCRIPTION
+Receives data into the writable iovec buffers in message.
+Linux updates the supplied message header, including address, control lengths
+and message flags. Crunch structures use the Linux x86\-64 kernel layout.
+.SH RETURN VALUE
+Returns bytes received, possibly fewer than requested, or \-1 with errno set.
+Zero can indicate end of stream. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR recvfrom (3crunch),
+.BR recvmsg (2)

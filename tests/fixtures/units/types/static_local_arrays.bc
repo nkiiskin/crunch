@@ -1,0 +1,48 @@
+int global_values[2] = {40, 2};
+int _crunch_static_local_0;
+struct Pair { int value; };
+
+int advance(int recurse) {
+    static int values[3] = {1, 2};
+    static int *references[] = {values, &global_values[1], values + 1};
+    static char text[] = "abc";
+    static char *labels[] = {"xyz", text};
+    static const int sizes[] = {12};
+    if (sizeof(values) != 12 || values[2] != 0 || text[3] != 0)
+        return -10;
+    if (references[0] != values || *references[1] != 2 || *references[2] != 2 ||
+        labels[0][2] != 'z' || labels[1] != text || sizes[0] != 12)
+        return -11;
+    values[0] = values[0] + 1;
+    text[0] = (char)(text[0] + 1);
+    if (recurse)
+        return advance(0);
+    return values[0] + text[0] - 'a';
+}
+
+int shadow() {
+    static int values[1] = {7};
+    {
+        static int values[1] = {8};
+        values[0] = values[0] + 1;
+        if (values[0] != 9)
+            return 0;
+    }
+    return values[0];
+}
+
+int zeroed() {
+    static struct Pair pairs[2];
+    static int *item[] = {&pairs[1].value};
+    static int a[1] = {3}, b[1] = {4};
+    if (pairs[0].value != 0 || a[0] != 3 || b[0] != 4)
+        return 0;
+    *item[0] = 1;
+    return pairs[1].value;
+}
+
+int main() {
+    if (advance(1) != 5 || advance(0) != 7 || shadow() != 7 || zeroed() != 1)
+        return 1;
+    return global_values[0] + global_values[1];
+}

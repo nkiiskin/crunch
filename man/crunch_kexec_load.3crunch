@@ -1,0 +1,15 @@
+.TH CRUNCH_KEXEC_LOAD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_kexec_load \- Linux x86-64 syscall 246
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long crunch_kexec_load(unsigned long entry, unsigned long count, const void* segments, unsigned long flags);
+.fi
+.SH DESCRIPTION
+Loads a kernel image; this privileged operation can alter system boot state.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR kexec_load (2)

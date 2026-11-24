@@ -1,0 +1,17 @@
+.TH SETSOCKOPT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setsockopt \- set a socket option
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int setsockopt(int descriptor, int level, int option, const void* value, socklen_t length);
+.fi
+.SH DESCRIPTION
+Sets an option at SOL_SOCKET or a protocol level. Value and length must match
+the option's Linux data type. The header defines common SO_* options and
+struct linger; timeout options use the Linux timeval layout.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR getsockopt (3crunch),
+.BR setsockopt (2)

@@ -1,0 +1,17 @@
+.TH GETSOCKOPT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getsockopt \- read a socket option
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int getsockopt(int descriptor, int level, int option, void* value, socklen_t* length);
+.fi
+.SH DESCRIPTION
+Reads an option into writable value storage. The length pointer supplies
+capacity and receives the size returned by Linux. The option determines the
+buffer type.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR setsockopt (3crunch),
+.BR getsockopt (2)

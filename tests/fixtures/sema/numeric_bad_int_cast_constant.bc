@@ -1,0 +1,4 @@
+int main() {
+    int invalid = (int)5000000000;
+    return 0;
+}

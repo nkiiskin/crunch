@@ -1,0 +1,46 @@
+#include <limits.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <errno.h>
+
+#if CHAR_BIT != 8 || BYTE_MIN != 0 || BYTE_MAX != 255
+#error incorrect char limits
+#endif
+#if INT_MIN != (-2147483647 - 1) || INT_MAX != 2147483647
+#error incorrect int limits
+#endif
+#if UINT_MAX != 4294967295U || ULONG_MAX != 18446744073709551615UL
+#error incorrect unsigned limits
+#endif
+#if LONG_MIN != (-9223372036854775807 - 1) || LONG_MAX != 9223372036854775807
+#error incorrect long limits
+#endif
+
+int int_min = INT_MIN;
+int int_max = INT_MAX;
+long long_min = LONG_MIN;
+long long_max = LONG_MAX;
+unsigned int uint_max = UINT_MAX;
+unsigned long ulong_max = ULONG_MAX;
+
+int main() {
+    if (sizeof(INT_MIN) != 4 || sizeof(INT_MAX) != 4 ||
+        sizeof(UINT_MAX) != 4 || sizeof(LONG_MIN) != 8 ||
+        sizeof(LONG_MAX) != 8 || sizeof(ULONG_MAX) != 8) return 1;
+    if (int_min != -2147483647 - 1 || int_max != 2147483647 ||
+        long_min != -9223372036854775807 - 1 ||
+        long_max != 9223372036854775807) return 2;
+    if (uint_max + 1U != 0U || ulong_max + 1UL != 0UL ||
+        UINT_MAX > -1 || ULONG_MAX > -1) return 3;
+    if (BYTE_MIN != 0 || BYTE_MAX != 255 || CHAR_BIT != 8) return 4;
+    errno = 0;
+    if (strtol("9223372036854775808", 0, 10) != LONG_MAX || errno != ERANGE)
+        return 5;
+    errno = 0;
+    if (strtol("-9223372036854775809", 0, 10) != LONG_MIN || errno != ERANGE)
+        return 6;
+    errno = 0;
+    if (strtoul("18446744073709551616", 0, 10) != ULONG_MAX || errno != ERANGE)
+        return 7;
+    return 42;
+}

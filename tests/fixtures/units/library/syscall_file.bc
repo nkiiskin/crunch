@@ -1,0 +1,53 @@
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <errno.h>
+
+struct stat global_info;
+
+int main() {
+    if (STDIN_FILENO != 0 || STDOUT_FILENO != 1 || STDERR_FILENO != 2) return 22;
+    char payload[] = "hello";
+    char buffer[8];
+    struct stat info;
+    errno = ERANGE;
+    int fd = open("data", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (fd < 0 || errno != ERANGE) return 1;
+    if (write(fd, payload, 5) != 5 || errno != ERANGE) return 2;
+    if (lseek(fd, 0, SEEK_CUR) != 5 || lseek(fd, -2, SEEK_END) != 3 ||
+        lseek(fd, -1, SEEK_CUR) != 2 || errno != ERANGE) return 23;
+    if (read(fd, buffer, 1) != 1 || buffer[0] != 'l') return 24;
+    if (lseek(fd, 4294967296, SEEK_SET) != 4294967296 ||
+        lseek(fd, 0, SEEK_END) != 5 || errno != ERANGE) return 25;
+    if (close(fd) != 0 || errno != ERANGE) return 3;
+    if (stat("data", &info) != 0 || errno != ERANGE) return 4;
+    if (info.st_size != 5 || (info.st_mode & 61440) != 32768) return 5;
+    if ((info.st_mode & 511) != 384 || info.st_nlink != 1) return 6;
+    if (stat("data", &global_info) != 0 || global_info.st_ino != info.st_ino ||
+        global_info.st_size != 5 || global_info.st_dev != info.st_dev) return 7;
+    struct stat items[1];
+    if (stat("data", &items[0]) != 0 ||
+        items[0].st_size != 5 || items[0].st_ino != info.st_ino) return 18;
+    fd = open("data", O_RDONLY, 0);
+    if (fd < 0 || read(fd, buffer, 8) != 5) return 8;
+    if (buffer[0] != 'h' || buffer[4] != 'o' || read(fd, buffer, 8) != 0) return 9;
+    if (close(fd) != 0) return 10;
+    errno = 0;
+    if (open("data", O_CREAT | O_EXCL | O_WRONLY, 384) != -1 || errno != EEXIST) return 11;
+    if (open("missing", O_RDONLY, 0) != -1 || errno != ENOENT) return 12;
+    if (stat("missing", &info) != -1 || errno != ENOENT) return 13;
+    if (stat("data", 0) != -1 || errno != EFAULT) return 14;
+    if (read(-1, buffer, 1) != -1 || errno != EBADF) return 15;
+    if (write(-1, payload, 1) != -1 || errno != EBADF) return 16;
+    if (close(-1) != -1 || errno != EBADF) return 17;
+    if (lseek(-1, 0, SEEK_SET) != -1 || errno != EBADF) return 26;
+    if (lseek(STDIN_FILENO, 0, SEEK_CUR) != -1 || errno != ESPIPE) return 27;
+    fd = open("data", O_WRONLY | O_APPEND, 0);
+    if (fd < 0 || write(fd, payload, 5) != 5 || close(fd) != 0) return 19;
+    if (stat("data", &info) != 0 || info.st_size != 10) return 20;
+    fd = open("data", O_WRONLY | O_TRUNC, 0);
+    if (lseek(fd, 0, 99) != -1 || errno != EINVAL ||
+        lseek(fd, -1, SEEK_SET) != -1 || errno != EINVAL) return 28;
+    if (fd < 0 || close(fd) != 0 || stat("data", &info) != 0 || info.st_size != 0) return 21;
+    return 0;
+}

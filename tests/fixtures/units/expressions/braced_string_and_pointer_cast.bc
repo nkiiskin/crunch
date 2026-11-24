@@ -1,0 +1,44 @@
+typedef unsigned long uintptr_t;
+static const char message[] = { "Success" "\0" };
+static const char exact[3] = { "abc" };
+static const unsigned char bytes[] = { "\377" };
+struct Words { char text[4]; int value; };
+static struct Words item = { { "ok" }, 7 };
+
+static int target(void) { return 7; }
+
+int main(void)
+{
+    char local[] = { "a" "bc" };
+    signed char padded[5] = { "z" };
+    static char persistent[] = { "xy" };
+    char text[2] = { 'x', 'y' };
+    char *p = text;
+    uintptr_t address = (uintptr_t)p;
+    uintptr_t pattern = 0xfedcba9876543210UL;
+    void *synthetic = (void *)pattern;
+    int (*function)(void) = target;
+    if (sizeof(message) != 9 || message[7] != 0 || message[8] != 0 ||
+        sizeof(exact) != 3 || exact[2] != 'c' ||
+        sizeof(bytes) != 2 || bytes[0] != 255 || bytes[1] != 0 ||
+        sizeof(local) != 4 || local[2] != 'c' || local[3] != 0 ||
+        padded[0] != 'z' || padded[1] != 0 || padded[4] != 0 ||
+        persistent[0] != 'x' || persistent[2] != 0 ||
+        item.text[1] != 'k' || item.text[2] != 0 || item.value != 7)
+        return 1;
+    if ((char *)address != text || (uintptr_t)text != address ||
+        (uintptr_t)synthetic != pattern || (long)synthetic >= 0 ||
+        (unsigned int)synthetic != 0x76543210U ||
+        (unsigned short)synthetic != 0x3210U ||
+        (unsigned char)synthetic != 0x10U ||
+        (int)(void *)0x80000000UL != (-2147483647 - 1) ||
+        (signed char)(void *)0xffUL != -1 ||
+        (signed short)(void *)0x8001UL != -32767 ||
+        (_Bool)(void *)0 != 0 || (_Bool)synthetic != 1)
+        return 2;
+    if ((uintptr_t)p++ != address || p != text + 1)
+        return 3;
+    if ((uintptr_t)function != (uintptr_t)&target)
+        return 4;
+    return 0;
+}

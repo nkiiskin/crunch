@@ -1,0 +1,30 @@
+#include <stdlib.h>
+
+struct Item { char tag; long value; int number; };
+struct Item global_item;
+struct Item* global_pointer;
+
+struct Item* identity(struct Item* p) { return p; }
+const struct Item* readonly(struct Item* p) { return p; }
+struct Item* absent() { return 0; }
+struct Item* allocate_item() { return (struct Item*)malloc(sizeof(struct Item)); }
+struct Item* global_address() { return &global_item; }
+
+int main() {
+    struct Item* empty;
+    if (empty != 0 || global_pointer != 0) return 4;
+    struct Item* p = allocate_item();
+    if (p == 0) return 1;
+    p[0].tag = (char)3;
+    p[0].value = 33;
+    p[0].number = 6;
+    global_pointer = identity(p);
+    if (global_pointer != p || identity(p)[0].value != 33 ||
+        readonly(p)[0].number != 6 || absent() != 0) return 2;
+    struct Item* g = global_address();
+    g[0].number = 9;
+    if (global_item.number != 9 || g != &global_item) return 3;
+    int total = (int)p[0].value + p[0].number + p[0].tag;
+    free(p);
+    return total;
+}

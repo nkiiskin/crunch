@@ -1,0 +1,21 @@
+.TH BIND 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+bind \- assign an address to a socket
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int bind(int descriptor, const struct sockaddr* address, socklen_t length);
+.fi
+.SH DESCRIPTION
+Assigns an address of the specified byte length to a socket.
+Unix\-domain and IPv4 address structures are declared in
+.B <sys/un.h>
+and
+.BR <netinet/in.h> .
+IPv4 fields must be in network byte order; Crunch does not provide byte\-order
+conversion functions.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR socket (3crunch),
+.BR bind (2)

@@ -1,0 +1,14 @@
+.TH GETRESGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getresgid \- writes the real, effective and saved group ids to three writable pointers
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int getresgid(gid_t* real, gid_t* effective, gid_t* saved);
+.fi
+.SH DESCRIPTION
+Writes the real, effective and saved group IDs to three writable pointers.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR getresgid (2)

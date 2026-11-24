@@ -1,0 +1,120 @@
+.TH INPUT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+input \- read a bounded line from standard input
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int input(char " "buf" "[], int " "max_length" ");"
+.fi
+.SH DESCRIPTION
+.BR input ()
+reads bytes from standard input until a newline (LF) or end of file.
+It stores at most
+.I max_length
+bytes in
+.I buf
+and appends a terminating NUL byte.
+The newline is consumed but not stored.
+If the line is longer than
+.IR max_length ,
+the remaining bytes are discarded through the newline or end of file.
+If the call succeeds, the next call therefore reads the next line, not
+the discarded remainder.
+.PP
+The caller must provide a writable buffer of at least
+.I max_length + 1
+bytes.
+For example,
+.B input(buf, 5)
+requires room for six bytes: five input bytes and the terminating NUL.
+The function does not allocate or resize the buffer and cannot check its capacity.
+.PP
+The limit and return count measure bytes, not Unicode characters.
+Only LF is removed; a preceding carriage return is retained.
+Embedded NUL bytes count toward the result, but ordinary string operations
+will stop at the first NUL.
+.PP
+When
+.I max_length
+is zero, the function consumes the line and stores only a terminating NUL.
+A null buffer or negative limit is rejected without consuming input.
+Reads interrupted by a signal are retried.
+.SH RETURN VALUE
+On success,
+.BR input ()
+returns the number of bytes stored, excluding the terminating NUL.
+A final line without a newline is returned normally.
+Zero means an empty line, end of file before any bytes, or a zero limit;
+these cases are not distinguished.
+.PP
+On error, the function returns \-1 and sets
+.BR errno .
+After a read error, any stored prefix is NUL\-terminated, but its length
+is not returned.
+Bytes already consumed, including any discarded bytes, cannot be recovered.
+If the error occurs before the newline, the next call starts at the remaining
+part of the same line; the caller must decide how to handle it.
+Invalid arguments do not modify the buffer.
+Successful calls, including end of file and truncated lines, leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+.TP
+.B EINVAL
+.I buf
+is null or
+.I max_length
+is negative.
+.TP
+.B EBADF
+Standard input is not a valid descriptor open for reading.
+.TP
+.B EAGAIN
+Standard input is nonblocking and no data is available.
+.PP
+Other errors reported by the Linux
+.BR read (3crunch),
+.BR read (2)
+system call are also possible.
+.SH EXAMPLE
+Save the following Crunch program as
+.BR greeting.bc :
+.PP
+.nf
+#include <stdio.h>
+#include <errno.h>
+
+int main() {
+    char name[6];
+    printf("Name (up to 5 bytes): ");
+    int count = input(name, 5);
+    if (count < 0) {
+        printf("input failed: errno=%d\\n", errno);
+        return 1;
+    }
+    printf("Hello, %s! Read %d bytes.\\n", name, count);
+    return 0;
+}
+.fi
+.PP
+Compile and run:
+.PP
+.nf
+crunch greeting.bc \-o greeting
+\&./greeting
+.fi
+.SH NOTES
+This is a Crunch library function, not an ISO C function.
+The Crunch driver links the required implementation from
+.B libcrunch.a
+automatically.
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR crunch (1),
+.BR read (2)

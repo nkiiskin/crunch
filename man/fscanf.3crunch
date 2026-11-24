@@ -1,0 +1,41 @@
+.TH FSCANF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fscanf \- read formatted input from a stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B int fscanf(FILE *stream, const char *format);
+.fi
+.SH DESCRIPTION
+Reads formatted input from a Crunch stream. The compiler accepts additional
+destination pointer arguments. Whitespace in the format consumes any amount
+of input whitespace; other ordinary characters must match literally. %%
+matches a percent sign.
+.PP
+Conversions support assignment suppression (*), decimal field widths,
+and d, i, u, o, x, X, p, a, A, e, E, f, F, g, G, c, s, [, and n.
+The [ conversion accepts ranges and ^ negation. Integer conversions and n
+accept hh, h, l, ll, j, z, and t length modifiers. Floating conversions accept
+l for double and L for long double; without a modifier they store float.
+The c, s, and [ conversions operate on bytes; wide-character conversions are
+not supported. Numeric syntax and whitespace use the C locale. The p
+conversion accepts hexadecimal digits, optionally prefixed by 0x; the
+implementation-specific string (nil) is not accepted. The nan spelling
+is accepted without a parenthesized payload. Allocation extensions such as
+%ms and positional arguments are not supported.
+.PP
+Field widths bound the input consumed by a conversion. For s and [, the
+caller must provide space for the matched bytes and a terminating NUL.
+For c, no terminator is written and the default width is one. Except for c,
+[, and n, conversions skip leading whitespace. The n conversion stores the
+number of input bytes consumed but does not increment the assignment count.
+The first byte not consumed remains available to subsequent stream reads,
+including on pipes.
+.SH RETURN VALUE
+Returns the number of assignments, possibly zero. Returns EOF when input
+fails before any conversion completes. A null stream or format returns EOF
+and sets errno to EINVAL.
+.SH SEE ALSO
+.BR scanf (3crunch),
+.BR fgetc (3crunch),
+.BR fread (3crunch)

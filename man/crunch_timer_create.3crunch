@@ -1,0 +1,15 @@
+.TH CRUNCH_TIMER_CREATE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_timer_create \- Linux x86-64 syscall 222
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_timer_create(int clock, const void* event, int* timer);
+.fi
+.SH DESCRIPTION
+Creates a kernel POSIX timer. The event uses the Linux kernel sigevent layout, not a libc object; NULL requests SIGALRM.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR timer_create (2)

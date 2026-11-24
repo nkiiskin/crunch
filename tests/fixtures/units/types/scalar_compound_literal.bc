@@ -1,0 +1,36 @@
+typedef int (*Callback)(int);
+int twice(int x) { return x * 2; }
+
+int main(void) {
+    int *p = &(int){42};
+    if (*p != 42 || (int){3} + 4 != 7) return 1;
+    *p = 9;
+    if (*p != 9 || ((int){3} = 8) != 8) return 2;
+    if (((int){5} += 3) != 8 || ((int){5}++) != 5 ||
+        ++(int){5} != 6) return 3;
+    int values[] = {7, 9};
+    int **q = &(int *){values};
+    if (**q != 7 || *(int *){values + 1} != 9) return 4;
+    if (*((int *){values} += 1) != 9 ||
+        *((int *){values}++) != 7) return 5;
+    if (((Callback){twice})(3) != 6) return 6;
+    int n = 0;
+    if (sizeof((int){++n}) != sizeof(int) || n) return 7;
+    if ((unsigned char){(unsigned char)260} != 4 || (double){1.5} != 1.5) return 8;
+    const int *c = &(const int){11};
+    volatile int *v = &(volatile int){12};
+    if (*c != 11 || *v != 12) return 9;
+    *v = 14;
+    if (*v != 14) return 10;
+    long double *ld = &(long double){2.0L};
+    if (*ld != 2.0L || (long double){3.0L} != 3.0L) return 11;
+    if (((long double){2.0L} += 1.0L) != 3.0L ||
+        ((long double){2.0L}++) != 2.0L) return 12;
+    int *previous = 0;
+again:
+    p = &(int){previous ? *previous + 1 : 1};
+    if (previous && previous != p) return 13;
+    previous = p;
+    if (*p < 3) goto again;
+    return *p == 3 ? 42 : 14;
+}

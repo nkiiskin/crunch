@@ -1,0 +1,16 @@
+.TH GETITIMER 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getitimer \- read an interval timer
+.SH SYNOPSIS
+.nf
+.B #include <sys/time.h>
+.B int getitimer(int which, struct itimerval* value);
+.fi
+.SH DESCRIPTION
+Reads the timer selected by ITIMER_REAL, ITIMER_VIRTUAL or ITIMER_PROF.
+The it_interval and it_value members are timeval structures.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR setitimer (3crunch),
+.BR getitimer (2)

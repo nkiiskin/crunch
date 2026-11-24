@@ -1,0 +1,16 @@
+.TH MADVISE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+madvise \- advise the kernel about a mapping
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int madvise(void* address, size_t byte_count, int advice);
+.fi
+.SH DESCRIPTION
+Applies a Linux MADV_* operation to a page\-aligned range. In particular,
+MADV_DONTNEED and MADV_FREE affect the contents or reclamation of memory;
+consult madvise(2) before using them.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR madvise (2)

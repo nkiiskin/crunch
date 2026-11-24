@@ -1,0 +1,16 @@
+.TH FCNTL_PTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fcntl_ptr \- control a file descriptor with a pointer argument
+.SH SYNOPSIS
+.nf
+.B #include <fcntl.h>
+.B int fcntl_ptr(int descriptor, int command, void* argument);
+.fi
+.SH DESCRIPTION
+Performs a Linux F_* command that takes a pointer, including F_GETLK,
+F_SETLK and F_SETLKW.  The supplied struct flock uses the Linux x86\-64 layout.
+.SH RETURN VALUE
+Returns the command result, or \-1 with errno set.
+.SH SEE ALSO
+.BR fcntl (3crunch),
+.BR fcntl (2)

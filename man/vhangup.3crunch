@@ -1,0 +1,14 @@
+.TH VHANGUP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+vhangup \- virtually hangs up the calling process's controlling terminal; typically requires cap_sys_tty_config
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int vhangup(void);
+.fi
+.SH DESCRIPTION
+Virtually hangs up the calling process's controlling terminal; typically requires CAP_SYS_TTY_CONFIG.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR vhangup (2)

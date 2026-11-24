@@ -1,0 +1,111 @@
+CRUNCH-IR 5
+internal crunch_module_init_0
+initializer crunch_module_init_0
+func crunch_module_init_0 0 int
+gload numbers ptr
+gload numbers$length int
+push 3
+array_resize int
+gstore numbers ptr
+gstore numbers$length int
+gload numbers ptr
+bool ptr
+jz L0
+gload numbers ptr
+push 0
+ptradd int
+push 15
+storeind int
+drop
+gload numbers ptr
+push 1
+ptradd int
+push 12
+storeind int
+drop
+gload numbers ptr
+push 2
+ptradd int
+push 15
+storeind int
+drop
+label L0
+push 0
+ret int
+end
+global numbers ptr 0
+global numbers$length int 0
+global greeting ptr 0
+global greeting$length int 5
+globalbytes greeting 4e69636b00
+func main 0 int
+gload numbers$length int
+push 3
+ne int
+bool int
+jz L1
+push 1
+ret int
+label L1
+gload greeting$length int
+push 5
+ne int
+bool int
+jz L3
+push 2
+ret int
+label L3
+gload greeting ptr
+push 0
+ptradd byte
+loadind byte
+push 78
+ne byte
+bool int
+jnz L9
+gload greeting ptr
+push 3
+ptradd byte
+loadind byte
+push 107
+ne byte
+bool
+jmp L10
+label L9
+push 1
+label L10
+bool int
+jnz L7
+gload greeting ptr
+push 4
+ptradd byte
+loadind byte
+cast byte int
+push 0
+ne int
+bool
+jmp L8
+label L7
+push 1
+label L8
+bool int
+jz L5
+push 3
+ret int
+label L5
+gload numbers ptr
+push 0
+ptradd int
+loadind int
+gload numbers ptr
+push 1
+ptradd int
+loadind int
+add int
+gload numbers ptr
+push 2
+ptradd int
+loadind int
+add int
+ret int
+end

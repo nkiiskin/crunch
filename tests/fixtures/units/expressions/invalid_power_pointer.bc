@@ -1,0 +1,6 @@
+int main() {
+    int value = 2;
+    int *pointer = &value;
+    double result = pointer**2;
+    return 0;
+}

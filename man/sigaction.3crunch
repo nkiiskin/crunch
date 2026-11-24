@@ -1,0 +1,23 @@
+.TH SIGACTION 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigaction \- install or inspect a signal action
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigaction(int signal, const struct sigaction* action, struct sigaction* previous);
+.fi
+.SH DESCRIPTION
+Installs action when non\-NULL and writes the previous action when previous
+is non\-NULL. The handler may be SIG_DFL, SIG_IGN, or a function.
+The structure and eight\-byte sigset_t use the Linux x86\-64 kernel layout,
+not the libc ABI. Supported flags include SA_RESTART, SA_NODEFER and
+SA_RESETHAND. The runtime supplies its own signal\-return trampoline;
+do not unload it while its handlers are installed. Queried actions may
+expose the kernel restorer flag and pointer. SIG_IGN invokes a runtime helper
+and is not an integer constant expression.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR sigemptyset (3crunch),
+.BR kill (3crunch),
+.BR sigaction (2)

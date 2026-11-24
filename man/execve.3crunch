@@ -1,0 +1,17 @@
+.TH EXECVE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+execve \- replace the process image
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int execve(const char* path, char* const* arguments, char* const* environment);
+.fi
+.SH DESCRIPTION
+Replaces the current process with the executable at path. Arguments and
+environment are separately NULL\-terminated vectors. Linux executable,
+descriptor and signal\-disposition rules apply.
+.SH RETURN VALUE
+Does not return on success. On failure returns \-1 with errno set.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR execve (2)

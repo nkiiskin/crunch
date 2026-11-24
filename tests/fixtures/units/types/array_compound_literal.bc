@@ -1,0 +1,38 @@
+struct Item { int x; int y; };
+typedef int Row[2];
+typedef int OpenRow[];
+int sum(const int *p) { return p[0] + p[1]; }
+
+int main(void) {
+    int *p = (int[]){10, 32};
+    if (sum(p) != 42) return 1;
+    p[0] = 12;
+    if (p[0] != 12 || sizeof((int[]){1, 2, 3}) != 12) return 2;
+    int n = 0;
+    if (sizeof((int[]){++n, 2}) != 8 || n != 0) return 3;
+    int (*whole)[2] = &(int[2]){3, 4};
+    if ((*whole)[1] != 4) return 4;
+    int *sparse = (int[]){[3] = 7, [1] = 5};
+    if (sparse[0] || sparse[1] != 5 || sparse[2] || sparse[3] != 7) return 5;
+    int (*matrix)[2] = (int[][2]){{1, 2}, {3, 4}};
+    if (matrix[1][0] != 3 || matrix[1][1] != 4) return 6;
+    struct Item *items = (struct Item[]){{1, 2}, {.y = 4, .x = 3}};
+    if (items[1].x != 3 || items[1].y != 4) return 7;
+    Row *rows = (Row[]){{5, 6}, {7, 8}};
+    if (rows[1][0] != 7 || ((Row){9, 10})[1] != 10) return 8;
+    if (sizeof((OpenRow){1, 2, 3}) != 12) return 9;
+    char *text = (char[]){"hi"};
+    if (text[0] != 'h' || text[1] != 'i' || text[2] != 0 ||
+        sizeof((char[]){"hello"}) != 6) return 10;
+    const int *c = (const int[2]){11};
+    if (c[0] != 11 || c[1] != 0) return 11;
+    int *old = 0;
+    int *current;
+again:
+    current = (int[]){++n, 20};
+    if (old && old != current) return 12;
+    if (current[0] != n || current[1] != 20) return 13;
+    old = current;
+    if (n < 3) goto again;
+    return n == 3 ? 42 : 14;
+}

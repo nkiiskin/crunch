@@ -1,0 +1,46 @@
+.TH RENAME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+rename \- rename or move a filesystem entry
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int rename(const char* " old_path ", const char* " new_path ");"
+.fi
+.SH DESCRIPTION
+.BR rename ()
+renames or moves the entry named by
+.I old_path
+to
+.IR new_path .
+Linux rename rules apply: an existing destination may be replaced
+atomically, subject to file and directory restrictions.
+The operation does not move entries between mounted filesystems.
+Consult
+.BR rename (2)
+for complete replacement and symbolic\-link semantics.
+.SH RETURN VALUE
+Zero on success, leaving
+.B errno
+unchanged; \-1 on failure with
+.B errno
+set to the positive Linux error number.
+.SH ERRORS
+Possible errors include
+.BR ENOENT ,
+.BR EACCES ,
+.BR ENOTEMPTY ,
+and
+.BR EXDEV .
+Other Linux
+.BR rename (2)
+errors are possible.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR unlink (3crunch),
+.BR rename (2)

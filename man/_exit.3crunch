@@ -1,0 +1,17 @@
+.TH _EXIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+_exit \- terminate without cleanup
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B void _exit(int status);
+.fi
+.SH DESCRIPTION
+Terminates the calling thread using the Linux exit syscall without invoking
+Crunch finalizers. If it is the last thread, the process terminates and the
+low eight bits of status are available to the parent.
+.SH RETURN VALUE
+Does not return.
+.SH SEE ALSO
+.BR waitpid (3crunch),
+.BR _exit (2)

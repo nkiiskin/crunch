@@ -1,0 +1,72 @@
+struct Point { int x; int y; };
+struct Row { struct Point points[2]; char label[4]; int *pointer; };
+int target = 32;
+struct Point global_flat[] = {1, 2, 3, 4, 5};
+struct Point global_braced[] = {{6}, {7, 8}};
+struct Row global_row = {9, 10, {11}, "ok", &target};
+struct Row global_rows[] = {
+    1, 2, 3, 4, "one", &target,
+    {{{5, 6}, {7, 8}}, {"two"}, &target}
+};
+struct Node { struct Node *next; int number; };
+struct Node nodes[] = {&nodes[1], 1, &nodes[0], 2};
+struct Copy { struct Point point; int tail; };
+struct Ref { int *pointer; char *text; };
+struct Entry { int value; };
+struct Entry enum_global[] = {sizeof(enum { GLOBAL_VALUE = 7 }), GLOBAL_VALUE};
+
+int calls;
+int next() { calls += 1; return calls; }
+
+int main() {
+    struct Point local_flat[] = {next(), next(), next()};
+    struct Point local_braced[3] = {{10, 11}, {12}};
+    struct Point copied[] = {local_braced[0], {13, 14}};
+    struct Point pointer_copy[] = {*(&local_braced[0] + 1), {18, 19}};
+    struct Point self_copy[] = {{20, 21}, self_copy[0]};
+    struct Copy nested_copy = {local_braced[0], 9};
+    struct Copy nested_copy_array[] = {local_braced[0], 9, local_braced[1], 10};
+    struct Row local_row = {1, {2}, 3, 4, {"hi"}, &target};
+    static struct Point persistent[] = {15, 16, 17};
+    static struct Ref refs[] = {&target, "static", &target, "array"};
+    struct Entry enum_local[] = {sizeof(enum { LOCAL_VALUE = 3 }), LOCAL_VALUE};
+    if (sizeof(global_flat) != 3 * sizeof(struct Point) ||
+        global_flat[0].x != 1 || global_flat[1].y != 4 ||
+        global_flat[2].x != 5 || global_flat[2].y != 0) return 1;
+    if (sizeof(global_braced) != 2 * sizeof(struct Point) ||
+        global_braced[0].x != 6 || global_braced[0].y ||
+        global_braced[1].y != 8) return 2;
+    if (global_row.points[0].x != 9 || global_row.points[0].y != 10 ||
+        global_row.points[1].x != 11 || global_row.points[1].y ||
+        global_row.label[1] != 'k' || *global_row.pointer != 32) return 3;
+    if (sizeof(global_rows) != 2 * sizeof(struct Row) ||
+        global_rows[0].points[1].y != 4 || global_rows[0].label[1] != 'n' ||
+        global_rows[1].points[0].x != 5 || global_rows[1].points[1].y != 8 ||
+        global_rows[1].label[0] != 't' || *global_rows[1].pointer != 32) return 4;
+    if (nodes[0].next != &nodes[1] || nodes[1].next != &nodes[0] ||
+        nodes[0].number != 1 || nodes[1].number != 2) return 5;
+    if (sizeof(local_flat) != 2 * sizeof(struct Point) || calls != 3 ||
+        local_flat[0].x != 1 || local_flat[0].y != 2 ||
+        local_flat[1].x != 3 || local_flat[1].y) return 6;
+    if (local_braced[1].x != 12 || local_braced[1].y ||
+        local_braced[2].x || copied[0].x != 10 || copied[0].y != 11 ||
+        copied[1].x != 13 || copied[1].y != 14) return 7;
+    if (local_row.points[0].x != 1 || local_row.points[0].y != 2 ||
+        local_row.points[1].x != 3 || local_row.points[1].y != 4 ||
+        local_row.label[0] != 'h' || *local_row.pointer != 32) return 8;
+    if (sizeof(persistent) != 2 * sizeof(struct Point) ||
+        persistent[0].x != 15 || persistent[1].x != 17 || persistent[1].y) return 9;
+    if (nested_copy.point.x != 10 || nested_copy.point.y != 11 ||
+        nested_copy.tail != 9 || sizeof(pointer_copy) != 2 * sizeof(struct Point) ||
+        pointer_copy[0].x != 12 || pointer_copy[0].y ||
+        pointer_copy[1].y != 19 || sizeof(nested_copy_array) != 2 * sizeof(struct Copy) ||
+        nested_copy_array[0].point.y != 11 || nested_copy_array[1].point.x != 12 ||
+        nested_copy_array[1].tail != 10 || sizeof(self_copy) != 2 * sizeof(struct Point) ||
+        self_copy[1].x != 20 || self_copy[1].y != 21) return 10;
+    if (*refs[0].pointer != 32 || refs[0].text[0] != 's' ||
+        refs[1].text[0] != 'a' || *refs[1].pointer != 32) return 11;
+    if (sizeof(enum_global) != 2 * sizeof(struct Entry) ||
+        enum_global[1].value != 7 || sizeof(enum_local) != 2 * sizeof(struct Entry) ||
+        enum_local[1].value != 3) return 12;
+    return 42;
+}

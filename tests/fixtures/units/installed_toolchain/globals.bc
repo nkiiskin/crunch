@@ -1,0 +1,15 @@
+#include <stdio.h>
+
+int values[4] = {4, 8, 15, 16};
+int counter = 2;
+
+int increment() {
+    counter++;
+    return counter;
+}
+
+int main() {
+    int total = values[0] + values[1] + values[2] + values[3] + increment();
+    printf("globals:%d\n", total);
+    return total == 46 ? 0 : 1;
+}

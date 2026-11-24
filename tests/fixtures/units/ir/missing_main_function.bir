@@ -1,0 +1,5 @@
+CRUNCH-IR 2
+func helper 0 int
+push 0
+ret int
+end

@@ -1,0 +1,153 @@
+#include "floating_struct_abi.h"
+#include <stdarg.h>
+
+struct FloatPair pass_float_pair(struct FloatPair p) { p.y += 1.0f; return p; }
+struct TinyFloat pass_tiny_float(struct TinyFloat p) { p.x += 1.0f; return p; }
+struct DoublePair pass_double_pair(struct DoublePair p) { p.y += 1.0; return p; }
+struct IntegerSse pass_integer_sse(struct IntegerSse p) { p.x += 1.0; return p; }
+struct SseInteger pass_sse_integer(struct SseInteger p) { p.i += 1; return p; }
+struct MixedWord pass_mixed_word(struct MixedWord p) { p.i += 1; return p; }
+struct NestedFloats pass_nested(struct NestedFloats p) { p.x += 1.0f; return p; }
+struct FloatArray pass_array(struct FloatArray p) { p.values[2] += 1.0f; return p; }
+struct BigFloats pass_big(struct BigFloats p) { p.values[2] += 1.0; return p; }
+struct FloatFlex pass_flexible(struct FloatFlex p) { p.x += 1.0f; return p; }
+struct AlignedSI pass_aligned_si(struct AlignedSI p) { p.x += 1.0; return p; }
+struct AlignedIS pass_aligned_is(struct AlignedIS p) { p.y += 1.0; return p; }
+struct AlignedSS pass_aligned_ss(struct AlignedSS p) { p.y += 1.0; return p; }
+union AlignedUnion pass_aligned_union(union AlignedUnion p) { p.item.x += 1.0; return p; }
+
+int aligned_gp(long a, long b, long c, long d, long e, long f, long prior,
+               struct AlignedSI si, struct AlignedIS is, long tail) {
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && f == 6 &&
+           prior == 7 && si.x == 8.5 && si.y == 9 &&
+           is.x == 10 && is.y == 11.5 && tail == 12;
+}
+
+int aligned_fp(long a, long b, long c, long d, long e, long f, long prior,
+               double v0, double v1, double v2, double v3,
+               double v4, double v5, double v6, double v7,
+               struct AlignedSS ss, long tail) {
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && f == 6 &&
+           prior == 7 && v0 == 1.0 && v1 == 2.0 && v2 == 3.0 && v3 == 4.0 &&
+           v4 == 5.0 && v5 == 6.0 && v6 == 7.0 && v7 == 8.0 &&
+           ss.x == 12.5 && ss.y == 13.5 && tail == 14;
+}
+
+int aligned_rollback_gp(long a, long b, long c, long d, long e, long f,
+                        struct AlignedSI si, double tail) {
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && f == 6 &&
+           si.x == 8.5 && si.y == 9 && tail == 15.5;
+}
+
+int aligned_rollback_fp(double a, double b, double c, double d,
+                        double e, double f, double g, double h,
+                        struct AlignedIS is, long tail) {
+    return a == 1.0 && b == 2.0 && c == 3.0 && d == 4.0 &&
+           e == 5.0 && f == 6.0 && g == 7.0 && h == 8.0 &&
+           is.x == 10 && is.y == 11.5 && tail == 15;
+}
+
+int aligned_variadic_registers(int marker, ...) {
+    va_list ap; va_start(ap, marker);
+    struct AlignedSI si = va_arg(ap, struct AlignedSI);
+    struct AlignedIS is = va_arg(ap, struct AlignedIS);
+    struct AlignedSS ss = va_arg(ap, struct AlignedSS);
+    long tail = va_arg(ap, long);
+    va_end(ap);
+    return marker == 1 && si.x == 8.5 && si.y == 9 &&
+           is.x == 10 && is.y == 11.5 &&
+           ss.x == 12.5 && ss.y == 13.5 && tail == 16;
+}
+
+int aligned_variadic_gp(int marker, ...) {
+    va_list ap; va_start(ap, marker);
+    for (int i = 0; i < 6; ++i) va_arg(ap, long);
+    struct AlignedSI si = va_arg(ap, struct AlignedSI);
+    struct AlignedIS is = va_arg(ap, struct AlignedIS);
+    long tail = va_arg(ap, long);
+    va_end(ap);
+    return marker == 1 && si.x == 8.5 && si.y == 9 &&
+           is.x == 10 && is.y == 11.5 && tail == 12;
+}
+
+int aligned_variadic_fp(int marker, ...) {
+    va_list ap; va_start(ap, marker);
+    for (int i = 0; i < 6; ++i) va_arg(ap, long);
+    for (int i = 0; i < 8; ++i) va_arg(ap, double);
+    struct AlignedSS ss = va_arg(ap, struct AlignedSS);
+    long tail = va_arg(ap, long);
+    va_end(ap);
+    return marker == 1 && ss.x == 12.5 && ss.y == 13.5 && tail == 14;
+}
+
+int aligned_named_va(long a, long b, long c, long d, long e, long f, long prior,
+                     struct AlignedSI si, ...) {
+    va_list ap; va_start(ap, si);
+    long tail = va_arg(ap, long);
+    double extra = va_arg(ap, double);
+    va_end(ap);
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && f == 6 &&
+           prior == 7 && si.x == 8.5 && si.y == 9 && tail == 12 && extra == 13.5;
+}
+
+int spill_gp(long a, long b, long c, long d, long e, long f,
+             struct SseInteger p, double tail) {
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && f == 6 &&
+           p.x == 7.5 && p.i == 8 && tail == 9.5;
+}
+
+int spill_fp(double a, double b, double c, double d, double e, double f,
+             double g, double h, struct IntegerSse p, long tail) {
+    return a == 1.0 && b == 2.0 && c == 3.0 && d == 4.0 &&
+           e == 5.0 && f == 6.0 && g == 7.0 && h == 8.0 &&
+           p.i == 9 && p.x == 10.5 && tail == 11;
+}
+
+int spill_pair(double a, double b, double c, double d, double e, double f,
+               double g, struct DoublePair p, double tail) {
+    return a == 1.0 && b == 2.0 && c == 3.0 && d == 4.0 && e == 5.0 &&
+           f == 6.0 && g == 7.0 && p.x == 8.5 && p.y == 9.5 && tail == 10.5;
+}
+
+int read_structs(int marker, ...) {
+    va_list ap;
+    va_start(ap, marker);
+    struct FloatPair f = va_arg(ap, struct FloatPair);
+    struct DoublePair p = va_arg(ap, struct DoublePair);
+    struct IntegerSse is = va_arg(ap, struct IntegerSse);
+    struct SseInteger si = va_arg(ap, struct SseInteger);
+    struct MixedWord m = va_arg(ap, struct MixedWord);
+    struct FloatArray a = va_arg(ap, struct FloatArray);
+    struct BigFloats b = va_arg(ap, struct BigFloats);
+    int tail = va_arg(ap, int);
+    va_end(ap);
+    return marker == 1 && f.x == 1.5f && f.y == 2.5f &&
+           p.x == 8.5 && p.y == 9.5 && is.i == 9 && is.x == 10.5 &&
+           si.x == 7.5 && si.i == 8 && m.x == 3.5f && m.i == 4 &&
+           a.values[0] == 1.0f && a.values[2] == 3.0f &&
+           b.values[0] == 4.0 && b.values[2] == 6.0 && tail == 42;
+}
+
+int read_gp_spill(long a, long b, long c, long d, long e, ...) {
+    va_list ap;
+    va_start(ap, e);
+    long used = va_arg(ap, long);
+    struct SseInteger p = va_arg(ap, struct SseInteger);
+    double tail = va_arg(ap, double);
+    va_end(ap);
+    return a == 1 && b == 2 && c == 3 && d == 4 && e == 5 && used == 6 &&
+           p.x == 7.5 && p.i == 8 && tail == 9.5;
+}
+
+int read_fp_spill(double a, double b, double c, double d, double e, double f,
+                  double g, double h, ...) {
+    va_list ap;
+    va_start(ap, h);
+    struct IntegerSse p = va_arg(ap, struct IntegerSse);
+    long tail = va_arg(ap, long);
+    va_end(ap);
+    return a == 1.0 && b == 2.0 && c == 3.0 && d == 4.0 &&
+           e == 5.0 && f == 6.0 && g == 7.0 && h == 8.0 &&
+           p.i == 9 && p.x == 10.5 && tail == 11;
+}
+

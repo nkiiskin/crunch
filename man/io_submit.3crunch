@@ -1,0 +1,14 @@
+.TH IO_SUBMIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+io_submit \- submits an array of pointers to linux kernel aio control blocks
+.SH SYNOPSIS
+.nf
+.B #include <sys/aio.h>
+.B long io_submit(aio_context_t context, long count, struct iocb** requests);
+.fi
+.SH DESCRIPTION
+Submits an array of pointers to Linux kernel AIO control blocks. The control blocks and their buffers must remain valid until completion. This is the Linux kernel AIO ABI, not POSIX aio. Unlike the Linux header's integer aio_buf field, Crunch exposes an ABI-equivalent union: use aio_buf.pointer for read or write buffers and aio_buf.value for integer arguments such as IOCB_CMD_POLL masks.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR io_submit (2)

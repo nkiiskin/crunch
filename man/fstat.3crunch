@@ -1,0 +1,43 @@
+.TH FSTAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fstat \- obtain metadata for an open file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int fstat(int " descriptor ", struct stat* " buffer ");"
+.fi
+.SH DESCRIPTION
+.BR fstat ()
+stores metadata for the open file identified by
+.I descriptor
+in the writable
+.I buffer .
+It works after the file is renamed or unlinked, as long as the descriptor
+remains open.
+The target\-specific structure layout is described in
+.BR stat (3crunch).
+.SH RETURN VALUE
+Zero on success, leaving
+.B errno
+unchanged; \-1 on failure with
+.B errno
+set to the positive Linux error number.
+.SH ERRORS
+Possible errors include
+.B EBADF
+for an invalid descriptor and
+.B EFAULT
+for an invalid buffer. Other Linux
+.BR fstat (2)
+errors are possible.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR stat (3crunch),
+.BR open (3crunch),
+.BR fstat (2)

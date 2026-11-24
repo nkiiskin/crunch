@@ -1,0 +1,27 @@
+.TH STRTOK 3CRUNCH
+.SH NAME
+strtok \- split a string into tokens
+.SH SYNOPSIS
+.nf
+.B #include <string.h>
+.PP
+.BI "char *strtok(char *" text ", const char *" delimiters );
+.fi
+.SH DESCRIPTION
+The first call passes a writable string in
+.IR text .
+The function skips leading delimiter bytes and returns the next nonempty token,
+replacing its terminating delimiter with a null byte.
+Subsequent calls pass a null
+.I text
+to continue scanning. The delimiter set may change between calls.
+A non-null
+.I text
+starts a new sequence.
+.SH RETURN VALUE
+A pointer to the next token, or NULL if no tokens remain.
+.SH NOTES
+The function uses shared internal state and is not reentrant or thread-safe.
+Use
+.BR strtok_r (3)
+for independently managed state.

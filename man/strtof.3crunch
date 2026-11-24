@@ -1,0 +1,28 @@
+.TH STRTOF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+strtof \- parse an ASCII floating-point value as binary32
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "float strtof(const char* " text ", char** " end ");"
+.fi
+.SH DESCRIPTION
+Uses the input grammar and end-pointer rules of
+.BR strtod (3crunch),
+but rounds directly to binary32, without an intermediate binary64 rounding.
+.SH RETURN VALUE
+Returns the nearest binary32 value, ties to even, independent of the
+floating-point environment. No conversion returns positive zero.
+Overflow returns signed infinity and sets
+.B errno
+to
+.BR ERANGE .
+An inexact result rounded to a subnormal or zero also sets
+.BR ERANGE .
+Other results leave
+.B errno
+unchanged.
+.SH SEE ALSO
+.BR strtod (3crunch),
+.BR strtold (3crunch)

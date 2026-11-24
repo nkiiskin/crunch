@@ -1,0 +1,64 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/sysinfo.h>
+
+struct sysinfo info_layout;
+struct rlimit limit_layout;
+
+int main(void) {
+    int parent = open(".", O_RDONLY | O_DIRECTORY, 0);
+    if (parent < 0 || mkdir("subdir", 448) || chdir("subdir")) return 1;
+    char cwd[4096];
+    if (!getcwd(cwd, sizeof(cwd)) || !strstr(cwd, "/subdir") ||
+        fchdir(parent) || close(parent)) return 2;
+    if (chdir("missing-dir") != -1 || errno != ENOENT ||
+        fchdir(-1) != -1 || errno != EBADF) return 3;
+
+    mode_t previous = umask(23);
+    errno = EBUSY;
+    int fd = creat("file", 438);
+    umask(previous);
+    struct stat status;
+    if (fd < 0 || errno != EBUSY || fstat(fd, &status) ||
+        (status.st_mode & 511) != 416 || write(fd, "test", 4) != 4 ||
+        link("file", "hard") || symlink("file", "sym")) return 4;
+    if (stat("hard", &status) || status.st_nlink != 2) return 5;
+    uid_t unchanged_uid = (uid_t)-1;
+    gid_t unchanged_gid = (gid_t)-1;
+    if (chown("sym", unchanged_uid, unchanged_gid) ||
+        fchown(fd, unchanged_uid, unchanged_gid) ||
+        lchown("sym", unchanged_uid, unchanged_gid) ||
+        symlink("missing-target", "dangling") ||
+        lchown("dangling", unchanged_uid, unchanged_gid)) return 6;
+    if (chown("missing", unchanged_uid, unchanged_gid) != -1 || errno != ENOENT ||
+        fchown(-1, unchanged_uid, unchanged_gid) != -1 || errno != EBADF ||
+        lchown("missing", unchanged_uid, unchanged_gid) != -1 || errno != ENOENT ||
+        link("missing", "nope") != -1 || errno != ENOENT) return 7;
+    if (close(fd) || unlink("file") || unlink("hard") || unlink("sym") ||
+        unlink("dangling") || rmdir("subdir")) return 8;
+
+    struct timeval now;
+    struct timezone zone;
+    errno = EBUSY;
+    if (gettimeofday(&now, &zone) || now.tv_sec <= 0 ||
+        now.tv_usec < 0 || now.tv_usec >= 1000000 || errno != EBUSY) return 9;
+    struct rlimit limits;
+    struct rusage usage;
+    if (getrlimit(RLIMIT_NOFILE, &limits) || !limits.rlim_cur ||
+        limits.rlim_cur > limits.rlim_max ||
+        getrusage(RUSAGE_SELF, &usage) || usage.ru_utime.tv_sec < 0 ||
+        getrusage(RUSAGE_CHILDREN, &usage) || getrusage(RUSAGE_THREAD, &usage))
+        return 10;
+    if (getrlimit(999, &limits) != -1 || errno != EINVAL ||
+        getrusage(999, &usage) != -1 || errno != EINVAL) return 11;
+    struct sysinfo info;
+    if (sysinfo(&info) || info.uptime < 0 || !info.totalram || !info.mem_unit)
+        return 12;
+    if (sysinfo(0) != -1 || errno != EFAULT) return 13;
+    return 42;
+}

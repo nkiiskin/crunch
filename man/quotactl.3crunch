@@ -1,0 +1,14 @@
+.TH QUOTACTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+quotactl \- invokes the linux quota control syscall using command-specific data and privileges
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B int quotactl(int command, const char* special, int id, void* address);
+.fi
+.SH DESCRIPTION
+Invokes the Linux quota control syscall using command-specific data and privileges.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR quotactl (2)

@@ -1,0 +1,14 @@
+.TH FSETXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fsetxattr \- sets an extended attribute on an open file
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B int fsetxattr(int descriptor, const char* name, const void* value, size_t size, int flags);
+.fi
+.SH DESCRIPTION
+Sets an extended attribute on an open file.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR fsetxattr (2)

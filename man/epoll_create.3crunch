@@ -1,0 +1,14 @@
+.TH EPOLL_CREATE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+epoll_create \- creates an epoll instance
+.SH SYNOPSIS
+.nf
+.B #include <sys/epoll.h>
+.B int epoll_create(int size);
+.fi
+.SH DESCRIPTION
+Creates an epoll instance. The obsolete size hint must be positive. Close the returned descriptor when finished.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR epoll_create (2)

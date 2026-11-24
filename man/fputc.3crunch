@@ -1,0 +1,33 @@
+.TH FPUTC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fputc \- write one byte to a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fputc(int " character ", struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Writes the low byte of
+.I character
+to the stream. The stream is unbuffered.
+.SH RETURN VALUE
+Returns the written byte as an integer from 0 to 255, or
+.B EOF
+(\-1) on error with
+.B errno
+and the stream error indicator set. A null stream returns
+.B EOF
+with
+.B errno
+set to
+.BR EINVAL .
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fgetc (3crunch),
+.BR fwrite (3crunch),
+.BR stdout (3crunch),
+.BR stderr (3crunch)

@@ -1,0 +1,15 @@
+.TH TIMERFD_GETTIME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+timerfd_gettime \- Linux x86-64 syscall 287
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int timerfd_gettime(int descriptor, struct itimerspec* value);
+.fi
+.SH DESCRIPTION
+Reads timer descriptor state.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR timerfd_gettime (2)

@@ -1,0 +1,61 @@
+enum Color { RED = 1, BLUE = 4 };
+struct Inner { int a; short b; };
+struct Outer {
+    unsigned char tag;
+    struct Inner inner;
+    int values[3];
+    char text[4];
+    int *pointer;
+    enum Color color;
+    _Bool flag;
+};
+int numbers[2] = {10, 32};
+struct Outer global = {257, {3}, {4, 6}, {"ok"}, &numbers[1], BLUE, 2};
+struct Outer zero = {0};
+struct InnerPair { struct Inner parts[2]; int tail; };
+struct InnerPair pair = {{{1, 2}, {3}}, 4};
+struct NestedFirst { struct Inner inner; int tail; };
+struct NestedFirst nested_zero = {0u};
+struct ArrayFirst { int values[2]; int tail; };
+struct ArrayFirst array_zero = {0};
+struct Message { char *text; double number; };
+struct Message message = {"hello", 1.5};
+struct Node { struct Node *next; int value; };
+struct Node node = {&node, {7}};
+struct Anonymous { struct { int a; int b; }; int c; };
+struct Anonymous anonymous = {{9}, 10};
+
+int calls;
+int next() { calls += 1; return calls; }
+
+int main() {
+    struct Outer local = {257, {next(), 8}, {next()}, {"hi"}, &numbers[0], RED, 9};
+    struct Outer omitted = {0};
+    struct InnerPair local_pair = {{{5}, {6, 7}}, 8};
+    struct Outer copy = local;
+    struct NestedFirst local_zero = {0};
+    struct Message local_message = {"local", 2.5};
+    if (global.tag != 1 || global.inner.a != 3 || global.inner.b != 0 ||
+        global.values[0] != 4 || global.values[1] != 6 || global.values[2] != 0 ||
+        global.text[0] != 'o' || global.text[2] != 0 || *global.pointer != 32 ||
+        global.color != BLUE || global.flag != 1) return 1;
+    if (zero.tag || zero.inner.a || zero.values[2] || zero.pointer || zero.flag) return 2;
+    if (local.tag != 1 || local.inner.a != 1 || local.inner.b != 8 ||
+        local.values[0] != 2 || local.values[1] != 0 || local.text[1] != 'i' ||
+        local.text[2] != 0 || *local.pointer != 10 || local.color != RED ||
+        local.flag != 1 || calls != 2) return 3;
+    if (omitted.inner.a || omitted.values[0] || omitted.pointer || omitted.flag) return 4;
+    if (pair.parts[0].a != 1 || pair.parts[0].b != 2 || pair.parts[1].a != 3 ||
+        pair.parts[1].b != 0 || pair.tail != 4) return 5;
+    if (local_pair.parts[0].a != 5 || local_pair.parts[0].b != 0 ||
+        local_pair.parts[1].a != 6 || local_pair.parts[1].b != 7 ||
+        local_pair.tail != 8) return 6;
+    if (copy.inner.a != 1 || copy.values[0] != 2 || *copy.pointer != 10) return 7;
+    if (nested_zero.inner.a || nested_zero.tail || array_zero.values[1] ||
+        array_zero.tail || local_zero.inner.b || local_zero.tail) return 8;
+    if (message.text[1] != 'e' || message.number != 1.5 ||
+        local_message.text[0] != 'l' || local_message.number != 2.5 ||
+        node.next != &node || node.value != 7 || anonymous.a != 9 ||
+        anonymous.b || anonymous.c != 10) return 9;
+    return 42;
+}

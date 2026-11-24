@@ -1,0 +1,17 @@
+.TH PRCTL_PTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+prctl_ptr \- invoke prctl with a pointer as its second argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/prctl.h>
+.B int prctl_ptr(int option, void *argument2, unsigned long argument3,
+.B               unsigned long argument4, unsigned long argument5);
+.fi
+.SH DESCRIPTION
+Invokes Linux prctl with five fixed arguments, the second of which is a pointer.
+Pass zero for unused arguments.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR prctl (3crunch),
+.BR prctl (2)

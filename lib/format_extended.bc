@@ -1,0 +1,159 @@
+/* Scaling the smallest binary80 subnormal by 5^16445 needs fewer than
+ * 11520 decimal digits; each base-10^9 limb and its carry fit in 64 bits. */
+long _crunch_format_extended(const unsigned char *value, char *out, int general,
+                             int precision)
+{
+    unsigned long chunks[1300];
+    unsigned char digits[12000];
+    unsigned char significant[17];
+    unsigned long mantissa = 0;
+    unsigned int encoding = (unsigned int)value[8] | ((unsigned int)value[9] << 8);
+    int negative = (encoding & 0x8000U) != 0;
+    int exponent = (int)(encoding & 0x7fffU);
+    long length = 0;
+    for (int i = 7; i >= 0; --i)
+        mantissa = (mantissa << 8) | value[i];
+    if (negative)
+        out[length++] = '-';
+    if (exponent == 0x7fff) {
+        int infinity = mantissa == 0x8000000000000000UL;
+        out[length++] = infinity ? 'i' : 'n';
+        out[length++] = infinity ? 'n' : 'a';
+        out[length++] = infinity ? 'f' : 'n';
+        return length;
+    }
+
+    int binary_exponent = exponent ? exponent - 16446 : -16445;
+    if (!mantissa)
+        binary_exponent = 0;
+    int scale = binary_exponent < 0 ? -binary_exponent : 0;
+    int power = binary_exponent < 0 ? -binary_exponent : binary_exponent;
+    int chunk_count = 0;
+    do {
+        chunks[chunk_count++] = mantissa % 1000000000UL;
+        mantissa /= 1000000000UL;
+    } while (mantissa);
+    while (power) {
+        int step = power < (binary_exponent < 0 ? 12 : 29)
+                       ? power : (binary_exponent < 0 ? 12 : 29);
+        unsigned long multiplier = 1;
+        for (int i = 0; i < step; ++i)
+            multiplier *= binary_exponent < 0 ? 5UL : 2UL;
+        unsigned long carry = 0;
+        for (int i = 0; i < chunk_count; ++i) {
+            unsigned long product = chunks[i] * multiplier + carry;
+            chunks[i] = product % 1000000000UL;
+            carry = product / 1000000000UL;
+        }
+        if (carry)
+            chunks[chunk_count++] = carry;
+        power -= step;
+    }
+
+    int count = 0;
+    for (int i = 0; i < chunk_count; ++i) {
+        unsigned long part = chunks[i];
+        for (int j = 0; j < 9; ++j) {
+            digits[count++] = (unsigned char)(part % 10);
+            part /= 10;
+        }
+    }
+    while (count > 1 && !digits[count - 1])
+        --count;
+
+    if (!general) {
+        int removed = scale > precision ? scale - precision : 0;
+        int zeros = scale < precision ? precision - scale : 0;
+        if (removed <= count && removed > 0) {
+            int round = digits[removed - 1] > 5;
+            if (digits[removed - 1] == 5) {
+                for (int i = 0; i < removed - 1; ++i)
+                    if (digits[i]) round = 1;
+                if (removed < count && (digits[removed] & 1)) round = 1;
+            }
+            if (round) {
+                int i = removed;
+                while (i < count && digits[i] == 9)
+                    digits[i++] = 0;
+                if (i == count) digits[count++] = 0;
+                ++digits[i];
+            }
+        }
+        int total = count > removed ? count - removed + zeros : 1;
+        if (total <= precision) {
+            out[length++] = '0';
+            out[length++] = '.';
+            for (int i = total; i < precision; ++i)
+                out[length++] = '0';
+        }
+        for (int i = total - 1; i >= 0; --i) {
+            if (precision && i == precision - 1 && total > precision) out[length++] = '.';
+            int index = i - zeros + removed;
+            out[length++] = (char)('0' + (i < zeros || index >= count ? 0 : digits[index]));
+        }
+        return length;
+    }
+
+    int decimal_exponent = count - scale - 1;
+    int used = count < 17 ? count : 17;
+    for (int i = 0; i < used; ++i)
+        significant[i] = digits[count - 1 - i];
+    if (count > 17) {
+        int discarded = count - 18;
+        int round = digits[discarded] > 5;
+        if (digits[discarded] == 5) {
+            for (int i = 0; i < discarded; ++i)
+                if (digits[i]) round = 1;
+            if (significant[16] & 1) round = 1;
+        }
+        if (round) {
+            int i = 16;
+            while (i >= 0 && significant[i] == 9)
+                significant[i--] = 0;
+            if (i < 0) {
+                significant[0] = 1;
+                ++decimal_exponent;
+            } else {
+                ++significant[i];
+            }
+        }
+    }
+    while (used > 1 && !significant[used - 1])
+        --used;
+    if (decimal_exponent < -4 || decimal_exponent >= 17) {
+        out[length++] = (char)('0' + significant[0]);
+        if (used > 1) {
+            out[length++] = '.';
+            for (int i = 1; i < used; ++i)
+                out[length++] = (char)('0' + significant[i]);
+        }
+        out[length++] = 'e';
+        out[length++] = decimal_exponent < 0 ? '-' : '+';
+        int e = decimal_exponent < 0 ? -decimal_exponent : decimal_exponent;
+        char reverse[8];
+        int n = 0;
+        do {
+            reverse[n++] = (char)('0' + e % 10);
+            e /= 10;
+        } while (e);
+        if (n < 2) out[length++] = '0';
+        while (n) out[length++] = reverse[--n];
+    } else if (decimal_exponent < 0) {
+        out[length++] = '0';
+        out[length++] = '.';
+        for (int i = -1; i > decimal_exponent; --i)
+            out[length++] = '0';
+        for (int i = 0; i < used; ++i)
+            out[length++] = (char)('0' + significant[i]);
+    } else {
+        int i = 0;
+        for (; i <= decimal_exponent; ++i)
+            out[length++] = (char)('0' + (i < used ? significant[i] : 0));
+        if (i < used) {
+            out[length++] = '.';
+            for (; i < used; ++i)
+                out[length++] = (char)('0' + significant[i]);
+        }
+    }
+    return length;
+}

@@ -1,0 +1,102 @@
+#include <unistd.h>
+#include <sched.h>
+#include <sys/uio.h>
+#include <sys/mman.h>
+#include <sys/shm.h>
+#include <sys/time.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
+
+int signals = 0;
+struct ipc_perm ipc_layout;
+struct shmid_ds shm_layout;
+struct itimerval timer_layout;
+void on_alarm(int number) {
+    if (number == SIGALRM) signals = signals + 1;
+}
+
+int main(void) {
+    int descriptors[2];
+    struct iovec vectors[2];
+    char data[4];
+    vectors[0].iov_base = "ab";
+    vectors[0].iov_len = 2;
+    vectors[1].iov_base = "cd";
+    vectors[1].iov_len = 2;
+    errno = EBUSY;
+    if (sched_yield() || errno != EBUSY || pipe(descriptors) ||
+        writev(descriptors[1], &vectors[0], 2) != 4 ||
+        read(descriptors[0], data, 4) != 4 ||
+        data[0] != 'a' || data[3] != 'd') return 1;
+    if (writev(-1, &vectors[0], 2) != -1 || errno != EBADF ||
+        close(descriptors[0]) || close(descriptors[1])) return 2;
+
+    char* region = mmap(0, 4096, PROT_READ | PROT_WRITE,
+                        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (map_failed(region)) return 3;
+    region[0] = 'x';
+    unsigned char resident[1];
+    errno = EBUSY;
+    if (mincore(region, 4096, resident) || (resident[0] & 1) == 0 ||
+        madvise(region, 4096, MADV_NORMAL) || msync(region, 4096, MS_SYNC) ||
+        errno != EBUSY) return 4;
+    if (mincore(region + 1, 4096, resident) != -1 || errno != EINVAL ||
+        madvise(region, 4096, -1) != -1 || errno != EINVAL ||
+        msync(region + 1, 4096, MS_SYNC) != -1 || errno != EINVAL ||
+        munmap(region, 4096)) return 5;
+
+    if (sizeof(struct ipc_perm) != 48 || sizeof(struct shmid_ds) != 112 ||
+        sizeof(struct itimerval) != 32) return 6;
+    int id = shmget(IPC_PRIVATE, 4096, 384);
+    if (id < 0) return 7;
+    char* shared = shmat(id, 0, 0);
+    if (map_failed(shared)) {
+        shmctl(id, IPC_RMID, 0);
+        return 8;
+    }
+    struct shmid_ds info;
+    int status = shmctl(id, IPC_STAT, &info);
+    int marked = shmctl(id, IPC_RMID, 0);
+    if (status || marked || info.shm_segsz != 4096 ||
+        info.shm_nattch != 1 || (info.shm_perm.mode & 511) != 384) {
+        shmdt(shared);
+        return 9;
+    }
+    shared[0] = 'z';
+    pid_t child = fork();
+    if (child == 0) {
+        shared[0] = 'k';
+        _exit(0);
+    }
+    int child_status;
+    if (child < 0 || waitpid(child, &child_status, 0) != child ||
+        !WIFEXITED(child_status) || WEXITSTATUS(child_status) ||
+        shared[0] != 'k' || shmdt(shared)) return 10;
+    if (!map_failed(shmat(-1, 0, 0)) || errno != EINVAL ||
+        shmctl(-1, IPC_STAT, &info) != -1 || errno != EINVAL) return 11;
+
+    struct sigaction action;
+    struct sigaction previous;
+    action.sa_handler = on_alarm;
+    action.sa_flags = 0;
+    action.sa_restorer = 0;
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGALRM, &action, &previous)) return 12;
+    struct itimerval timer;
+    struct itimerval old;
+    timer.it_value.tv_sec = 2;
+    timer.it_value.tv_usec = 0;
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = 0;
+    errno = EBUSY;
+    if (setitimer(ITIMER_REAL, &timer, &old) ||
+        getitimer(ITIMER_REAL, &old) || old.it_value.tv_sec > 2 ||
+        (old.it_value.tv_sec == 0 && old.it_value.tv_usec == 0) ||
+        errno != EBUSY) return 13;
+    if (alarm(1) == 0) return 14;
+    if (pause() != -1 || errno != EINTR || signals != 1) return 15;
+    if (alarm(0) != 0 || getitimer(99, &old) != -1 || errno != EINVAL ||
+        sigaction(SIGALRM, &previous, 0)) return 16;
+    return 42;
+}

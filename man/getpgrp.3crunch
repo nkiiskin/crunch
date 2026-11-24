@@ -1,0 +1,14 @@
+.TH GETPGRP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getpgrp \- returns the calling process's process group id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B pid_t getpgrp(void);
+.fi
+.SH DESCRIPTION
+Returns the calling process's process group ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR getpgrp (2)

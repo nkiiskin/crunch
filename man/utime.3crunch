@@ -1,0 +1,14 @@
+.TH UTIME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+utime \- changes file access and modification times in whole seconds; null selects the current time
+.SH SYNOPSIS
+.nf
+.B #include <utime.h>
+.B int utime(const char* path, const struct utimbuf* times);
+.fi
+.SH DESCRIPTION
+Changes file access and modification times in whole seconds; NULL selects the current time.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR utime (2)

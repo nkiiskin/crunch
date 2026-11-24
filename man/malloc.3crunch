@@ -1,0 +1,60 @@
+.TH MALLOC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+malloc \- allocate a block of memory
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "void* malloc(size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+.BR malloc ()
+allocates an independent block of at least
+.I byte_count
+bytes and returns a pointer aligned to 16 bytes.
+Its contents are unspecified.
+The caller must release the block with
+.BR free (3crunch).
+.PP
+A request of zero attempts an allocation and, on success, returns a
+freeable pointer. No bytes may be accessed through that pointer unless
+the allocation is subsequently resized.
+.SH RETURN VALUE
+On success, the function returns a nonnull pointer and leaves
+.B errno
+unchanged.
+On failure, it returns null and sets
+.BR errno .
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+.TP
+.B ENOMEM
+The size is too large for the allocator, or memory could not
+be obtained.
+.PP
+Other Linux mapping errors can also be reported.
+.SH NOTES
+The allocator is not thread\-safe, and Crunch
+.B errno
+is process\-wide.
+.PP
+Small blocks currently share mapped arenas; larger blocks use separate
+mappings. This is an implementation detail, not permission to release
+blocks with
+.BR munmap
+or a different allocator.
+Use only
+.BR free (3crunch)
+or
+.BR realloc (3crunch)
+with pointers returned by this allocator.
+Never use an interior pointer, a previously freed pointer, or a pointer
+from the system C allocator.
+.SH SEE ALSO
+.BR free (3crunch),
+.BR realloc (3crunch),
+.BR allocator_trim (3crunch),
+.BR crunch (1)

@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
+int sequence = 0;
+int next() { sequence = sequence + 1; return sequence; }
+
+int main() {
+  char buffer[128];
+  char inner[8];
+  long large = -9223372036854775807 - 1;
+  if (snprintf(buffer, sizeof(buffer), "%s %d %ld %f %c %%\n", "hello",
+               -2147483647 - 1, large, -1.25, 'X') != 53) return 1;
+  if (strcmp(buffer, "hello -2147483648 -9223372036854775808 -1.250000 X %\n")) return 2;
+  buffer[0] = 'Z';
+  if (snprintf(buffer, 0, "abcd") != 4 || buffer[0] != 'Z') return 3;
+  if (snprintf(0, 0, "%d", 42) != 2) return 4;
+  buffer[1] = 'Z';
+  if (snprintf(buffer, 1, "abcd") != 4 || buffer[0] != 0 || buffer[1] != 'Z') return 5;
+  buffer[4] = 'Z';
+  if (snprintf(buffer, 4, "abcd") != 4 || strcmp(buffer, "abc") || buffer[4] != 'Z') return 6;
+  if (snprintf(buffer, 5, "abcd") != 4 || strcmp(buffer, "abcd") || buffer[4] != 0) return 7;
+  if (snprintf(buffer, 4, "%ld-%f", (long)12345, 1.5) != 14 ||
+      strcmp(buffer, "123")) return 8;
+  if (snprintf(buffer, 4, "a%cb", 0) != 3 ||
+      buffer[0] != 'a' || buffer[1] != 0 || buffer[2] != 'b' || buffer[3] != 0) return 9;
+  if (snprintf(buffer, 2, "prefix%q", 1) != -1 || strcmp(buffer, "p")) return 10;
+  if (snprintf(buffer, 4, "%d") != -1 || buffer[0] != 0) return 11;
+  char* null_string;
+  if (snprintf(buffer, 4, "%s", null_string) != -1 || buffer[0] != 0) return 12;
+  if (snprintf(buffer, 4, null_string) != -1 || buffer[0] != 0) return 13;
+  errno = 0;
+  if (snprintf(0, 1, "") != -1 || errno != EINVAL) return 14;
+  if (snprintf(buffer, 128, "%d", snprintf(inner, 8, "%s", "hello")) != 1 ||
+      strcmp(buffer, "5") || strcmp(inner, "hello")) return 16;
+  if (snprintf(buffer, 128, "%d", next(), next()) != 1 ||
+      strcmp(buffer, "1") || sequence != 2) return 17;
+  if (snprintf(buffer, 128, "") != 0 || buffer[0] != 0) return 18;
+  if (snprintf(0, 0, "%f", 1) != -1) return 19;
+  char small = (char)4;
+  if (snprintf(buffer, small, "%s%d", "ab", 123) != 5 || strcmp(buffer, "ab1")) return 20;
+  if (snprintf(buffer, 128, "%08d", -42) != 8 || strcmp(buffer, "-0000042")) return 21;
+  if (snprintf(buffer, 128, "%0-8d", -42) != 8 || strcmp(buffer, "-42     ")) return 22;
+  if (snprintf(buffer, 128, "%010ld", (long)-123) != 10 ||
+      strcmp(buffer, "-000000123")) return 23;
+  if (snprintf(buffer, 128, "%012f", -1.25) != 12 ||
+      strcmp(buffer, "-0001.250000")) return 24;
+  if (snprintf(buffer, 128, "%-6s", "ab") != 6 || strcmp(buffer, "ab    ")) return 25;
+  if (snprintf(buffer, 128, "%5c", 'X') != 5 || strcmp(buffer, "    X")) return 26;
+  if (snprintf(buffer, 128, "%05c", 'X') != 5 || strcmp(buffer, "    X")) return 27;
+  if (snprintf(buffer, 4, "%08d", -42) != 8 || strcmp(buffer, "-00")) return 28;
+  if (snprintf(buffer, 4, "%-8s", "xy") != 8 || strcmp(buffer, "xy ")) return 29;
+  if (snprintf(buffer, 4, "%3c", 0) != 3 ||
+      buffer[0] != ' ' || buffer[1] != ' ' || buffer[2] != 0 || buffer[3] != 0) return 30;
+  if (snprintf(0, 0, "%2147483647d", 1) != 2147483647) return 31;
+  if (snprintf(buffer, 4, "%02147483647d", -1) != 2147483647 ||
+      strcmp(buffer, "-00")) return 32;
+  if (snprintf(0, 0, "%2147483647d!", 1) != -1) return 33;
+  if (snprintf(0, 0, "%2147483648d", 1) != -1) return 34;
+  if (snprintf(buffer, 8, "%8.2f", 1.0) != -1 || buffer[0] != 0) return 35;
+  if (snprintf(buffer, 8, "%*d", 1, 2) != -1 || buffer[0] != 0) return 36;
+  if (snprintf(buffer, 4, "%-2147483647d", -1) != 2147483647 ||
+      strcmp(buffer, "-1 ")) return 37;
+  if (snprintf(buffer, 8, "%4%", 1) != -1 || buffer[0] != 0) return 38;
+  if (snprintf(buffer, 8, "%0", 1) != -1 || buffer[0] != 0) return 39;
+  return 0;
+}

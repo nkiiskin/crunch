@@ -1,0 +1,16 @@
+.TH TRUNCATE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+truncate \- change the length of a file
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int truncate(const char* path, off_t length);
+.fi
+.SH DESCRIPTION
+Sets the file named by path to length bytes.  Extending a file reads back as
+zero-filled bytes.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR ftruncate (3crunch),
+.BR truncate (2)

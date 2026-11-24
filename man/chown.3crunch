@@ -1,0 +1,18 @@
+.TH CHOWN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+chown \- change a file's ownership
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int chown(const char* path, uid_t owner, gid_t group);
+.fi
+.SH DESCRIPTION
+Changes the owner and group of path, following symbolic links.  Either ID may
+be (uid_t)\-1 or (gid_t)\-1 respectively to leave that ID unchanged.
+Permissions are enforced by the kernel.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR fchown (3crunch),
+.BR lchown (3crunch),
+.BR chown (2)

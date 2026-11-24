@@ -1,0 +1,14 @@
+.TH SCHED_GETPARAM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_getparam \- reads scheduling parameters for a thread; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_getparam(pid_t process, struct sched_param* parameter);
+.fi
+.SH DESCRIPTION
+Reads scheduling parameters for a thread; process zero selects the caller.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_getparam (2)

@@ -1,0 +1,13 @@
+double negative_zero = (-0.0)**3;
+double positive_zero = (-0.0)**2;
+
+int main() {
+    double base = 2.0;
+    double exponent = -2.0;
+    if (2**-2**2 != 0.0625 || (2**3)**2 != 64.0) return 1;
+    if (base**exponent != 0.25 || 16**(-0.5) != 0.25) return 2;
+    if (1.0 / negative_zero != -1.0 / 0.0) return 3;
+    if (1.0 / positive_zero != 1.0 / 0.0) return 4;
+    if ((int)(2**1024) != 0 || (int)((-2)**0.5) != 0) return 5;
+    return 42;
+}

@@ -1,0 +1,17 @@
+.TH CRUNCH_KEYCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_keyctl \- Linux x86-64 syscall 250
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long crunch_keyctl(int operation, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+.fi
+.SH DESCRIPTION
+Invokes raw keyctl with machine-word arguments. For pointer-valued arguments,
+store the pointer in the pointer member of union crunch_syscall_word and pass
+its value member. The union preserves the address bits on Linux x86-64.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR keyctl (2)

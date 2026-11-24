@@ -1,0 +1,15 @@
+.TH UNAME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+uname \- obtain kernel and machine identification
+.SH SYNOPSIS
+.nf
+.B #include <sys/utsname.h>
+.B int uname(struct utsname* name);
+.fi
+.SH DESCRIPTION
+Writes Linux system, node, release, version, machine and domain strings to
+the supplied writable Linux x86\-64 utsname structure.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR uname (2)

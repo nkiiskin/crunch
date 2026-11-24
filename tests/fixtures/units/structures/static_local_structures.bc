@@ -1,0 +1,53 @@
+struct Inner { int values[3]; };
+struct State { int count; struct Inner inner; int *ref; char text[5]; };
+int external_value = 17;
+int shadow_counter;
+int shadow_calls() { return ++shadow_counter; }
+
+int advance() {
+    static struct State state = {.count = 39, .inner.values[1] = 7,
+                                 .ref = &state.inner.values[1], .text = "abc"};
+    static int *count = &state.count;
+    static int *values = state.inner.values;
+    static struct State *pointer = &state;
+    if (*state.ref != 7 || values[1] != 7 || state.text[2] != 'c' ||
+        pointer->inner.values[1] != 7) return 0;
+    return ++*count;
+}
+
+int shadow() {
+    static struct State state;
+    if (state.count == 0 && (state.ref || state.inner.values[2] || state.text[0]))
+        return 0;
+    state.count++;
+    {
+        static struct State state = {.count = 10, .ref = &external_value};
+        if (*state.ref != 17) return 0;
+        state.count++;
+        if (state.count != 10 + shadow_calls()) return 0;
+    }
+    return state.count;
+}
+
+struct State *retained() {
+    static struct State state = {.count = 20};
+    return &state;
+}
+
+int local_type() {
+    struct Pair { int first; int second; };
+    static struct Pair pair = {40, 2};
+    struct Pair copy = pair;
+    if (copy.first != pair.first) return 0;
+    pair.first++;
+    return copy.first + copy.second;
+}
+
+int main() {
+    if (advance() != 40 || advance() != 41 || advance() != 42) return 1;
+    if (shadow() != 1 || shadow() != 2) return 2;
+    if (local_type() != 42 || local_type() != 43) return 3;
+    if (retained() != retained() || retained()->count++ != 20 ||
+        retained()->count != 21) return 4;
+    return 42;
+}

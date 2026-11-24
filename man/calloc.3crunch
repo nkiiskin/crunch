@@ -1,0 +1,34 @@
+.TH CALLOC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+calloc \- allocate zero-initialized memory
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "void* calloc(size_t " count ", size_t " size ");"
+.fi
+.SH DESCRIPTION
+.BR calloc ()
+allocates a block for
+.I count
+objects of
+.I size
+bytes and initializes all bytes to zero.
+Release the returned pointer with
+.BR free (3crunch).
+A zero-size request attempts an allocation and can return a freeable pointer.
+.SH RETURN VALUE
+On success, returns a nonnull pointer. On failure, returns null and sets
+.BR errno .
+.SH ERRORS
+.TP
+.B ENOMEM
+The product overflows, the size is too large, or memory could not be obtained.
+.SH NOTES
+The allocator is not thread-safe, and Crunch
+.B errno
+is process-wide.
+.SH SEE ALSO
+.BR malloc (3crunch),
+.BR free (3crunch),
+.BR realloc (3crunch)

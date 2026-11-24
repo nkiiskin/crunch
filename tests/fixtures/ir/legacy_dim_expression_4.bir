@@ -1,0 +1,48 @@
+CRUNCH-IR 2
+global g ptr 0
+global g$length int 0
+func main2 0 int
+push 0
+ret int
+end
+func main 0 int
+local 0 int
+localblock __local_struct_0 16 8
+localalias __local_struct_address_0 __local_struct_0 0 byte
+localalias s.v __local_struct_0 0 ptr
+localalias s.v$length __local_struct_0 8 int
+push 0
+lstore s.v ptr
+push 0
+lstore s.v$length int
+local 1 int
+lload s.v ptr
+lload s.v$length int
+push 7
+array_resize int
+lstore s.v ptr
+lstore s.v$length int
+lload s.v$length int
+store 1 int
+local 2 int
+gload g ptr
+gload g$length int
+push 4
+array_resize int
+gstore g ptr
+gstore g$length int
+gload g$length int
+store 2 int
+load 1
+push 10
+mul int
+load 2
+add int
+lload s.v$length int
+add int
+gload g$length int
+add int
+call exit 1
+push 0
+ret int
+end

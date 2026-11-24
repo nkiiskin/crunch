@@ -1,0 +1,28 @@
+CRUNCH-IR 2
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+load 0
+load 1
+push 100
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+push 0
+ptradd byte
+push 42
+cast int byte
+storeind byte
+drop
+load 0
+push 0
+ptradd byte
+loadind byte
+cast byte int
+ret int
+end

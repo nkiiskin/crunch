@@ -1,0 +1,38 @@
+struct Record { char first; _Alignas(16) int value; char last; };
+union Aligned { _Alignas(16) int value; char bytes[16]; };
+int alignment_offset(const void *p);
+
+_Alignas(16) int global = 10;
+_Alignas(1) _Alignas(16) int group_a = 1, group_b = 2;
+_Alignas(0) int unchanged;
+const _Alignas(16) struct Marker { int value; } marker = {8};
+_Alignas(16) int *global_pointer = &global;
+static _Alignas(16) int global_array[2] = {4, 5};
+_Alignas(16) struct Record global_record = {1, 2, 3};
+
+int main(void) {
+    _Alignas(16) int local = 7;
+    _Alignas(16) int *local_pointer = &local;
+    _Alignas(long double) char bytes[5] = {1, 2, 3, 4, 5};
+    _Alignas(struct Record) char selected = 1;
+    static _Alignas(16) int persistent = 6;
+    struct Record record = {2, 8, 3};
+    union Aligned item = {.value = 9};
+    if (alignment_offset(&global) || alignment_offset(global_array) ||
+        alignment_offset(&global_record) || alignment_offset(&local) ||
+        alignment_offset(bytes) || alignment_offset(&persistent) ||
+        alignment_offset(&record) || alignment_offset(&item) ||
+        alignment_offset(&group_a) || alignment_offset(&group_b) ||
+        alignment_offset(&selected) || alignment_offset(&marker) ||
+        alignment_offset(&global_pointer) || alignment_offset(&local_pointer)) return 1;
+    if (_Alignof(struct Record) != 16 || sizeof(struct Record) != 32 ||
+        (char *)&record.value - (char *)&record != 16 ||
+        _Alignof(union Aligned) != 16 || sizeof(union Aligned) != 16) return 2;
+    local += 2;
+    ++*local_pointer;
+    if (local != 10 || bytes[4] != 5 || persistent != 6 || global != 10 ||
+        global_array[1] != 5 || record.value != 8 || item.value != 9 ||
+        group_a != 1 || group_b != 2 || unchanged || selected != 1 ||
+        marker.value != 8 || *global_pointer != 10) return 3;
+    return 42;
+}

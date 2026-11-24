@@ -1,0 +1,1134 @@
+CRUNCH-IR 7
+internal crunch_module_init_0
+initializer crunch_module_init_0
+func crunch_module_init_0 0 int
+gload globals ptr
+gload globals$length int
+push 2
+array_resize uint
+gstore globals ptr
+gstore globals$length int
+gload globals ptr
+bool ptr
+jz L0
+gload globals ptr
+push 0
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+gload globals ptr
+push 1
+ptradd uint
+pushu 2 uint
+storeind uint
+drop
+label L0
+gload global_sized ptr
+gload global_sized$length int
+gload global_count ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L1
+drop
+push 0
+cast int long
+jmp L2
+label L1
+cast ulong long
+label L2
+array_resize ulong
+gstore global_sized ptr
+gstore global_sized$length int
+gload global_oversized ptr
+gload global_oversized$length int
+pushu 4294967295 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L3
+drop
+push 0
+cast int long
+jmp L4
+label L3
+cast uint long
+label L4
+array_resize uint
+gstore global_oversized ptr
+gstore global_oversized$length int
+push 0
+ret int
+end
+global globals ptr 0
+global globals$length int 0
+global global_count ulong 2
+global global_sized ptr 0
+global global_sized$length int 0
+global global_oversized ptr 0
+global global_oversized$length int 0
+global evaluations uint 0
+func next_count 0 ulong
+gload evaluations uint
+pushu 1 uint
+add uint
+dup
+gstore evaluations uint
+drop
+pushu 3 ulong
+ret ulong
+push 0
+ret ulong
+end
+func second 1 ptr
+param 0 0 ptr
+load 0
+pushu 1 uint
+ptradd uint
+ret ptr
+push 0
+ret ptr
+end
+func main 0 int
+gload globals$length int
+push 2
+ne int
+bool int
+jnz L9
+gload globals ptr
+push 0
+ptradd uint
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jmp L10
+label L9
+push 1
+label L10
+bool int
+jnz L7
+gload globals ptr
+push 1
+ptradd uint
+loadind uint
+pushu 2 uint
+ne uint
+bool int
+jmp L8
+label L7
+push 1
+label L8
+bool int
+jz L5
+push 1
+ret int
+label L5
+gload globals ptr
+push 0
+ptradd uint
+dup
+loadind uint
+pushu 1 uint
+add uint
+storeind uint
+pushu 0 uint
+ne uint
+bool int
+jnz L13
+gload globals ptr
+push 0
+ptradd uint
+loadind uint
+pushu 0 uint
+ne uint
+bool int
+jmp L14
+label L13
+push 1
+label L14
+bool int
+jz L11
+push 20
+ret int
+label L11
+gload globals ptr
+push 0
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+gload global_sized$length int
+push 2
+ne int
+bool int
+jz L15
+push 2
+ret int
+label L15
+gload global_oversized$length int
+push 0
+ne int
+bool int
+jz L17
+push 16
+ret int
+label L17
+gload global_sized ptr
+push 1
+ptradd ulong
+pushu 18446744073709551615 ulong
+storeind ulong
+drop
+gload global_sized ptr
+push 1
+ptradd ulong
+loadind ulong
+pushu 18446744073709551615 ulong
+ne ulong
+bool int
+jz L19
+push 3
+ret int
+label L19
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+push 0
+push 0
+push 2
+array_resize uint
+store 0 ptr
+store 1 int
+load 0
+bool ptr
+jz L21
+load 0
+push 0
+ptradd uint
+pushu 1 uint
+storeind uint
+drop
+load 0
+push 1
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+label L21
+local 2 ptr
+local 3 int
+push 0
+store 2 ptr
+push 0
+store 3 int
+load 2
+load 3
+pushu 2 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L22
+drop
+push 0
+cast int long
+jmp L23
+label L22
+cast uint long
+label L23
+array_resize ulong
+store 2 ptr
+store 3 int
+load 2
+push 0
+ptradd ulong
+pushu 18446744073709551615 ulong
+storeind ulong
+drop
+load 2
+push 1
+ptradd ulong
+pushu 9223372036854775808 ulong
+storeind ulong
+drop
+load 2
+push 1
+ptradd ulong
+dup
+loadind ulong
+pushu 1 uint
+shr ulong
+storeind ulong
+pushu 4611686018427387904 ulong
+ne ulong
+bool int
+jz L24
+push 21
+ret int
+label L24
+load 2
+push 1
+ptradd ulong
+dup
+loadind ulong
+pushu 1 uint
+shl ulong
+storeind ulong
+drop
+local 4 ptr
+load 0
+store 4 ptr
+load 4
+push 1
+ptradd uint
+dup
+loadind uint
+pushu 2 uint
+div uint
+storeind uint
+pushu 2147483647 uint
+ne uint
+bool int
+jz L26
+push 22
+ret int
+label L26
+load 4
+push 1
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+load 4
+push 1
+ptradd uint
+dup
+loadind uint
+cast uint long
+push 1
+cast int long
+add long
+cast long uint
+storeind uint
+pushu 0 uint
+ne uint
+bool int
+jnz L30
+load 4
+push 1
+ptradd uint
+loadind uint
+pushu 0 uint
+ne uint
+bool int
+jmp L31
+label L30
+push 1
+label L31
+bool int
+jz L28
+push 23
+ret int
+label L28
+load 4
+push 1
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+local 5 ptr
+local 6 int
+push 0
+store 5 ptr
+push 0
+store 6 int
+push 0
+push 0
+push 1
+array_resize int
+store 5 ptr
+store 6 int
+load 5
+bool ptr
+jz L32
+load 5
+push 0
+ptradd int
+push 8
+neg int
+storeind int
+drop
+label L32
+load 5
+push 0
+ptradd int
+dup
+loadind int
+pushu 1 uint
+shr int
+storeind int
+push 4
+neg int
+ne int
+bool int
+jz L33
+push 24
+ret int
+label L33
+load 5
+load 6
+push 0
+array_resize int
+store 5 ptr
+store 6 int
+local 7 ptr
+addr 4
+store 7 ptr
+load 4
+call second 1
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jnz L37
+load 7
+loadind ptr
+push 0
+ptradd uint
+loadind uint
+pushu 1 uint
+ne uint
+bool int
+jmp L38
+label L37
+push 1
+label L38
+bool int
+jz L35
+push 4
+ret int
+label L35
+load 4
+push 1
+ptradd uint
+dup
+store 4 ptr
+drop
+load 4
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jz L39
+push 5
+ret int
+label L39
+load 4
+push 1
+ptrsub uint
+store 4 ptr
+load 4
+pushu 9 uint
+storeind uint
+drop
+load 0
+push 0
+ptradd uint
+loadind uint
+pushu 9 uint
+ne uint
+bool int
+jz L41
+push 6
+ret int
+label L41
+local 8 ptr
+local 9 int
+push 0
+store 8 ptr
+push 0
+store 9 int
+push 0
+push 0
+push 2
+array_resize ptr
+store 8 ptr
+store 9 int
+load 8
+bool ptr
+jz L43
+load 8
+push 0
+ptradd ptr
+load 4
+storeind ptr
+drop
+load 8
+push 1
+ptradd ptr
+load 4
+call second 1
+storeind ptr
+drop
+label L43
+load 8
+push 0
+ptradd ptr
+loadind ptr
+loadind uint
+pushu 9 uint
+ne uint
+bool int
+jnz L46
+load 8
+push 1
+ptradd ptr
+loadind ptr
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jmp L47
+label L46
+push 1
+label L47
+bool int
+jz L44
+push 17
+ret int
+label L44
+load 8
+load 9
+pushu 0 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L48
+drop
+push 0
+cast int long
+jmp L49
+label L48
+cast uint long
+label L49
+array_resize ptr
+store 8 ptr
+store 9 int
+load 0
+load 1
+call next_count 0
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L50
+drop
+push 0
+cast int long
+jmp L51
+label L50
+cast ulong long
+label L51
+array_resize uint
+store 0 ptr
+store 1 int
+gload evaluations uint
+pushu 1 uint
+ne uint
+bool int
+jnz L56
+load 1
+push 3
+ne int
+bool int
+jmp L57
+label L56
+push 1
+label L57
+bool int
+jnz L54
+load 0
+push 1
+ptradd uint
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jmp L55
+label L54
+push 1
+label L55
+bool int
+jz L52
+push 7
+ret int
+label L52
+load 2
+load 3
+pushu 3 ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L58
+drop
+push 0
+cast int long
+jmp L59
+label L58
+cast ulong long
+label L59
+array_resize ulong
+store 2 ptr
+store 3 int
+load 3
+push 3
+ne int
+bool int
+jnz L64
+load 2
+push 0
+ptradd ulong
+loadind ulong
+pushu 18446744073709551615 ulong
+ne ulong
+bool int
+jmp L65
+label L64
+push 1
+label L65
+bool int
+jnz L62
+load 2
+push 1
+ptradd ulong
+loadind ulong
+pushu 9223372036854775808 ulong
+ne ulong
+bool int
+jmp L63
+label L62
+push 1
+label L63
+bool int
+jz L60
+push 8
+ret int
+label L60
+local 10 ptr
+local 11 int
+push 0
+store 10 ptr
+push 0
+store 11 int
+local 12 ptr
+local 13 long
+load 2
+store 12 ptr
+load 3
+store 13 long
+load 13
+push 2147483647
+cast int long
+gt long
+jnz L66
+load 11
+cast int long
+load 13
+lt long
+jz L67
+load 10
+load 11
+load 13
+array_resize ulong
+store 10 ptr
+store 11 int
+label L67
+load 11
+cast int long
+load 13
+lt long
+jnz L68
+load 10
+load 12
+load 13
+push 8
+mul long
+runtime_call memcpy 3
+drop
+jmp L68
+label L66
+label L68
+load 11
+push 3
+ne int
+bool int
+jnz L71
+load 10
+push 1
+ptradd ulong
+loadind ulong
+pushu 9223372036854775808 ulong
+ne ulong
+bool int
+jmp L72
+label L71
+push 1
+label L72
+bool int
+jz L69
+push 18
+ret int
+label L69
+load 10
+load 11
+pushu 0 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L73
+drop
+push 0
+cast int long
+jmp L74
+label L73
+cast uint long
+label L74
+array_resize ulong
+store 10 ptr
+store 11 int
+local 14 ptr
+local 15 int
+push 0
+store 14 ptr
+push 0
+store 15 int
+push 0
+push 0
+push 1
+array_resize uint
+store 14 ptr
+store 15 int
+load 14
+bool ptr
+jz L75
+load 14
+push 0
+ptradd uint
+pushu 7 uint
+storeind uint
+drop
+label L75
+load 14
+load 15
+pushu 0 ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L76
+drop
+push 0
+cast int long
+jmp L77
+label L76
+cast ulong long
+label L77
+array_resize uint
+store 14 ptr
+store 15 int
+load 15
+push 0
+ne int
+bool int
+jz L78
+push 19
+ret int
+label L78
+local 16 int
+localblock __local_struct_16 24 8
+localalias __local_struct_address_16 __local_struct_16 0 byte
+localalias holder.values __local_struct_16 0 ptr
+localalias holder.values$length __local_struct_16 8 int
+push 0
+lstore holder.values ptr
+push 0
+lstore holder.values$length int
+localalias holder.pointer __local_struct_16 16 ptr
+push 0
+lstore holder.pointer ptr
+local 17 ptr
+laddr __local_struct_address_16
+store 17 ptr
+local 18 ptr
+load 17
+store 18 ptr
+load 18
+loadind ptr
+load 18
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize uint
+local 19 ptr
+local 20 int
+store 19 ptr
+store 20 int
+load 18
+load 19
+storeind ptr
+drop
+load 18
+push 8
+ptradd byte
+load 20
+storeind int
+drop
+load 18
+loadind ptr
+bool ptr
+jz L80
+load 18
+loadind ptr
+push 0
+ptradd uint
+pushu 7 uint
+storeind uint
+drop
+load 18
+loadind ptr
+push 1
+ptradd uint
+pushu 4294967295 uint
+storeind uint
+drop
+label L80
+local 21 ptr
+local 22 int
+push 0
+store 21 ptr
+push 0
+store 22 int
+local 23 ptr
+local 24 long
+local 25 ptr
+load 17
+store 25 ptr
+load 25
+loadind ptr
+store 23 ptr
+load 25
+push 8
+ptradd byte
+loadind int
+store 24 long
+load 24
+push 2147483647
+cast int long
+gt long
+jnz L81
+load 22
+cast int long
+load 24
+lt long
+jz L82
+load 21
+load 22
+load 24
+array_resize uint
+store 21 ptr
+store 22 int
+label L82
+load 22
+cast int long
+load 24
+lt long
+jnz L83
+load 21
+load 23
+load 24
+push 4
+mul long
+runtime_call memcpy 3
+drop
+jmp L83
+label L81
+label L83
+load 22
+push 2
+ne int
+bool int
+jnz L86
+load 21
+push 1
+ptradd uint
+loadind uint
+pushu 4294967295 uint
+ne uint
+bool int
+jmp L87
+label L86
+push 1
+label L87
+bool int
+jz L84
+push 9
+ret int
+label L84
+load 17
+push 16
+ptradd byte
+load 2
+storeind ptr
+drop
+load 17
+push 16
+ptradd byte
+loadind ptr
+push 1
+ptradd ulong
+loadind ulong
+pushu 9223372036854775808 ulong
+ne ulong
+bool int
+jz L88
+push 10
+ret int
+label L88
+load 0
+load 1
+pushu 2147483648 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L90
+drop
+push 0
+cast int long
+jmp L91
+label L90
+cast uint long
+label L91
+array_resize uint
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L92
+push 11
+ret int
+label L92
+load 2
+load 3
+pushu 18446744073709551615 ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L94
+drop
+push 0
+cast int long
+jmp L95
+label L94
+cast ulong long
+label L95
+array_resize ulong
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L96
+push 12
+ret int
+label L96
+local 26 ptr
+load 17
+store 26 ptr
+load 26
+loadind ptr
+load 26
+push 8
+ptradd byte
+loadind int
+pushu 9223372036854775808 ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L98
+drop
+push 0
+cast int long
+jmp L99
+label L98
+cast ulong long
+label L99
+array_resize uint
+local 27 ptr
+local 28 int
+store 27 ptr
+store 28 int
+load 26
+load 27
+storeind ptr
+drop
+load 26
+push 8
+ptradd byte
+load 28
+storeind int
+drop
+local 29 ptr
+load 17
+store 29 ptr
+load 29
+push 8
+ptradd byte
+loadind int
+push 0
+ne int
+bool int
+jz L100
+push 13
+ret int
+label L100
+local 30 ptr
+local 31 int
+push 0
+store 30 ptr
+push 0
+store 31 int
+load 30
+load 31
+pushu 1 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L102
+drop
+push 0
+cast int long
+jmp L103
+label L102
+cast uint long
+label L103
+array_resize_bytes 24
+store 30 ptr
+store 31 int
+load 30
+load 31
+pushu 4294967295 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L104
+drop
+push 0
+cast int long
+jmp L105
+label L104
+cast uint long
+label L105
+array_resize_bytes 24
+store 30 ptr
+store 31 int
+load 31
+push 0
+ne int
+bool int
+jz L106
+push 15
+ret int
+label L106
+local 32 ptr
+local 33 int
+push 0
+store 32 ptr
+push 0
+store 33 int
+load 32
+load 33
+pushu 4294967295 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L108
+drop
+push 0
+cast int long
+jmp L109
+label L108
+cast uint long
+label L109
+array_resize uint
+store 32 ptr
+store 33 int
+load 33
+push 0
+ne int
+bool int
+jz L110
+push 14
+ret int
+label L110
+load 21
+load 22
+pushu 0 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L112
+drop
+push 0
+cast int long
+jmp L113
+label L112
+cast uint long
+label L113
+array_resize uint
+store 21 ptr
+store 22 int
+gload globals ptr
+gload globals$length int
+pushu 0 ulong
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L114
+drop
+push 0
+cast int long
+jmp L115
+label L114
+cast ulong long
+label L115
+array_resize uint
+gstore globals ptr
+gstore globals$length int
+gload global_sized ptr
+gload global_sized$length int
+pushu 0 uint
+dup
+pushu 2147483647 uint
+gt uint
+jz L116
+drop
+push 0
+cast int long
+jmp L117
+label L116
+cast uint long
+label L117
+array_resize ulong
+gstore global_sized ptr
+gstore global_sized$length int
+push 42
+ret int
+push 0
+ret int
+end

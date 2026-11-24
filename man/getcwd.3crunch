@@ -1,0 +1,20 @@
+.TH GETCWD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getcwd \- obtain the current working directory
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B char* getcwd(char* buffer, size_t size);
+.fi
+.SH DESCRIPTION
+Writes the absolute directory path and its NUL terminator into buffer.  With
+NULL buffer, allocates size bytes, or automatically sizes the allocation when
+size is zero.  Free the returned allocation with free.
+This implementation uses the Linux getcwd syscall and does not provide GNU
+libc's fallback for paths exceeding the kernel syscall's length limit.
+.SH RETURN VALUE
+Returns the buffer, or NULL with errno set.  An unreachable directory is
+reported as ENOENT.
+.SH SEE ALSO
+.BR getcwd (3),
+.BR getcwd (2)

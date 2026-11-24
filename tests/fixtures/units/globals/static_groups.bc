@@ -1,0 +1,23 @@
+struct point {
+    int x;
+    int y;
+};
+
+static {
+    int a, other;
+    char b[2];
+    struct point points[20];
+    static { int nested; };
+    const { int fixed = 2; };
+};
+
+int main() {
+    if (sizeof(points) != 160 || sizeof(b) != 2) return 1;
+    a = 5;
+    other = 3;
+    nested = 2;
+    points[19].x = 30;
+    b[0] = (char)1;
+    if (b[0] != 1 || points[19].x != 30) return 2;
+    return a + other + nested + fixed + 30;
+}

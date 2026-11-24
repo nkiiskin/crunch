@@ -1,0 +1,4 @@
+int main() {
+    int result = 2**8;
+    return result;
+}

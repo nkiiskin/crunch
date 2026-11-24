@@ -1,0 +1,15 @@
+.TH SET_ROBUST_LIST 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+set_robust_list \- Linux x86-64 syscall 273
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int set_robust_list(void* head, size_t length);
+.fi
+.SH DESCRIPTION
+Registers a Linux robust-futex list for the calling thread.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR set_robust_list (2)

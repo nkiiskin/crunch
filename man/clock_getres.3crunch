@@ -1,0 +1,15 @@
+.TH CLOCK_GETRES 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+clock_getres \- Linux x86-64 syscall 229
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int clock_getres(int clock, struct timespec* value);
+.fi
+.SH DESCRIPTION
+Reads clock resolution.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR clock_getres (2)

@@ -1,0 +1,14 @@
+.TH GETGROUPS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getgroups \- reads supplementary groups
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int getgroups(int count, gid_t* groups);
+.fi
+.SH DESCRIPTION
+Reads supplementary groups. A zero count queries the required number without writing the array.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR getgroups (2)

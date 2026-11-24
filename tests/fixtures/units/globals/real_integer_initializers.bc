@@ -1,0 +1,40 @@
+static const {
+    double positive = 2, negative = -17, character = 'x';
+    double grouped_expression = 20 * 4;
+};
+
+double zero = 0;
+double minimum = (-9223372036854775807 - 1);
+double maximum = 9223372036854775807;
+double rounded = 9007199254740993;
+double wrapped = 2147483647 + 1;
+double conditional = 1 ? 42 : 1 / 0;
+double explicit_value = (double)(7 * 6);
+double actual_literal = 2.5;
+double negative_zero = -0.0;
+double power = 2**3;
+
+int main() {
+    int number = 2;
+    char letter = 'x';
+    long min_value = (-9223372036854775807 - 1);
+    long max_value = 9223372036854775807;
+    long precise_value = 9007199254740993;
+    int max_int = 2147483647;
+    double runtime_number = number;
+    double runtime_letter = letter;
+    double runtime_minimum = min_value;
+    double runtime_maximum = max_value;
+    double runtime_rounded = precise_value;
+    double runtime_wrapped = max_int + 1;
+    if (positive != runtime_number || negative != -17.0 ||
+        character != runtime_letter || grouped_expression != 80.0 || zero != 0.0)
+        return 1;
+    if (minimum != runtime_minimum || maximum != runtime_maximum ||
+        rounded != runtime_rounded || rounded != 9007199254740992.0 ||
+        wrapped != runtime_wrapped || conditional != 42.0 || explicit_value != 42.0)
+        return 2;
+    if (actual_literal != 2.5 || negative_zero != 0.0 || power != 8.0)
+        return 3;
+    return 42;
+}

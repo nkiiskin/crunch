@@ -1,0 +1,27 @@
+.TH LSTAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+lstat \- obtain metadata without following the final symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int lstat(const char* " path ", struct stat* " buffer ");"
+.fi
+.SH DESCRIPTION
+.B lstat
+stores metadata for the final path component itself, including when it is a
+symbolic link. The writable structure has the Linux x86\-64 layout described in
+.BR stat (3crunch).
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.B errno .
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR stat (3crunch),
+.BR readlink (3crunch),
+.BR lstat (2)

@@ -1,0 +1,7 @@
+int main() {
+    char b = 255;
+    int i = 42;
+    long l = 4294967296;
+    double r = .5;
+    return i;
+}

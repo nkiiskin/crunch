@@ -1,0 +1,16 @@
+.TH SYSINFO 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sysinfo \- read Linux system statistics
+.SH SYNOPSIS
+.nf
+.B #include <sys/sysinfo.h>
+.B int sysinfo(struct sysinfo* information);
+.fi
+.SH DESCRIPTION
+Reads uptime, load averages, process count and memory statistics.  Memory
+values are in units of mem_unit bytes; load averages use SI_LOAD_SHIFT
+fractional bits.  The structure uses the Linux x86\-64 ABI.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR sysinfo (2)

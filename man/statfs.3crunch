@@ -1,0 +1,14 @@
+.TH STATFS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+statfs \- reads filesystem statistics into the linux x86-64 kernel statfs layout
+.SH SYNOPSIS
+.nf
+.B #include <sys/vfs.h>
+.B int statfs(const char* path, struct statfs* buffer);
+.fi
+.SH DESCRIPTION
+Reads filesystem statistics into the Linux x86-64 kernel statfs layout.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR statfs (2)

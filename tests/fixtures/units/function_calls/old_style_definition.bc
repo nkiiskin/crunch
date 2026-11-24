@@ -1,0 +1,22 @@
+static char *element(p, i)
+    int i;
+    char **p;
+{
+    return p[i];
+}
+
+static long calculate(a, values, b, fallback)
+    long b;
+    int values[];
+    int a;
+{
+    return a + values[0] + b + fallback;
+}
+
+int main(void)
+{
+    char *words[] = {"first", "second"};
+    char *(*select)(char **, int) = element;
+    int values[] = {4};
+    return select(words, 1)[0] != 's' || calculate(2, values, 8L, 3) != 17;
+}

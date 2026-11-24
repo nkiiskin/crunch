@@ -1,0 +1,19 @@
+struct Container {
+    char values[3];
+    int marker;
+};
+
+int main() {
+    struct Container source;
+    struct Container destination;
+    source.values[0] = 'o';
+    source.values[1] = 'k';
+    source.values[2] = (char)0;
+    source.marker = 42;
+
+    destination = source;
+    if (sizeof(destination.values) != 3) return 1;
+    if (destination.values[0] != 'o' || destination.values[1] != 'k' || destination.values[2] != 0) return 2;
+    if (destination.marker != 42) return 3;
+    return destination.values[0] - 'o';
+}

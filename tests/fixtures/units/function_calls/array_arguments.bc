@@ -1,0 +1,22 @@
+int sum_values(int values[], int count) {
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        sum += values[i];
+    }
+    return sum;
+}
+
+int first_byte(char values[]) {
+    return values[0];
+}
+
+int main() {
+    int values[3];
+    char bytes[1];
+    values[0] = 10;
+    values[1] = 12;
+    values[2] = 20;
+    bytes[0] = (char)42;
+    if (sum_values(values, (int)(sizeof(values) / sizeof(values[0]))) != 42) return 1;
+    return first_byte(bytes);
+}

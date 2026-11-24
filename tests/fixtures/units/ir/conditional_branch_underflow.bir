@@ -1,0 +1,7 @@
+CRUNCH-IR 2
+func main 0 int
+jz L1
+label L1
+push 0
+ret int
+end

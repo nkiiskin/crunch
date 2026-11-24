@@ -1,0 +1,38 @@
+.TH PIPE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+pipe \- create a pipe
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int pipe(int* " descriptors ");"
+.fi
+.SH DESCRIPTION
+Creates a unidirectional pipe and writes two descriptors to the supplied
+two\-element int buffer. Element 0 is the read end and element 1 is the
+write end. Both descriptors are initially blocking and do not have
+close\-on\-exec set. Close unused ends when they are no longer needed.
+.SH RETURN VALUE
+Returns 0 on success, or \-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.BR EFAULT ,
+.BR EMFILE ,
+and
+.BR ENFILE .
+Other Linux pipe errors are possible.
+.SH NOTES
+Writing to a pipe without readers generates
+.B SIGPIPE
+unless it is ignored or handled; the write can fail with
+.BR EPIPE .
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR read (3crunch),
+.BR write (3crunch),
+.BR close (3crunch),
+.BR pipe (2)

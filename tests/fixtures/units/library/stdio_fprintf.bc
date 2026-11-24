@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <errno.h>
+
+int main() {
+  struct FILE* file = fopen("output", "w");
+  if (!file) return 1;
+  long large = -9223372036854775807 - 1;
+  if (fprintf(file, "%s %d %ld %f %c %%\n", "hello",
+              -2147483647 - 1, large, -1.25, 'X') != 53) return 2;
+  if (fprintf(file, "") != 0) return 3;
+  if (fprintf(file, "%c", 0) != 1) return 4;
+  if (fprintf(file, "%d", fprintf(stdout, "nested")) != 1) return 5;
+  if (fprintf(file, "%d", printf("P"), printf("Q")) != 1) return 24;
+  if (fprintf(file, "%08d|%-6s|%300s\n", -42, "ok", "x") != 317) return 27;
+  if (fprintf(stderr, "error %d", 7) != 7) return 6;
+  if (fprintf(file, "%q", 1) != -1) return 7;
+  if (fprintf(file, "%d") != -1) return 8;
+  if (fprintf(file, "%s", 1) != -1) return 9;
+  if (fprintf(file, "%f", 1) != -1) return 10;
+  if (fprintf(file, "%ld", 1) != -1) return 11;
+  if (fprintf(file, "%") != -1) return 12;
+  char* null_string;
+  if (fprintf(file, "%s", null_string) != -1) return 13;
+  if (fprintf(file, null_string) != -1) return 14;
+  if (ferror(file)) return 15;
+  if (fclose(file)) return 16;
+  struct FILE* null_stream;
+  errno = 0;
+  if (fprintf(null_stream, "") != -1 || errno != EINVAL) return 17;
+  file = fopen("/dev/full", "w");
+  if (!file) return 18;
+  if (fprintf(file, "%s", "text") != -1 || !ferror(file) || errno != ENOSPC) return 19;
+  clearerr(file);
+  if (fprintf(file, "%d", 1) != -1 || !ferror(file)) return 20;
+  clearerr(file);
+  if (fprintf(file, "%f", 1.0) != -1 || !ferror(file)) return 21;
+  clearerr(file);
+  if (fprintf(file, "%c", 65) != -1 || !ferror(file)) return 22;
+  clearerr(file);
+  if (fprintf(file, "%5s", "x") != -1 || !ferror(file)) return 25;
+  clearerr(file);
+  if (fprintf(file, "%-5s", "") != -1 || !ferror(file)) return 26;
+  if (fclose(file)) return 23;
+  return 0;
+}

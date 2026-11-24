@@ -1,0 +1,22 @@
+.TH SIGPROCMASK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigprocmask \- change or inspect a signal mask
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigprocmask(int how, const sigset_t* set, sigset_t* previous);
+.fi
+.SH DESCRIPTION
+Changes the calling thread's signal mask with SIG_BLOCK, SIG_UNBLOCK or
+SIG_SETMASK. If set is NULL, only the previous mask is queried and how is
+ignored. A non\-NULL previous receives the old mask. SIGKILL and SIGSTOP
+cannot be blocked.
+.PP
+Crunch sigset_t is an eight\-byte Linux x86\-64 kernel mask, not libc's
+sigset_t. Signal n corresponds to bit n\-1; use sigemptyset to clear it.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR sigaction (3crunch),
+.BR sigemptyset (3crunch),
+.BR sigprocmask (2)

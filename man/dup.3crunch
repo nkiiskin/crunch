@@ -1,0 +1,31 @@
+.TH DUP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+dup \- duplicate a file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int dup(int " descriptor ");"
+.fi
+.SH DESCRIPTION
+Duplicates an open descriptor using the lowest available descriptor number.
+The descriptors share the same open file description, including file offset
+and status flags. The new descriptor does not have close\-on\-exec set.
+.SH RETURN VALUE
+Returns the new descriptor, or \-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.B EBADF
+and
+.BR EMFILE .
+Other Linux dup errors are possible.
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR dup2 (3crunch),
+.BR close (3crunch),
+.BR dup (2)

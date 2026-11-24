@@ -1,0 +1,14 @@
+.TH GETEUID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+geteuid \- returns the calling process's effective user id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B uid_t geteuid(void);
+.fi
+.SH DESCRIPTION
+Returns the calling process's effective user ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR geteuid (2)

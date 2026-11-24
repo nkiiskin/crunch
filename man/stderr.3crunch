@@ -1,0 +1,28 @@
+.TH STDERR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+stderr \- Crunch standard error stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.B struct FILE* stderr;
+.fi
+.SH DESCRIPTION
+.B stderr
+is the initially open, unbuffered Crunch stream for file descriptor 2.
+It can be passed to Crunch stream functions and closed with
+.BR fclose (3crunch).
+After closing it the stream pointer is invalid.
+.SH NOTES
+Crunch stream objects are not C library
+.B FILE
+objects. The standard stream names are macros referring to Crunch-specific
+global pointers; they do not interoperate with libc's stream objects.
+Mixing stream operations with direct descriptor operations requires care:
+they share a descriptor, but not stream indicator state.
+Crunch streams and errno are not thread-safe.
+.SH SEE ALSO
+.BR stdin (3crunch),
+.BR stdout (3crunch),
+.BR fputc (3crunch),
+.BR fclose (3crunch)

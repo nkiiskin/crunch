@@ -1,0 +1,144 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <poll.h>
+#include <sched.h>
+#include <signal.h>
+#include <time.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/random.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/utsname.h>
+#include <sys/wait.h>
+#include <sys/shm.h>
+#include <sys/time.h>
+#include <sys/sendfile.h>
+#include <sys/sem.h>
+#include <sys/msg.h>
+#include <sys/file.h>
+#include <sys/resource.h>
+#include <sys/sysinfo.h>
+
+typedef int pid_t;
+typedef unsigned int mode_t;
+typedef long off_t;
+typedef long time_t;
+typedef long suseconds_t;
+typedef unsigned long nfds_t;
+typedef unsigned int socklen_t;
+typedef unsigned short sa_family_t;
+
+extern ssize_t read(int, void*, size_t);
+extern ssize_t write(int, const void*, size_t);
+extern ssize_t pread(int, void*, size_t, off_t);
+extern ssize_t pwrite(int, const void*, size_t, off_t);
+extern ssize_t readv(int, const struct iovec*, int);
+extern ssize_t writev(int, const struct iovec*, int);
+extern int sched_yield(void);
+extern int msync(void*, size_t, int);
+extern int mincore(void*, size_t, unsigned char*);
+extern int madvise(void*, size_t, int);
+extern int shmget(key_t, size_t, int);
+extern void* shmat(int, const void*, int);
+extern int shmctl(int, int, struct shmid_ds*);
+extern int shmdt(const void*);
+extern int pause(void);
+extern unsigned int alarm(unsigned int);
+extern ssize_t getdents64(int, void*, size_t);
+extern off_t lseek(int, off_t, int);
+extern pid_t fork(void);
+extern pid_t getpid(void);
+extern pid_t waitpid(pid_t, int*, int);
+extern int kill(pid_t, int);
+extern int poll(struct pollfd*, nfds_t, int);
+extern int select(int, fd_set*, fd_set*, fd_set*, struct timeval*);
+extern int chmod(const char*, mode_t);
+extern int fchmod(int, mode_t);
+extern int mkdir(const char*, mode_t);
+extern int mkdirat(int, const char*, mode_t);
+extern void* mmap(void*, size_t, int, int, int, off_t);
+extern int mprotect(void*, size_t, int);
+extern int brk(void*);
+extern int munmap(void*, size_t);
+extern int access(const char*, int);
+extern int dup(int);
+extern int dup2(int, int);
+extern int pipe(int*);
+extern int close(int);
+extern ssize_t readlink(const char*, char*, size_t);
+extern ssize_t readlinkat(int, const char*, char*, size_t);
+extern int unlink(const char*);
+extern int unlinkat(int, const char*, int);
+extern int rmdir(const char*);
+extern int symlinkat(const char*, int, const char*);
+extern int rename(const char*, const char*);
+extern int renameat(int, const char*, int, const char*);
+extern int stat(const char*, struct stat*);
+extern int fstat(int, struct stat*);
+extern int lstat(const char*, struct stat*);
+extern int fstatat(int, const char*, struct stat*, int);
+extern int execve(const char*, char* const*, char* const*);
+extern void _exit(int);
+extern int uname(struct utsname*);
+extern ssize_t getrandom(void*, size_t, unsigned int);
+extern int socket(int, int, int);
+extern int bind(int, const struct sockaddr*, socklen_t);
+extern int connect(int, const struct sockaddr*, socklen_t);
+extern int listen(int, int);
+extern int accept(int, struct sockaddr*, socklen_t*);
+extern ssize_t recvfrom(int, void*, size_t, int, struct sockaddr*, socklen_t*);
+extern ssize_t sendmsg(int, const struct msghdr*, int);
+extern ssize_t recvmsg(int, struct msghdr*, int);
+extern int sigaction(int, const struct sigaction*, struct sigaction*);
+extern int sigprocmask(int, const sigset_t*, sigset_t*);
+extern int sigemptyset(sigset_t*);
+extern int nanosleep(const struct timespec*, struct timespec*);
+extern unsigned int sleep(unsigned int);
+extern ssize_t sendfile(int, int, off_t*, size_t);
+extern ssize_t sendto(int, const void*, size_t, int, const struct sockaddr*, socklen_t);
+extern int shutdown(int, int);
+extern int getsockname(int, struct sockaddr*, socklen_t*);
+extern int getpeername(int, struct sockaddr*, socklen_t*);
+extern int socketpair(int, int, int, int*);
+extern int setsockopt(int, int, int, const void*, socklen_t);
+extern int getsockopt(int, int, int, void*, socklen_t*);
+extern pid_t vfork(void);
+extern pid_t wait4(pid_t, int*, int, struct rusage*);
+extern int semget(key_t, int, int);
+extern int semop(int, struct sembuf*, size_t);
+extern int msgget(key_t, int);
+extern int msgsnd(int, const void*, size_t, int);
+extern ssize_t msgrcv(int, void*, size_t, long, int);
+extern int msgctl(int, int, struct msqid_ds*);
+extern int flock(int, int);
+extern int fsync(int);
+extern int fdatasync(int);
+extern int truncate(const char*, off_t);
+extern int ftruncate(int, off_t);
+extern char* getcwd(char*, size_t);
+extern int chdir(const char*);
+extern int fchdir(int);
+extern int creat(const char*, mode_t);
+extern int link(const char*, const char*);
+extern int symlink(const char*, const char*);
+extern int chown(const char*, uid_t, gid_t);
+extern int fchown(int, uid_t, gid_t);
+extern int lchown(const char*, uid_t, gid_t);
+extern mode_t umask(mode_t);
+extern int gettimeofday(struct timeval*, void*);
+extern int sysinfo(struct sysinfo*);
+
+int main(void) {
+    return sizeof(pid_t) != 4 || sizeof(mode_t) != 4 || sizeof(off_t) != 8 ||
+           sizeof(time_t) != 8 || sizeof(suseconds_t) != 8 ||
+           sizeof(nfds_t) != 8 || sizeof(fd_set) != 128 ||
+           sizeof(struct ipc_perm) != 48 || sizeof(struct shmid_ds) != 112 ||
+           sizeof(struct itimerval) != 32 || sizeof(struct rusage) != 144 ||
+           sizeof(struct semid_ds) != 104 || sizeof(struct msqid_ds) != 120 ||
+           sizeof(struct sembuf) != 6 || sizeof(struct flock) != 32 ||
+           sizeof(rlim_t) != 8 || sizeof(struct rlimit) != 16 ||
+           sizeof(struct timezone) != 8 || sizeof(struct sysinfo) != 112;
+}

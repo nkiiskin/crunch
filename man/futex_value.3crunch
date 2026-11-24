@@ -1,0 +1,14 @@
+.TH FUTEX_VALUE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+futex_value \- invokes linux futex with an integer fourth argument, for operations such as futex_requeue and futex_wake_op
+.SH SYNOPSIS
+.nf
+.B #include <sys/futex.h>
+.B int futex_value(int* address, int operation, unsigned int value, unsigned long value2, int* address2, unsigned int value3);
+.fi
+.SH DESCRIPTION
+Invokes Linux futex with an integer fourth argument, for operations such as FUTEX_REQUEUE and FUTEX_WAKE_OP. Futex words must be aligned 32-bit integers.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR futex (2)

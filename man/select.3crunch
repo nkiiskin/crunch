@@ -1,0 +1,50 @@
+.TH SELECT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+select \- wait for file descriptor readiness
+.SH SYNOPSIS
+.nf
+.B #include <sys/select.h>
+.PP
+.BI "int select(int " count ", fd_set* " readfds ", fd_set* " writefds ,
+.BI "           fd_set* " exceptfds ", struct timeval* " timeout ");"
+.fi
+.SH DESCRIPTION
+Waits for readiness on descriptors numbered from zero through
+.I count
+minus one. Each set may be zero or point to a writable
+.BR fd_set .
+Use FD_ZERO, FD_SET, FD_CLR and FD_ISSET to initialize, change and inspect
+sets; descriptors must be nonnegative and below FD_SETSIZE (1024).
+Nonready bits are cleared. Linux uses the supplied count and bitmap sizes;
+the caller must provide sufficient storage.
+.PP
+The optional writable
+.B struct timeval
+has
+.B time_t tv_sec
+and
+.B suseconds_t tv_usec
+members. A zero pointer waits indefinitely; a zero timeval polls without
+waiting. Linux may modify the timeout, including on interruption, so reset it
+before reuse.
+.SH RETURN VALUE
+Returns the total number of ready bits across all sets, zero on timeout, or
+\-1 with
+.B errno
+set on failure. Success leaves errno unchanged.
+.SH ERRORS
+Include
+.BR <errno.h> .
+Errors include
+.BR EBADF ,
+.BR EFAULT ,
+.BR EINTR ,
+.BR EINVAL ,
+and
+.BR ENOMEM .
+.SH NOTES
+Crunch errno is process\-wide. Existing raw bitmap callers must convert
+their pointer to fd_set* and provide sufficient storage.
+.SH SEE ALSO
+.BR poll (3crunch),
+.BR select (2)

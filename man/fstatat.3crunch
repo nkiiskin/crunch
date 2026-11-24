@@ -1,0 +1,37 @@
+.TH FSTATAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fstatat \- get metadata relative to a directory descriptor
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int fstatat(int " directory ", const char* " path ","
+.BI "            struct stat* " buffer ", int " flags ");"
+.fi
+.SH DESCRIPTION
+Stores metadata in the writable Linux x86\-64
+.B struct stat
+structure described in
+.BR stat (3crunch).
+A relative path is resolved from the open directory descriptor, or the current
+working directory if it is
+.BR AT_FDCWD .
+An absolute path ignores the descriptor.
+With flags zero, the final symbolic link is followed;
+.B AT_SYMLINK_NOFOLLOW
+reports the link itself.
+.B AT_EMPTY_PATH
+allows an empty path to identify the descriptor itself.
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+This wrapper uses Linux x86\-64
+.BR newfstatat (2).
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR stat (3crunch),
+.BR openat (3crunch),
+.BR fstatat (2)

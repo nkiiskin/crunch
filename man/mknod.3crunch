@@ -1,0 +1,14 @@
+.TH MKNOD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mknod \- creates a filesystem node
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.B int mknod(const char* path, mode_t mode, unsigned int device);
+.fi
+.SH DESCRIPTION
+Creates a filesystem node. device is the raw Linux kernel-encoded 32-bit device number, not a libc dev_t; regular files and FIFOs use zero. Permissions and capabilities apply.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR mknod (2)

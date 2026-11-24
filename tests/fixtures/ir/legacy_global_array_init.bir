@@ -1,0 +1,56 @@
+CRUNCH-IR 2
+global numbers ptr 0
+global numbers$length int 0
+func main 0 int
+gload numbers ptr
+gload numbers$length int
+push 3
+array_resize int
+gstore numbers ptr
+gstore numbers$length int
+gload numbers ptr
+bool ptr
+jz L0
+gload numbers ptr
+push 0
+ptradd int
+push 15
+storeind int
+drop
+gload numbers ptr
+push 1
+ptradd int
+push 12
+storeind int
+drop
+gload numbers ptr
+push 2
+ptradd int
+push 15
+storeind int
+drop
+label L0
+gload numbers$length int
+push 3
+ne int
+bool int
+jz L1
+push 1
+ret int
+label L1
+gload numbers ptr
+push 0
+ptradd int
+loadind int
+gload numbers ptr
+push 1
+ptradd int
+loadind int
+add int
+gload numbers ptr
+push 2
+ptradd int
+loadind int
+add int
+ret int
+end

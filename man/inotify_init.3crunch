@@ -1,0 +1,15 @@
+.TH INOTIFY_INIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+inotify_init \- Linux x86-64 syscall 253
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int inotify_init(void);
+.fi
+.SH DESCRIPTION
+Creates an inotify descriptor.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR inotify_init (2)

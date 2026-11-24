@@ -1,0 +1,60 @@
+.TH SNPRINTF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+snprintf \- format output into a bounded byte buffer
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int snprintf(char* " buffer ", size_t " capacity ", const char* " format ");"
+.fi
+.SH DESCRIPTION
+Formats output using the same conversions as
+.BR fprintf (3crunch):
+.BR %d ,
+.BR %ld ,
+.BR %lld ,
+.BR %u ,
+.BR %lu ,
+.BR %zu ,
+.BR %llu ,
+.BR %x ,
+.BR %lx ,
+.BR %llx ,
+.BR %f ,
+.BR %.17g ,
+.BR %Lf ,
+.BR %.17Lg ,
+.BR %s ,
+.BR %c ,
+and
+.BR %% .
+The compiler accepts up to 127 additional numeric or byte-pointer arguments
+for this library function.
+Extra arguments are evaluated but not used.
+.PP
+The capacity includes the terminating NUL. For a positive capacity, at most
+capacity minus one bytes are stored and a terminating NUL is written, including
+after a format error. For zero capacity no bytes are stored and the buffer
+may be null. The caller must provide a writable buffer of at least capacity
+bytes when capacity is positive. Input strings and the destination must not
+overlap.
+.SH RETURN VALUE
+Returns the number of bytes that would have been written, excluding the
+terminating NUL, even if the output was truncated. Returns \-1 for an invalid
+format, missing or incompatible argument, null format or string, unsupported
+real value, unrepresentable count, or null buffer with
+positive capacity. The last error sets
+.B errno
+to
+.BR EINVAL .
+No particular errno is guaranteed for format errors.
+.SH NOTES
+Literal field widths and the
+.B \-
+and
+.B 0
+flags follow
+.BR fprintf (3crunch).
+Other precisions, dynamic widths and other flags are not supported.
+.SH SEE ALSO
+.BR fprintf (3crunch)

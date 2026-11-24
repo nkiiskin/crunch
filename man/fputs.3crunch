@@ -1,0 +1,30 @@
+.TH FPUTS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fputs \- write a string to a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int fputs(const char* " text ", struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Writes the NUL-terminated string without writing the terminating NUL or adding
+a newline. An empty string succeeds without writing.
+.SH RETURN VALUE
+Returns a nonnegative value on success or
+.B EOF
+(\-1) on error. An I/O error sets
+.B errno
+and the stream error indicator; some bytes may already have been written.
+A null string or stream fails with
+.BR EINVAL ;
+when the stream is valid its error indicator is set.
+.SH NOTES
+I/O is unbuffered. Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fgets (3crunch),
+.BR fputc (3crunch),
+.BR fwrite (3crunch),
+.BR ferror (3crunch)

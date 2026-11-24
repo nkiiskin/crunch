@@ -1,0 +1,34 @@
+.TH GETDENTS64 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getdents64 \- read Linux directory records
+.SH SYNOPSIS
+.nf
+.B #include <dirent.h>
+.PP
+.BI "ssize_t getdents64(int " descriptor ", void* " buffer ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+Reads variable\-length Linux x86\-64 directory records from an open directory
+descriptor into the writable buffer. The buffer must have at least
+.I byte_count
+bytes. The count must be between 0 and 4294967295 inclusive; values outside
+that range fail with
+.BR EINVAL .
+The kernel can reject a buffer too small for the next record.
+Use
+.BR dirent64_next (3crunch)
+to decode each returned buffer; records and entry order are filesystem\-specific.
+Repeated calls continue from the descriptor's current directory position.
+.SH RETURN VALUE
+Returns the byte count on success, zero at end of directory, or \-1 with
+positive Linux
+.B errno
+on failure. Success leaves errno unchanged.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR dirent64_next (3crunch),
+.BR open (3crunch),
+.BR getdents64 (2)

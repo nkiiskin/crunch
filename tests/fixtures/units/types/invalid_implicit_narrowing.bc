@@ -1,0 +1,1 @@
+int main() { long value = 10; int narrow = value; return narrow; }

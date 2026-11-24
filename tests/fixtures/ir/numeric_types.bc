@@ -1,0 +1,57 @@
+long pluslong(long a, long b) {
+    return a + b;
+}
+
+double twice(double x) {
+    return x * 2.0;
+}
+
+double mix(int n, double x, long m) {
+    return x + n + m;
+}
+
+double sum9(double a, double b, double c, double d, double e, double f, double g, double h, double i) {
+    return a + b + c + d + e + f + g + h + i;
+}
+
+int main() {
+    char b = (char)7;
+    char wrap = (char)255;
+    int temp = 258;
+    long l = 4294967296;
+    int i = 0;
+    double r = 1.5;
+    double zero = -0.0;
+    double huge = 2147483648.0;
+    double huge_long = 9223372036854775808.0;
+    double counter = 0.0;
+
+    b = (char)temp;
+    if (b != 2) return 1;
+    wrap++;
+    if (wrap != 0) return 13;
+
+    l = l + 3;
+    if (pluslong(l, 3) != 4294967302) return 2;
+
+    i = (int)l;
+    if (i != 3) return 3;
+
+    if (twice(r) != 3.0) return 4;
+    if (r < 1.0) return 14;
+    if (r > 2.0) return 15;
+    if (r <= 1.5) { } else return 16;
+    if (r >= 1.5) { } else return 17;
+    if (mix(2, 1.5, 3) != 6.5) return 5;
+    if (sum9(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0) != 45.0) return 11;
+    counter++;
+    if (counter != 1.0) return 12;
+    if ((int)3.9 != 3) return 6;
+    if (twice(r) / 2.0 != r) return 18;
+    if ((int)huge != 0) return 7;
+    if ((long)huge_long != 0) return 8;
+    if (zero) return 9;
+    if (!(!zero)) return 10;
+
+    return 42;
+}

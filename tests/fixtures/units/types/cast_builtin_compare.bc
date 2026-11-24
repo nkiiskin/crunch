@@ -1,0 +1,10 @@
+int main() {
+    char a[] = "abc";
+    char b[] = "abd";
+    int same = (int)compare(a, a, 3);
+    int diff = (int)compare(a, b, 3);
+    long wide = (long)compare(a, a, 3);
+    if (same != 0 || wide != 0) return 1;
+    if (diff == 0) return 2;
+    return 42;
+}

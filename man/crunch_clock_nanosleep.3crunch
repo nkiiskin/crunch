@@ -1,0 +1,15 @@
+.TH CRUNCH_CLOCK_NANOSLEEP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_clock_nanosleep \- Linux x86-64 syscall 230
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_clock_nanosleep(int clock, int flags, const struct timespec* requested, struct timespec* remaining);
+.fi
+.SH DESCRIPTION
+Invokes the raw clock_nanosleep syscall; unlike libc clock_nanosleep, errors return -1 and set errno.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR clock_nanosleep (2)

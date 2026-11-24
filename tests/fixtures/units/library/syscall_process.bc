@@ -1,0 +1,93 @@
+#include <unistd.h>
+#include <poll.h>
+#include <sys/select.h>
+#include <signal.h>
+#include <errno.h>
+
+extern int wait_child(int process);
+extern int raw_syscalls();
+
+struct pollfd poll_layout;
+struct timeval time_layout;
+
+int main() {
+    int fds[2];
+    char payload[] = "X";
+    char buffer[1];
+    struct pollfd entry;
+    struct timeval timeout;
+    fd_set read_set;
+    fd_set write_set;
+    fd_set except_set;
+    FD_ZERO(&read_set);
+    FD_ZERO(&write_set);
+    FD_ZERO(&except_set);
+
+    errno = ERANGE;
+    if (raw_syscalls() != 0 || errno != ERANGE) return 18;
+    if (getpid() <= 0 || kill(getpid(), 0) != 0 || errno != ERANGE) return 1;
+    if (kill(getpid(), 999) != -1 || errno != EINVAL) return 2;
+    if (access(".", F_OK) != 0 || access("missing-crunch-file", F_OK) != -1 ||
+        errno != ENOENT) return 3;
+    if (access(".", 16) != -1 || errno != EINVAL) return 4;
+    if (pipe(0) != -1 || errno != EFAULT || pipe(&fds[0]) != 0) return 5;
+    if (dup(-1) != -1 || errno != EBADF || dup2(-1, fds[0]) != -1 ||
+        errno != EBADF) return 6;
+    int copy = dup(fds[0]);
+    if (copy < 0 || dup2(fds[0], copy) != copy || dup2(copy, copy) != copy) return 7;
+
+    entry.fd = fds[0];
+    entry.events_low = (char)POLLIN;
+    entry.events_high = (char)(POLLWRNORM >> 8);
+    entry.revents_low = (char)0;
+    entry.revents_high = (char)0;
+    if (poll(&entry, 1, 0) != 0) return 8;
+    if (write(fds[1], payload, 1) != 1 || poll(&entry, 1, 0) != 1 ||
+        (entry.revents_low & POLLIN) == 0) return 9;
+    entry.fd = fds[1];
+    entry.events_low = (char)0;
+    if (poll(&entry, 1, 0) != 1 || (entry.revents_high & 1) == 0) return 19;
+    FD_SET(fds[0], &read_set);
+    FD_SET(fds[1], &write_set);
+    FD_SET(fds[0], &except_set);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+    if (select(fds[1] + 1, &read_set, &write_set, &except_set, &timeout) != 2 ||
+        !FD_ISSET(fds[0], &read_set) || !FD_ISSET(fds[1], &write_set) ||
+        FD_ISSET(fds[0], &except_set)) return 10;
+    if (read(copy, buffer, 1) != 1 || buffer[0] != 'X') return 11;
+    int high = dup2(fds[0], 65);
+    if (high != 65 || write(fds[1], payload, 1) != 1) return 20;
+    FD_ZERO(&read_set);
+    FD_SET(high, &read_set);
+    FD_SET(63, &read_set);
+    FD_SET(1023, &read_set);
+    FD_CLR(63, &read_set);
+    if (FD_ISSET(63, &read_set) || !FD_ISSET(1023, &read_set)) return 22;
+    FD_CLR(1023, &read_set);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+    if (select(high + 1, &read_set, 0, 0, &timeout) != 1 ||
+        !FD_ISSET(high, &read_set) || read(high, buffer, 1) != 1 ||
+        close(high) != 0) return 21;
+    int number = 123456;
+    int received = 0;
+    if (write(fds[1], &number, sizeof(number)) != sizeof(number) ||
+        read(fds[0], &received, sizeof(received)) != sizeof(received) ||
+        received != number) return 23;
+    timeout.tv_sec = -1;
+    timeout.tv_usec = 0;
+    if (select(0, 0, 0, 0, &timeout) != -1 || errno != EINVAL) return 12;
+    if (poll(0, -1, 0) != -1 || errno != EINVAL) return 13;
+
+    int parent = getpid();
+    int child = fork();
+    if (child < 0) return 14;
+    if (child == 0) {
+        if (getpid() == parent || write(fds[1], payload, 1) != 1) return 15;
+        return 0;
+    }
+    if (read(fds[0], buffer, 1) != 1 || wait_child(child) != 0) return 16;
+    if (close(copy) != 0 || close(fds[0]) != 0 || close(fds[1]) != 0) return 17;
+    return 42;
+}

@@ -1,0 +1,15 @@
+.TH EPOLL_CREATE1 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+epoll_create1 \- Linux x86-64 syscall 291
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int epoll_create1(int flags);
+.fi
+.SH DESCRIPTION
+Creates an epoll descriptor with flags.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR epoll_create1 (2)

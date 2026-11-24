@@ -1,0 +1,86 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+#include <sys/uio.h>
+#include <signal.h>
+#include <errno.h>
+
+int received = 0;
+void on_signal(int number) {
+    if (number == SIGUSR1) received = received + 1;
+}
+
+int main(void) {
+    errno = EBUSY;
+    if (brk(0) || errno != EBUSY) return 1;
+    void* invalid = mmap(0, 0, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (!map_failed(invalid) || brk(invalid) != -1 || errno != ENOMEM) return 2;
+    char* region = mmap(0, 4096, PROT_READ | PROT_WRITE,
+                        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (map_failed(region)) return 3;
+    region[0] = 'q';
+    errno = EBUSY;
+    if (mprotect(region, 4096, PROT_READ) || errno != EBUSY || region[0] != 'q' ||
+        mprotect(region, 4096, PROT_READ | PROT_WRITE)) return 4;
+    region[0] = 'r';
+    if (mprotect(region + 1, 4096, PROT_READ) != -1 || errno != EINVAL ||
+        munmap(region, 4096)) return 5;
+
+    struct sigaction action;
+    struct sigaction old_action;
+    sigset_t mask;
+    sigset_t old_mask;
+    sigset_t current;
+    action.sa_handler = on_signal;
+    action.sa_flags = 0;
+    action.sa_restorer = 0;
+    sigemptyset(&action.sa_mask);
+    sigemptyset(&mask);
+    mask = 1UL << (SIGUSR1 - 1);
+    if (sigaction(SIGUSR1, &action, &old_action) ||
+        sigprocmask(SIG_BLOCK, &mask, &old_mask) ||
+        kill(getpid(), SIGUSR1) || received != 0 ||
+        sigprocmask(99, 0, &current) || (current & mask) == 0) return 6;
+    if (sigprocmask(99, &mask, 0) != -1 || errno != EINVAL ||
+        sigprocmask(SIG_UNBLOCK, &mask, 0) || received != 1 ||
+        sigprocmask(SIG_SETMASK, &old_mask, 0) ||
+        sigaction(SIGUSR1, &old_action, 0)) return 7;
+
+    int fd = open("positioned", O_CREAT | O_TRUNC | O_RDWR, 384);
+    char data[4];
+    if (fd < 0 || write(fd, "abcd", 4) != 4 || lseek(fd, 1, SEEK_SET) != 1)
+        return 8;
+    errno = EBUSY;
+    if (pwrite(fd, "Z", 1, 3) != 1 || pread(fd, data, 4, 0) != 4 ||
+        data[3] != 'Z' || lseek(fd, 0, SEEK_CUR) != 1 || errno != EBUSY)
+        return 9;
+    if (pwrite(fd, "X", 1, 4294967296) != 1 ||
+        pread(fd, data, 1, 4294967296) != 1 || data[0] != 'X' ||
+        lseek(fd, 0, SEEK_CUR) != 1) return 10;
+    if (pread(fd, data, 1, 4294967297) != 0 ||
+        pread(-1, data, 1, 0) != -1 || errno != EBADF ||
+        pwrite(fd, data, 1, -1) != -1 || errno != EINVAL) return 11;
+    if (close(fd) || unlink("positioned")) return 12;
+
+    int pipefd[2];
+    int available = 0;
+    char first[2];
+    char second[2];
+    struct iovec vec[2];
+    vec[0].iov_base = first;
+    vec[0].iov_len = 2;
+    vec[1].iov_base = second;
+    vec[1].iov_len = 2;
+    if (pipe(pipefd) || write(pipefd[1], "wxyz", 4) != 4 ||
+        ioctl(pipefd[0], FIONREAD, &available) ||
+        available != 4 || ioctl_value(pipefd[0], FIOCLEX, 123)) return 13;
+    if (readv(pipefd[0], &vec[0], 2) != 4 || first[0] != 'w' ||
+        first[1] != 'x' || second[0] != 'y' || second[1] != 'z') return 14;
+    if (readv(pipefd[0], &vec[0], -1) != -1 || errno != EINVAL ||
+        readv(-1, &vec[0], 2) != -1 || errno != EBADF ||
+        ioctl(-1, FIONREAD, &available) != -1 || errno != EBADF ||
+        ioctl_value(-1, FIOCLEX, 0) != -1 || errno != EBADF ||
+        sizeof(struct winsize) != 8 || close(pipefd[0]) || close(pipefd[1])) return 15;
+    return 42;
+}

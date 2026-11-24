@@ -1,0 +1,15 @@
+.TH CRUNCH_MQ_NOTIFY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_mq_notify \- Linux x86-64 syscall 244
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_mq_notify(int queue, const void* event);
+.fi
+.SH DESCRIPTION
+Registers or removes notification. Non-NULL events use the Linux kernel sigevent layout.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR mq_notify (2)

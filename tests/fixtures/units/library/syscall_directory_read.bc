@@ -1,0 +1,83 @@
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
+#include <string.h>
+
+int main() {
+    char buf[64];
+    struct stat info;
+    struct dirent64 entry;
+    long pos;
+    long count;
+    int status;
+    int seen = 0;
+    int batches = 0;
+    errno = ERANGE;
+    int d = open("entries", O_RDONLY | O_DIRECTORY | O_CLOEXEC, 0);
+    if (d < 0 || errno != ERANGE) return 1;
+    int fd = openat(d, "created", O_CREAT | O_EXCL | O_RDWR, 384);
+    if (fd < 0 || fstat(fd, &info) != 0 || (info.st_mode & 511) != 384 ||
+        close(fd) != 0 || errno != ERANGE) return 2;
+    if (unlink("entries/created") != 0) return 3;
+    fd = openat(AT_FDCWD, "entries/a", O_RDONLY, 0);
+    if (fd < 0 || close(fd) != 0) return 4;
+    if (lstat("entries/link", &info) != 0 || (info.st_mode & 61440) != 40960 ||
+        info.st_size != 1 || errno != ERANGE) return 5;
+    if (stat("entries/link", &info) != 0 || (info.st_mode & 61440) != 32768) return 6;
+    buf[1] = 'Z';
+    if (readlink("entries/link", buf, 1) != 1 || buf[0] != 'a' ||
+        buf[1] != 'Z' || errno != ERANGE) return 7;
+    if (lstat("entries/dangling", &info) != 0 || info.st_size != 7 ||
+        (info.st_mode & 61440) != 40960) return 20;
+    buf[3] = 'Z';
+    if (readlink("entries/dangling", buf, 3) != 3 || buf[0] != 'm' ||
+        buf[1] != 'i' || buf[2] != 's' || buf[3] != 'Z') return 21;
+    if (stat("entries/dangling", &info) != -1 || errno != ENOENT) return 22;
+    errno = ERANGE;
+    count = getdents64(d, buf, 64);
+    for (int batch = 0; count > 0; batch++) {
+        batches = batches + 1;
+        pos = 0;
+        status = dirent64_next(buf, count, &pos, &entry);
+        for (int record = 0; status == 1; record++) {
+            if (strcmp(entry.name, ".") == 0) seen = seen | 1;
+            if (strcmp(entry.name, "..") == 0) seen = seen | 2;
+            if (strcmp(entry.name, "a") == 0 && entry.name_length == 1) seen = seen | 4;
+            if (strcmp(entry.name, "b") == 0) seen = seen | 8;
+            if (strcmp(entry.name, "link") == 0 &&
+                (entry.kind == DT_LNK || entry.kind == DT_UNKNOWN)) seen = seen | 16;
+            if (strcmp(entry.name, "empty") == 0) seen = seen | 32;
+            if (strcmp(entry.name, "dangling") == 0) seen = seen | 64;
+            status = dirent64_next(buf, count, &pos, &entry);
+        }
+        if (status != 0 || pos != count) return 8;
+        count = getdents64(d, buf, 64);
+    }
+    if (count != 0 || batches < 2 || seen != 127 || errno != ERANGE || close(d) != 0) return 9;
+    d = open("entries/empty", O_RDONLY | O_DIRECTORY, 0);
+    if (d < 0) return 10;
+    seen = 0;
+    count = getdents64(d, buf, 64);
+    for (int batch = 0; count > 0; batch++) {
+        pos = 0;
+        status = dirent64_next(buf, count, &pos, &entry);
+        for (int record = 0; status == 1; record++) {
+            if (strcmp(entry.name, ".") == 0) seen = seen | 1;
+            else if (strcmp(entry.name, "..") == 0) seen = seen | 2;
+            else return 11;
+            status = dirent64_next(buf, count, &pos, &entry);
+        }
+        if (status != 0) return 12;
+        count = getdents64(d, buf, 64);
+    }
+    if (count != 0 || seen != 3 || close(d) != 0) return 13;
+    if (getdents64(-1, buf, 64) != -1 || errno != EBADF) return 14;
+    if (getdents64(-1, buf, -1) != -1 || errno != EINVAL) return 15;
+    if (getdents64(-1, buf, 4294967296) != -1 || errno != EINVAL) return 16;
+    if (openat(d, "missing", O_RDONLY, 0) != -1 || errno != EBADF) return 17;
+    if (lstat("missing", &info) != -1 || errno != ENOENT) return 18;
+    if (readlink("entries/a", buf, 64) != -1 || errno != EINVAL) return 19;
+    return 0;
+}

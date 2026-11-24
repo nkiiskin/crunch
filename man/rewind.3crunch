@@ -1,0 +1,33 @@
+.TH REWIND 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+rewind \- reposition a Crunch stream at the beginning
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "void rewind(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR rewind ()
+seeks to the beginning of the stream and clears its end-of-file and error
+indicators. The indicators are cleared even if the seek fails.
+.SH RETURN VALUE
+No value is returned. A failed seek sets
+.BR errno ,
+for example to
+.B ESPIPE
+for a nonseekable stream. A null stream sets
+.B errno
+to
+.BR EINVAL ;
+null is not a valid C stream argument. Success leaves
+.B errno
+unchanged.
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fseek (3crunch),
+.BR ftell (3crunch),
+.BR clearerr (3crunch)

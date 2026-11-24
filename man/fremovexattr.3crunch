@@ -1,0 +1,14 @@
+.TH FREMOVEXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fremovexattr \- removes an extended attribute from an open file
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B int fremovexattr(int descriptor, const char* name);
+.fi
+.SH DESCRIPTION
+Removes an extended attribute from an open file.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR fremovexattr (2)

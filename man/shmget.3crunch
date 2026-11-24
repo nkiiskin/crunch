@@ -1,0 +1,19 @@
+.TH SHMGET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+shmget \- obtain a System V shared memory segment
+.SH SYNOPSIS
+.nf
+.B #include <sys/shm.h>
+.B int shmget(key_t key, size_t size, int flags);
+.fi
+.SH DESCRIPTION
+Obtains or creates a Linux System V shared memory segment. IPC_PRIVATE creates
+a new segment; IPC_CREAT, IPC_EXCL and permission bits control keyed creation.
+Segments persist until marked for removal with shmctl.
+.SH RETURN VALUE
+Returns a segment identifier, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR shmat (3crunch),
+.BR shmctl (3crunch),
+.BR shmget (2)

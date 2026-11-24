@@ -1,0 +1,34 @@
+typedef float Measurement;
+int printf(const char* format);
+
+struct Sample {
+    char tag;
+    float value;
+    float* next;
+    float values[2];
+};
+
+float global_values[] = {1.0f, 2.0f};
+
+float combine(float x, double y) {
+    float result = x + y;
+    return result;
+}
+
+int main() {
+    Measurement value = 1.25f;
+    float other = 2.0F;
+    double wide = value + other;
+    int number = value;
+    char small = (char)value;
+    float* ptr = &value;
+    struct Sample sample;
+    float values[] = {value, 3.0f};
+    sample.value = combine(number, wide);
+    sample.values[0] = values[1];
+    printf("%f", sample.values[0]);
+    *ptr = other;
+    if (value < wide && sizeof(float) == 4 && sizeof(sample) == 24)
+        number = small;
+    return number;
+}

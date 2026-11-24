@@ -1,0 +1,14 @@
+.TH SIGALTSTACK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigaltstack \- changes or queries the alternate signal stack using the linux x86-64 kernel stack_t layout
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigaltstack(const stack_t* stack, stack_t* previous);
+.fi
+.SH DESCRIPTION
+Changes or queries the alternate signal stack using the Linux x86-64 kernel stack_t layout.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR sigaltstack (2)

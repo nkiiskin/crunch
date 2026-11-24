@@ -1,0 +1,18 @@
+.TH SENDTO 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sendto \- send bytes to a socket
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B ssize_t sendto(int descriptor, const void* buffer, size_t length, int flags,
+.B                const struct sockaddr* address, socklen_t address_length);
+.fi
+.SH DESCRIPTION
+Sends bytes, optionally to a supplied destination address. On a connected
+socket the address may be NULL. MSG_NOSIGNAL suppresses SIGPIPE for this call.
+Sends can be short and are not retried.
+.SH RETURN VALUE
+Returns bytes sent, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR recvfrom (3crunch),
+.BR sendto (2)

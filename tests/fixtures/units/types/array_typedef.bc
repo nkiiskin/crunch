@@ -1,0 +1,38 @@
+struct Record {
+    unsigned int gp_offset;
+    unsigned int fp_offset;
+    void *overflow;
+    void *registers;
+};
+
+typedef struct Record Records[1];
+typedef int Numbers[3], *IntPointer;
+typedef Numbers MoreNumbers;
+
+struct Container {
+    Numbers values;
+};
+
+Numbers global_values = {3};
+
+int update(Records records, Numbers numbers) {
+    records[0].gp_offset = 7;
+    numbers[1] = 9;
+    return sizeof(records) == sizeof(void *) && sizeof(numbers) == sizeof(void *);
+}
+
+int main(void) {
+    Records records;
+    MoreNumbers numbers = {1, 2};
+    struct Container container;
+    int (*call)(Records, Numbers) = update;
+    container.values[1] = 4;
+    if (sizeof(records) != 24 || sizeof(numbers) != 12 || sizeof(Numbers) != 12)
+        return 1;
+    if (!call(records, numbers))
+        return 2;
+    if (records[0].gp_offset != 7 || numbers[1] != 9 || numbers[2] != 0 ||
+        global_values[0] != 3 || global_values[2] != 0 || container.values[1] != 4)
+        return 3;
+    return 42;
+}

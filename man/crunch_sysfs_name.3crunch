@@ -1,0 +1,17 @@
+.TH CRUNCH_SYSFS_NAME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_sysfs_name \- look up a filesystem type name
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B int crunch_sysfs_name(int index, char *buffer);
+.fi
+.SH DESCRIPTION
+Uses the obsolete Linux sysfs syscall to look up a filesystem type by index.
+The output buffer must hold at least 256 bytes. Availability and permissions
+depend on the kernel.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR crunch_sysfs (3crunch),
+.BR sysfs (2)

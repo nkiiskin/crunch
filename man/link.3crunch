@@ -1,0 +1,17 @@
+.TH LINK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+link \- create a hard link
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int link(const char* oldpath, const char* newpath);
+.fi
+.SH DESCRIPTION
+Creates newpath as a hard link to oldpath.  Linux does not dereference a
+symbolic link in oldpath.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR symlink (3crunch),
+.BR unlink (3crunch),
+.BR link (2)

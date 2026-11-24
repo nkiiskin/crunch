@@ -1,0 +1,4 @@
+int consume(int value) { return value; }
+int main() {
+    return consume(2**3);
+}

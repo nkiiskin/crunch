@@ -1,0 +1,15 @@
+.TH CHMOD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+chmod \- change file permissions
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.B int chmod(const char* path, mode_t mode);
+.fi
+.SH DESCRIPTION
+Changes the permissions of the file named by path to Linux mode bits.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR fchmod (3crunch),
+.BR chmod (2)

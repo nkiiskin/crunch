@@ -1,0 +1,48 @@
+CRUNCH-IR 3
+global spare ptr 0
+global spare$length int 6
+globalbytes spare 737061726500
+extern_global shared ptr
+extern_global shared$length int
+func probe 0 int
+gload shared ptr
+gload shared$length int
+push 8
+array_resize byte
+gstore shared ptr
+gstore shared$length int
+gload shared ptr
+push 0
+ptradd byte
+loadind byte
+push 101
+ne byte
+bool int
+jnz L2
+gload shared ptr
+push 1
+ptradd byte
+loadind byte
+push 108
+ne byte
+bool
+jmp L3
+label L2
+push 1
+label L3
+bool int
+jz L0
+push 1
+ret int
+label L0
+gload shared ptr
+gload shared$length int
+push 0
+array_resize byte
+gstore shared ptr
+gstore shared$length int
+push 42
+ret int
+push 0
+ret int
+end

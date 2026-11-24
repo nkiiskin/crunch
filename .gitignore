@@ -1,0 +1,12 @@
+/autom4te.cache/
+/build/out/
+/build/task-scratch/
+/build/config.mk
+/build/crunch-linker-config.h
+/bootstrap-stage*/
+/config.log
+/config.status
+/Makefile
+__pycache__/
+*.pyc
+*~

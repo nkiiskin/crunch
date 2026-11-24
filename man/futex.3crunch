@@ -1,0 +1,14 @@
+.TH FUTEX 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+futex \- invokes linux futex with a timeout pointer as the fourth argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/futex.h>
+.B int futex(int* address, int operation, unsigned int value, const struct timespec* timeout, int* address2, unsigned int value3);
+.fi
+.SH DESCRIPTION
+Invokes Linux futex with a timeout pointer as the fourth argument. Futex words must be aligned 32-bit integers; operations and flags define the meanings of all arguments. Use futex_value when the fourth argument is an integer.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR futex (2)

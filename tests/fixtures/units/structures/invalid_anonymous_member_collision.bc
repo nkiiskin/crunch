@@ -1,0 +1,8 @@
+typedef struct {
+    int value;
+    struct { int value; };
+} Conflicting;
+
+int main() {
+    return 0;
+}

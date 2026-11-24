@@ -1,0 +1,99 @@
+.TH REALLOC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+realloc \- resize a block of memory
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "void* realloc(void* " address ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+.BR realloc ()
+resizes a block returned by Crunch
+.BR malloc (3crunch)
+or
+.BR realloc ().
+The
+.I byte_count
+specifies the new size in bytes.
+The allocation may move. On success, use the returned pointer instead of
+the old one.
+The contents are preserved up to the smaller of the old and new requested
+sizes; newly added bytes have unspecified contents.
+.PP
+If
+.I address
+is null, the call behaves like
+.BR malloc (3crunch),
+including for a zero size.
+If
+.I address
+is nonnull and
+.I byte_count
+is zero, the block is released and null is returned.
+After that call, treat the original pointer as invalid even if releasing the
+underlying mapping reports an error.
+.SH RETURN VALUE
+For a nonzero size, success returns a nonnull, 16\-byte\-aligned pointer and
+leaves
+.B errno
+unchanged.
+Failure returns null, sets
+.BR errno ,
+and leaves the original allocation valid and unchanged.
+This includes failure to release the old arena during a moving resize.
+.PP
+For a nonnull pointer and zero size, null indicates release rather than
+allocation failure. An underlying unmap failure sets
+.BR errno ;
+otherwise
+.B errno
+is unchanged.
+Set
+.B errno
+to zero before the call if that distinction matters.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+.TP
+.B ENOMEM
+The size is too large for the allocator, or the requested
+memory or mapping resize could not be obtained.
+.PP
+Other Linux mapping or unmapping errors can also be reported.
+.SH EXAMPLE
+Use a temporary pointer so a failed resize does not lose the original:
+.PP
+.nf
+#include <stdlib.h>
+
+int main() {
+    char* data = malloc(16);
+    if (!data) return 1;
+    data[0] = (char)42;
+    char* grown = realloc(data, 4096);
+    if (!grown) {
+        free(data);
+        return 2;
+    }
+    data = grown;
+    int result = data[0] == 42 ? 0 : 3;
+    free(data);
+    return result;
+}
+.fi
+.SH NOTES
+Only current pointers from this allocator may be passed to
+.BR realloc ().
+Do not mix them with pointers managed by the system C allocator or
+.BR munmap .
+The allocator is not thread\-safe; Crunch
+.B errno
+is process\-wide.
+.SH SEE ALSO
+.BR malloc (3crunch),
+.BR free (3crunch),
+.BR allocator_trim (3crunch),
+.BR crunch (1)

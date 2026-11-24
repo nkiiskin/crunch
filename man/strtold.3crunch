@@ -1,0 +1,33 @@
+.TH STRTOLD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+strtold \- parse an ASCII floating-point value as binary80
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "long double strtold(const char* " text ", char** " end ");"
+.fi
+.SH DESCRIPTION
+Skips ASCII whitespace and an optional sign, then parses decimal or hexadecimal
+floating-point syntax, or case-insensitive infinity or NaN. The decimal point
+is always a period. A valid parenthesized NaN payload is consumed but ignored.
+If
+.I end
+is non-null, it receives the first unconsumed character, or the original input
+if no conversion is performed.
+The caller must not modify read-only input through that pointer.
+.SH RETURN VALUE
+Returns the nearest binary80 value, ties to even, independent of the
+floating-point environment. No conversion returns positive zero.
+Overflow returns signed infinity and sets
+.B errno
+to
+.BR ERANGE .
+An inexact result rounded to a subnormal or zero also sets
+.BR ERANGE .
+Other results leave
+.B errno
+unchanged.
+.SH SEE ALSO
+.BR strtod (3crunch),
+.BR strtof (3crunch)

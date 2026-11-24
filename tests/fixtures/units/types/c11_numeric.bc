@@ -1,0 +1,56 @@
+int sum = (char)200 + (char)100;
+int complement = ~(char)0;
+int bound[(char)200 + (char)100 - 297];
+char global_byte = 201.75;
+char global_bytes[2] = {42.5, 255.5};
+double global_real = (char)200;
+double global_nested = (char)12.75;
+double global_array[1] = {(char)15.75};
+int shifted = (char)1 << (long)8;
+struct Box { char value; };
+
+char to_char(double value) { return value; }
+double to_double(char value) { return value; }
+int narrow(long value) { return value; }
+
+int main() {
+    char a = 200;
+    char b = 100;
+    long wide = 5;
+    double real = 12.75;
+    int number = wide;
+    char small = real;
+    if (sum != 300 || complement != -1 || sizeof(bound) != 12) return 1;
+    if (shifted != 256) return 14;
+    if (a + b != 300 || sizeof(a + b) != 4 || sizeof('a') != 4) return 2;
+    if (-a != -200 || ~a != -201 || sizeof(+a) != 4) return 3;
+    if ((a << wide) != 6400 || sizeof(a << wide) != 4 ||
+        sizeof(number << wide) != 4) return 4;
+    if ((1 ? a : b) != 200 || sizeof(1 ? a : b) != 4) return 5;
+    if (number != 5 || small != 12 || to_char(real) != 12 ||
+        to_double(a) != 200.0 || narrow(wide) != 5) return 6;
+    if ((double)a != 200.0 || (char)real != 12 ||
+        global_byte != 201 || global_bytes[0] != 42 ||
+        global_bytes[1] != 255 || global_real != 200.0 ||
+        global_nested != 12.0 || global_array[0] != 15.0) return 7;
+    a += b;
+    if (a != 44) return 8;
+    a = 200;
+    a /= b;
+    if (a != 2) return 9;
+    a = 200;
+    a += 10.5;
+    if (a != 210) return 10;
+    switch (a) { case 300: return 11; case 210: break; default: return 12; }
+    switch (number) { case (char)11 / (char)2: break; default: return 13; }
+    char *ptr = &a;
+    *ptr += 10.5;
+    if (a != 220) return 15;
+    struct Box box;
+    box.value = 200;
+    box.value += 55.5;
+    if (box.value != 255 || box.value++ != 255 || box.value != 0) return 16;
+    static char local_static = 254.5;
+    if (local_static != 254) return 17;
+    return 0;
+}

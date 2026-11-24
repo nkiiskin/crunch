@@ -1,0 +1,14 @@
+.TH SIGEMPTYSET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sigemptyset \- clear a Crunch signal set
+.SH SYNOPSIS
+.nf
+.B #include <signal.h>
+.B int sigemptyset(sigset_t* set);
+.fi
+.SH DESCRIPTION
+Clears the eight\-byte Linux x86\-64 signal set. This is not libc's sigset_t.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set to EINVAL if set is NULL.
+.SH SEE ALSO
+.BR sigaction (3crunch)

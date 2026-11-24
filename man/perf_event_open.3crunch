@@ -1,0 +1,15 @@
+.TH PERF_EVENT_OPEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+perf_event_open \- Linux x86-64 syscall 298
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int perf_event_open(const void* attributes, pid_t process, int cpu, int group, unsigned long flags);
+.fi
+.SH DESCRIPTION
+Opens a performance event. The caller must provide a kernel-compatible perf_event_attr including its size; policy often restricts access.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR perf_event_open (2)

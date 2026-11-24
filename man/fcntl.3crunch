@@ -1,0 +1,17 @@
+.TH FCNTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fcntl \- control a file descriptor with an integer argument
+.SH SYNOPSIS
+.nf
+.B #include <fcntl.h>
+.B int fcntl(int descriptor, int command, int argument);
+.fi
+.SH DESCRIPTION
+Performs a Linux F_* command.  Pass zero when no argument is needed.
+Use fcntl_ptr for commands requiring a pointer such as F_GETLK.  Unlike GNU
+libc's variadic fcntl, Crunch requires all three arguments.
+.SH RETURN VALUE
+Returns the command result, or \-1 with errno set.
+.SH SEE ALSO
+.BR fcntl_ptr (3crunch),
+.BR fcntl (2)

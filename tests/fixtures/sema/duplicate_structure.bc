@@ -1,0 +1,3 @@
+struct Point { int x; };
+struct Point { long y; };
+int main() { return 0; }

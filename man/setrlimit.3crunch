@@ -1,0 +1,14 @@
+.TH SETRLIMIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setrlimit \- sets the process resource limits; increasing hard limits requires privileges
+.SH SYNOPSIS
+.nf
+.B #include <sys/resource.h>
+.B int setrlimit(int resource, const struct rlimit* limits);
+.fi
+.SH DESCRIPTION
+Sets the process resource limits; increasing hard limits requires privileges.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR setrlimit (2)

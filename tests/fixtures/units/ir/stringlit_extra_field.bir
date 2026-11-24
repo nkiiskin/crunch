@@ -1,0 +1,6 @@
+CRUNCH-IR 2
+stringlit valid_label 41 extra
+func main 0 int
+push 0
+ret int
+end

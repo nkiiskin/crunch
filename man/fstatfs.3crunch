@@ -1,0 +1,14 @@
+.TH FSTATFS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fstatfs \- reads filesystem statistics for an open descriptor into the linux x86-64 kernel statfs layout
+.SH SYNOPSIS
+.nf
+.B #include <sys/vfs.h>
+.B int fstatfs(int descriptor, struct statfs* buffer);
+.fi
+.SH DESCRIPTION
+Reads filesystem statistics for an open descriptor into the Linux x86-64 kernel statfs layout.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR fstatfs (2)

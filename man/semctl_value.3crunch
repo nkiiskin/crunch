@@ -1,0 +1,16 @@
+.TH SEMCTL_VALUE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+semctl_value \- control a semaphore with an integer argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/sem.h>
+.B int semctl_value(int id, int number, int command, int argument);
+.fi
+.SH DESCRIPTION
+Invokes the Linux semctl syscall with an integer argument, as required by
+SETVAL.  For pointer arguments use semctl.
+.SH RETURN VALUE
+Returns the command result, or \-1 with errno set.
+.SH SEE ALSO
+.BR semctl (3crunch),
+.BR semctl (2)

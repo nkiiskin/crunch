@@ -1,0 +1,16 @@
+.TH WRITEV 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+writev \- write bytes from multiple buffers
+.SH SYNOPSIS
+.nf
+.B #include <sys/uio.h>
+.B ssize_t writev(int descriptor, const struct iovec* vectors, int count);
+.fi
+.SH DESCRIPTION
+Writes the buffers in the iovec array in order. Each entry contains an
+iov_base pointer and iov_len byte count. Writes can be short.
+.SH RETURN VALUE
+Returns bytes written, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR readv (3crunch),
+.BR writev (2)

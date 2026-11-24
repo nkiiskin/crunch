@@ -1,0 +1,20 @@
+.TH GETPID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getpid \- get the current process ID
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.B "pid_t getpid(void);"
+.fi
+.SH DESCRIPTION
+Returns the current Linux process ID. The child of
+.BR fork (3crunch)
+has a different process ID from its parent.
+.SH RETURN VALUE
+Returns the process ID. The Linux getpid syscall cannot fail and does not
+change Crunch errno.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR kill (3crunch),
+.BR getpid (2)

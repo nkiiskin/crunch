@@ -1,0 +1,97 @@
+struct Point { int x; int y; int z; };
+struct Padded { char tag; long value; int x; };
+struct Small { char value; };
+
+struct Point* global_pointer;
+static struct Padded* padded_pointer;
+int* numeric_pointer;
+int pointer_calls;
+int offset_calls;
+
+struct Point* select(struct Point* p) { pointer_calls = pointer_calls + 1; return p; }
+int offset() { offset_calls = offset_calls + 1; return 2; }
+struct Point* advance(struct Point* p, int n) { return p + n; }
+
+int main() {
+    struct Point items[6];
+    items[0].x = 10;
+    items[1].x = 20;
+    items[2].x = 30;
+    items[3].x = 40;
+    items[4].x = 50;
+    items[5].x = 60;
+    struct Point* p = items;
+    struct Point* old = p++;
+    if (old != &items[0] || p != &items[1] || p[0].x != 20) return 1;
+    struct Point* next = ++p;
+    if (next != &items[2] || p != &items[2]) return 2;
+    old = p--;
+    if (old != &items[2] || p != &items[1]) return 3;
+    next = --p;
+    if (next != &items[0] || p != &items[0]) return 4;
+    p++;
+    p--;
+    if (p != &items[0]) return 5;
+    next = (p += 5);
+    if (next != &items[5] || p[0].x != 60) return 6;
+    next = (p -= 3);
+    if (next != &items[2] || p != &items[2]) return 7;
+    int negative = -1;
+    if (p + negative != &items[1] || p - negative != &items[3]) return 8;
+    long distance = 2;
+    if (distance + p != &items[4] || p - distance != &items[0]) return 9;
+    if (advance(p, 1) != &items[3]) return 10;
+    if (select(p) + offset() != &items[4] || pointer_calls != 1 || offset_calls != 1) return 11;
+    if (offset() + select(p) != &items[4] || pointer_calls != 2 || offset_calls != 2) return 27;
+    p += offset();
+    if (p != &items[4] || offset_calls != 3) return 28;
+    p -= offset();
+    if (p != &items[2] || offset_calls != 4) return 29;
+    p += negative;
+    p -= negative;
+    if (p != &items[2]) return 30;
+    const struct Point* view = items;
+    const struct Point* prior = view++;
+    if (prior != &items[0] || view != &items[1]) return 12;
+    global_pointer = items;
+    old = global_pointer++;
+    if (old != &items[0] || global_pointer != &items[1]) return 13;
+    next = ++global_pointer;
+    if (next != &items[2]) return 14;
+    next = (global_pointer += 3);
+    if (next != &items[5] || global_pointer[0].x != 60) return 15;
+    next = (global_pointer -= 4);
+    if (next != &items[1]) return 16;
+    old = global_pointer--;
+    if (old != &items[1] || global_pointer != &items[0]) return 17;
+    global_pointer++;
+    --global_pointer;
+    if (global_pointer != &items[0]) return 18;
+    p = items + 5;
+    old = p++;
+    if (old != &items[5] || p != &items[6]) return 19;
+    old = p--;
+    if (old != &items[6] || p != &items[5]) return 20;
+    {
+        struct Point* items = global_pointer;
+        if (items++ != global_pointer || items != global_pointer + 1) return 21;
+    }
+
+    struct Padded padded[3];
+    padded[1].value = 42;
+    padded_pointer = padded;
+    if ((++padded_pointer)[0].value != 42 || padded_pointer != &padded[1]) return 22;
+    padded_pointer += 1;
+    if (padded_pointer != &padded[2]) return 23;
+    padded_pointer -= 2;
+    if (padded_pointer != &padded[0]) return 24;
+    struct Small small[2];
+    small[1].value = (char)42;
+    struct Small* sp = small;
+    if ((++sp)[0].value != 42) return 25;
+
+    int ints[] = {7, 8, 9};
+    numeric_pointer = ints;
+    if (*(numeric_pointer += 2) != 9 || *(numeric_pointer -= 1) != 8) return 26;
+    return 42;
+}

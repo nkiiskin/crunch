@@ -1,0 +1,12 @@
+CRUNCH-IR 2
+global text ptr 0
+global text$length int 5
+globalbytes text 7465737400
+func main 0 int
+gload text ptr
+push 0
+ptradd byte
+loadind byte
+cast byte int
+ret int
+end

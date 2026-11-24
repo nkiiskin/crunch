@@ -1,0 +1,56 @@
+.TH CRUNCH-AR 1 "November 2026" "Crunch 0.9.0" "User Commands"
+.SH NAME
+crunch-ar \- experimental static archive utility
+.SH SYNOPSIS
+.B crunch-ar
+.RI { r | q | d | t | x }[ cvs ]
+.I archive
+.RI [ members ...]
+.br
+.B crunch-ar s
+.I archive
+.SH DESCRIPTION
+.B crunch-ar
+creates and modifies regular GNU-format static archives on x86-64 Linux.
+It is experimental and is not a complete replacement for GNU ar.
+Updates are written to a temporary file beside the archive and replace it
+only after a successful write. Archive metadata is deterministic.
+.SH OPERATIONS
+.TP
+.B r
+Replace matching members or add new ones.
+.TP
+.B q
+Append members, including duplicate names.
+.TP
+.B d
+Delete one matching member for each supplied name.
+.TP
+.B t
+List members, optionally selecting names.
+.TP
+.B x
+Extract members, optionally selecting names. Names containing path separators
+are rejected.
+.TP
+.B s
+Rebuild the archive symbol index.
+.SH MODIFIERS
+.TP
+.B c
+Accepted for GNU ar compatibility.
+.TP
+.B s
+Write the archive symbol index. It is also written automatically by
+.BR r ,
+.B q
+and
+.BR d .
+.TP
+.B v
+Print member operations or a detailed table of contents.
+.SH LIMITATIONS
+The symbol index supports ELF64 little-endian x86-64 relocatable objects and
+32-bit GNU archive offsets. Non-ELF members are stored without indexed symbols.
+Thin archives, BSD extended names, extended ELF symbol indices, and other GNU
+ar operations and modifiers are unsupported.

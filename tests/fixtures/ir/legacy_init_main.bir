@@ -1,0 +1,43 @@
+CRUNCH-IR 3
+extern_func beta_length 0 int
+extern_global order int
+extern_global alpha ptr
+extern_global alpha$length int
+extern_global numbers ptr
+extern_global numbers$length int
+func main 0 int
+gload order int
+push 123
+ne int
+jnz L0
+gload alpha$length int
+push 1
+ne int
+jnz L0
+gload numbers ptr
+loadind int
+push 2
+ne int
+jnz L0
+call beta_length 0
+push 3
+ne int
+jnz L0
+gload alpha ptr
+gload alpha$length int
+push 0
+array_resize int
+gstore alpha ptr
+gstore alpha$length int
+gload numbers ptr
+gload numbers$length int
+push 0
+array_resize int
+gstore numbers ptr
+gstore numbers$length int
+push 42
+ret int
+label L0
+push 1
+ret int
+end

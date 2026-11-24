@@ -1,0 +1,52 @@
+CRUNCH-IR 4
+internal crunch_module_init_0
+initializer crunch_module_init_0
+func crunch_module_init_0 0 int
+gload values ptr
+gload values$length int
+call count 0
+array_resize int
+gstore values ptr
+gstore values$length int
+push 0
+ret int
+end
+global calls int 0
+global values ptr 0
+global values$length int 0
+func count 0 int
+gload calls int
+push 1
+add int
+dup
+gstore calls int
+drop
+push 2
+ret int
+push 0
+ret int
+end
+func read_module 0 int
+gload values$length int
+push 2
+ne int
+bool int
+jnz L2
+gload calls int
+push 1
+ne int
+bool
+jmp L3
+label L2
+push 1
+label L3
+bool int
+jz L0
+push 1
+ret int
+label L0
+push 42
+ret int
+push 0
+ret int
+end

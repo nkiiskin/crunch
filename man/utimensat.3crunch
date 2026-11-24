@@ -1,0 +1,15 @@
+.TH UTIMENSAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+utimensat \- Linux x86-64 syscall 280
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int utimensat(int directory, const char* path, const struct timespec* times, int flags);
+.fi
+.SH DESCRIPTION
+Changes file timestamps with nanosecond precision.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR utimensat (2)

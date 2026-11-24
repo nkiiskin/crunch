@@ -1,0 +1,4 @@
+int main() {
+    double half = .5;
+    return half == 0.5 ? 42 : 1;
+}

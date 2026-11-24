@@ -1,0 +1,21 @@
+.TH VFORK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+vfork \- create a child sharing the parent's address space
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B pid_t vfork(void);
+.fi
+.SH DESCRIPTION
+Creates a child while suspending the calling parent thread until the child
+executes a new program or exits. The child shares the parent's address space
+and stack. The child must immediately call execve or _exit, must not return
+from the calling function, modify data, or invoke other library functions.
+Other threads, if present, are not suspended.
+.SH RETURN VALUE
+Returns zero in the child, the child PID in the parent, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR fork (3crunch),
+.BR execve (3crunch),
+.BR vfork (2)

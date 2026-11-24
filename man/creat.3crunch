@@ -1,0 +1,17 @@
+.TH CREAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+creat \- create or truncate a file
+.SH SYNOPSIS
+.nf
+.B #include <fcntl.h>
+.B int creat(const char* path, mode_t mode);
+.fi
+.SH DESCRIPTION
+Opens path for writing, creating it if needed and truncating an existing file.
+Creation permissions are modified by the process umask.
+.SH RETURN VALUE
+Returns a file descriptor, or \-1 with errno set.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR umask (3crunch),
+.BR creat (2)

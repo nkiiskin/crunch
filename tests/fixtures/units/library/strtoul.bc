@@ -1,0 +1,28 @@
+#include <stdlib.h>
+#include <errno.h>
+
+int main() {
+    char text[] = " \t-0XfFz";
+    char *end;
+    errno = 17;
+    if (strtoul(text, &end, 0) != 18446744073709551361UL ||
+        (void*)end != (void*)(text + 7) || errno != 17) return 1;
+    if (strtoul("18446744073709551615", 0, 10) != 18446744073709551615UL ||
+        errno != 17) return 2;
+    if (strtoul("-18446744073709551615", 0, 10) != 1UL ||
+        errno != 17) return 3;
+    char overflow[] = "18446744073709551616000!";
+    if (strtoul(overflow, &end, 10) != 18446744073709551615UL ||
+        errno != ERANGE || *end != '!') return 4;
+    errno = 17;
+    char empty[] = "  +xyz";
+    if (strtoul(empty, &end, 10) != 0UL ||
+        (void*)end != (void*)empty || errno != 17) return 5;
+    char prefix[] = "0x";
+    if (strtoul(prefix, &end, 0) != 0UL || *end != 'x' || errno != 17) return 6;
+    if (strtoul("zZ", 0, 36) != 1295UL || errno != 17) return 7;
+    if (strtoul("077", 0, 0) != 63UL || errno != 17) return 8;
+    if (strtoul(text, &end, 1) != 0UL ||
+        (void*)end != (void*)text || errno != EINVAL) return 9;
+    return 42;
+}

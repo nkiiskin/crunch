@@ -1,0 +1,17 @@
+.TH GETPEERNAME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getpeername \- get a socket's peer address
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int getpeername(int descriptor, struct sockaddr* address, socklen_t* length);
+.fi
+.SH DESCRIPTION
+Writes the peer address to a writable buffer. On entry length gives the
+buffer capacity; on return it gives the actual address length, which can
+exceed capacity if truncated.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR getsockname (3crunch),
+.BR getpeername (2)

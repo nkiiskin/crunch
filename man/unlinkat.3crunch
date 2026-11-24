@@ -1,0 +1,28 @@
+.TH UNLINKAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+unlinkat \- remove a directory-relative entry
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int unlinkat(int " directory ", const char* " path ", int " flags ");"
+.fi
+.SH DESCRIPTION
+Resolves a relative path from the directory descriptor, or the current
+directory for
+.BR AT_FDCWD .
+An absolute path ignores the descriptor.
+With flags zero it removes a non-directory entry; with
+.B AT_REMOVEDIR
+it removes an empty directory.
+.SH RETURN VALUE
+Returns zero on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR unlink (3crunch),
+.BR rmdir (3crunch),
+.BR unlinkat (2)

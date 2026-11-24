@@ -1,0 +1,22 @@
+.TH MREMAP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mremap \- resize or move a memory mapping
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B void* mremap(void* address, size_t old_size, size_t new_size,
+.B              int flags, void* new_address);
+.fi
+.SH DESCRIPTION
+Resizes or moves a Linux mapping. All five arguments are required.
+Pass zero as new_address unless MREMAP_FIXED is specified; that flag also
+requires MREMAP_MAYMOVE. Use map_failed to check the result.
+.SH RETURN VALUE
+Returns the new address, or the Linux MAP_FAILED sentinel (a pointer value
+of \-1) with errno set. The header does not define a MAP_FAILED macro; use
+map_failed to test the result.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR map_failed (3crunch),
+.BR mmap (3crunch),
+.BR mremap (2)

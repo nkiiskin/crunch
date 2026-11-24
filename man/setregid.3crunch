@@ -1,0 +1,14 @@
+.TH SETREGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setregid \- sets the real and effective group ids; (gid_t)-1 leaves an id unchanged
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int setregid(gid_t real, gid_t effective);
+.fi
+.SH DESCRIPTION
+Sets the real and effective group IDs; (gid_t)-1 leaves an ID unchanged. This is a direct per-thread syscall.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setregid (2)

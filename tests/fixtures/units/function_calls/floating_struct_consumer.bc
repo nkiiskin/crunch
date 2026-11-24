@@ -1,0 +1,66 @@
+#include "floating_struct_abi.h"
+
+int check(void) {
+    struct FloatPair f = {1.5f, 2.5f};
+    struct TinyFloat tiny = {2.5f};
+    struct DoublePair p = {8.5, 9.5};
+    struct IntegerSse is = {9, 10.5};
+    struct SseInteger si = {7.5, 8};
+    struct MixedWord m = {3.5f, 4};
+    struct NestedFloats n = {{1.5f, 2.5f}, 3.5f, 4};
+    struct FloatArray a = {{1.0f, 2.0f, 3.0f}};
+    struct BigFloats big = {{4.0, 5.0, 6.0}};
+    struct FloatFlex flex = {3.5f};
+    struct AlignedSI asi = {8.5, 9};
+    struct AlignedIS ais = {10, 11.5};
+    struct AlignedSS ass = {12.5, 13.5};
+    union AlignedUnion au; au.item = asi;
+    struct DoublePair (*indirect)(struct DoublePair) = pass_double_pair;
+    int (*var_indirect)(int, ...) = read_structs;
+    struct FloatPair rf = pass_float_pair(f);
+    struct TinyFloat rt = pass_tiny_float(tiny);
+    struct DoublePair rp = indirect(p);
+    struct IntegerSse ri = pass_integer_sse(is);
+    struct SseInteger rs = pass_sse_integer(si);
+    struct MixedWord rm = pass_mixed_word(m);
+    struct NestedFloats rn = pass_nested(n);
+    struct FloatArray ra = pass_array(a);
+    struct BigFloats rb = pass_big(big);
+    struct FloatFlex rx = pass_flexible(flex);
+    struct AlignedSI (*indirect_aligned)(struct AlignedSI) = pass_aligned_si;
+    int (*indirect_spill)(long,long,long,long,long,long,long,
+                          struct AlignedSI,struct AlignedIS,long) = aligned_gp;
+    struct AlignedSI rsi = indirect_aligned(asi);
+    struct AlignedIS ris = pass_aligned_is(ais);
+    struct AlignedSS rss = pass_aligned_ss(ass);
+    union AlignedUnion ru = pass_aligned_union(au);
+    if (rf.x != 1.5f || rf.y != 3.5f || rt.x != 3.5f || rp.x != 8.5 || rp.y != 10.5 ||
+        ri.i != 9 || ri.x != 11.5 || rs.x != 7.5 || rs.i != 9 ||
+        rm.x != 3.5f || rm.i != 5 || rn.pair.y != 2.5f || rn.x != 4.5f ||
+        rn.i != 4 || ra.values[1] != 2.0f || ra.values[2] != 4.0f ||
+        rb.values[0] != 4.0 || rb.values[2] != 7.0 || big.values[2] != 6.0 ||
+        rx.x != 4.5f || flex.x != 3.5f || rsi.x != 9.5 || rsi.y != 9 ||
+        ris.x != 10 || ris.y != 12.5 || rss.x != 12.5 || rss.y != 14.5 ||
+        ru.item.x != 9.5 || ru.item.y != 9)
+        return 1;
+    if (!spill_gp(1,2,3,4,5,6,si,9.5) ||
+        !spill_fp(1.,2.,3.,4.,5.,6.,7.,8.,is,11) ||
+        !spill_pair(1.,2.,3.,4.,5.,6.,7.,p,10.5))
+        return 2;
+    if (!read_structs(1,f,p,is,si,m,a,big,42) ||
+        !var_indirect(1,f,p,is,si,m,a,big,42) ||
+        !read_gp_spill(1,2,3,4,5,6L,si,9.5) ||
+        !read_fp_spill(1.,2.,3.,4.,5.,6.,7.,8.,is,11L))
+        return 3;
+    if (!aligned_gp(1,2,3,4,5,6,7,asi,ais,12) ||
+        !indirect_spill(1,2,3,4,5,6,7,asi,ais,12) ||
+        !aligned_fp(1,2,3,4,5,6,7,1.,2.,3.,4.,5.,6.,7.,8.,ass,14) ||
+        !aligned_rollback_gp(1,2,3,4,5,6,asi,15.5) ||
+        !aligned_rollback_fp(1.,2.,3.,4.,5.,6.,7.,8.,ais,15) ||
+        !aligned_variadic_registers(1,asi,ais,ass,16L) ||
+        !aligned_named_va(1,2,3,4,5,6,7,asi,12L,13.5) ||
+        !aligned_variadic_gp(1,1L,2L,3L,4L,5L,6L,asi,ais,12L) ||
+        !aligned_variadic_fp(1,1L,2L,3L,4L,5L,6L,1.,2.,3.,4.,5.,6.,7.,8.,ass,14L))
+        return 4;
+    return 0;
+}

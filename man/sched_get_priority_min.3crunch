@@ -1,0 +1,14 @@
+.TH SCHED_GET_PRIORITY_MIN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_get_priority_min \- returns the minimum priority for the specified scheduling policy
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_get_priority_min(int policy);
+.fi
+.SH DESCRIPTION
+Returns the minimum priority for the specified scheduling policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_get_priority_min (2)

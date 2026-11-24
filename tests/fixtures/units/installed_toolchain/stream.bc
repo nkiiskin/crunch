@@ -1,0 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    char line[64];
+    if (fgets(line, 64, stdin) == 0) return 1;
+    int value = atoi(line);
+    printf("stream:%d\n", value + 5);
+    return value == 37 ? 0 : 1;
+}

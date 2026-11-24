@@ -1,0 +1,116 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/getdents.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/file.h>
+#include <sys/sem.h>
+#include <sys/msg.h>
+#include <sys/wait.h>
+
+struct message {
+    long type;
+    char text[8];
+};
+
+struct semid_ds sem_layout;
+struct msqid_ds msg_layout;
+struct flock flock_layout;
+struct rusage usage_layout;
+
+int sem_case(int id) {
+    struct semid_ds state;
+    if (semctl_value(id, 0, SETVAL, 3) ||
+        semctl(id, 0, GETVAL, 0) != 3 ||
+        semctl(id, 0, IPC_STAT, &state) || state.sem_nsems != 1) return 1;
+    unsigned short values[1];
+    if (semctl(id, 0, GETALL, values) || values[0] != 3) return 1;
+    struct sembuf operation;
+    operation.sem_num = 0;
+    operation.sem_op = -2;
+    operation.sem_flg = IPC_NOWAIT;
+    if (semop(id, &operation, 1) || semctl(id, 0, GETVAL, 0) != 1) return 2;
+    operation.sem_op = -2;
+    if (semop(id, &operation, 1) != -1 || errno != EAGAIN) return 3;
+    return 0;
+}
+
+int msg_case(int id) {
+    struct message sent;
+    struct message received;
+    struct msqid_ds state;
+    sent.type = 7;
+    memcpy(sent.text, "hello", 5);
+    if (msgsnd(id, &sent, 5, IPC_NOWAIT) ||
+        msgctl(id, IPC_STAT, &state) || state.msg_qnum != 1 ||
+        msgrcv(id, &received, 8, 7, IPC_NOWAIT) != 5 ||
+        received.type != 7 || memcmp(received.text, "hello", 5)) return 1;
+    if (msgrcv(id, &received, 8, 7, IPC_NOWAIT) != -1 || errno != ENOMSG)
+        return 2;
+    return 0;
+}
+
+int main(void) {
+    int sem = semget(IPC_PRIVATE, 1, 384);
+    if (sem < 0) return 1;
+    int result = sem_case(sem);
+    if (semctl(sem, 0, IPC_RMID, 0) || result) return 2;
+    int queue = msgget(IPC_PRIVATE, 384);
+    if (queue < 0) return 3;
+    result = msg_case(queue);
+    if (msgctl(queue, IPC_RMID, 0) || result) return 4;
+
+    int fd = open("data", O_CREAT | O_TRUNC | O_RDWR, 384);
+    if (fd < 0 || write(fd, "abcdef", 6) != 6 ||
+        fcntl(fd, F_SETFD, FD_CLOEXEC) || fcntl(fd, F_GETFD, 0) != FD_CLOEXEC ||
+        flock(fd, LOCK_EX | LOCK_NB) || flock(fd, LOCK_UN)) return 5;
+    struct flock lock;
+    lock.l_type = F_WRLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0;
+    if (fcntl_ptr(fd, F_GETLK, &lock) || lock.l_type != F_UNLCK ||
+        ftruncate(fd, 4) || fsync(fd) || fdatasync(fd) || close(fd) ||
+        truncate("data", 2)) return 6;
+    fd = open("data", O_RDONLY, 0);
+    char data[8];
+    if (fd < 0 || read(fd, data, 8) != 2 || memcmp(data, "ab", 2) ||
+        close(fd) || unlink("data")) return 7;
+    if (fsync(-1) != -1 || errno != EBADF ||
+        fcntl(-1, F_GETFD, 0) != -1 || errno != EBADF ||
+        flock(-1, LOCK_EX) != -1 || errno != EBADF ||
+        ftruncate(-1, 1) != -1 || errno != EBADF) return 8;
+
+    char cwd[4096];
+    char small[1];
+    errno = EBUSY;
+    if (getcwd(cwd, sizeof(cwd)) != cwd || cwd[0] != '/' || errno != EBUSY)
+        return 9;
+    if (getcwd(small, sizeof(small)) != 0 || errno != ERANGE ||
+        getcwd(cwd, 0) != 0 || errno != EINVAL ||
+        getcwd(0, 1) != 0 || errno != ERANGE) return 10;
+    char* allocated = getcwd(0, 0);
+    if (!allocated || strcmp(allocated, cwd)) return 11;
+    free(allocated);
+    allocated = getcwd(0, sizeof(cwd));
+    if (!allocated || strcmp(allocated, cwd)) return 12;
+    free(allocated);
+
+    fd = open(".", O_RDONLY | O_DIRECTORY, 0);
+    char entries[4096];
+    if (fd < 0 || getdents(fd, (struct linux_dirent*)entries, sizeof(entries)) <= 0 ||
+        ((struct linux_dirent*)entries)->d_reclen < 20 || close(fd)) return 13;
+    if (getdents(-1, (struct linux_dirent*)entries, sizeof(entries)) != -1 ||
+        errno != EBADF) return 14;
+    pid_t child = fork();
+    if (child == 0) _exit(29);
+    int status;
+    struct rusage usage;
+    if (child < 0 || wait4(child, &status, 0, &usage) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status) != 29 ||
+        usage.ru_utime.tv_sec < 0 || usage.ru_stime.tv_sec < 0) return 15;
+    if (wait4(-1, &status, WNOHANG, &usage) != -1 || errno != ECHILD)
+        return 16;
+    return 42;
+}

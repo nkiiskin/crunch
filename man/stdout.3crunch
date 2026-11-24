@@ -1,0 +1,31 @@
+.TH STDOUT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+stdout \- Crunch standard output stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.B struct FILE* stdout;
+.fi
+.SH DESCRIPTION
+.B stdout
+is the initially open, unbuffered Crunch stream for file descriptor 1.
+It can be passed to Crunch stream functions and closed with
+.BR fclose (3crunch).
+After closing it the stream pointer is invalid.
+.SH NOTES
+Crunch stream objects are not C library
+.B FILE
+objects. The standard stream names are macros referring to Crunch-specific
+global pointers; they do not interoperate with libc's stream objects.
+Direct descriptor output and Crunch's
+.B print
+and
+.B printf
+do not update this stream's indicators.
+Crunch streams and errno are not thread-safe.
+.SH SEE ALSO
+.BR stdin (3crunch),
+.BR stderr (3crunch),
+.BR fputc (3crunch),
+.BR fclose (3crunch)

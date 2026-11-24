@@ -1,0 +1,51 @@
+CRUNCH-IR 4
+internal crunch_module_init_0
+initializer crunch_module_init_0
+func crunch_module_init_0 0 int
+gload alpha ptr
+gload alpha$length int
+push 1
+call mark 1
+array_resize int
+gstore alpha ptr
+gstore alpha$length int
+gload numbers ptr
+gload numbers$length int
+push 1
+array_resize int
+gstore numbers ptr
+gstore numbers$length int
+gload numbers ptr
+bool ptr
+jz L0
+gload numbers ptr
+push 0
+ptradd int
+push 2
+call mark 1
+storeind int
+drop
+label L0
+push 0
+ret int
+end
+global order int 0
+global alpha ptr 0
+global alpha$length int 0
+global numbers ptr 0
+global numbers$length int 0
+func mark 1 int
+param 0 0 int
+gload order int
+push 10
+mul int
+load 0
+add int
+dup
+gstore order int
+drop
+load 0
+ret int
+push 0
+ret int
+end

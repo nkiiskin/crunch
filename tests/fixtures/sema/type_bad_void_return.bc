@@ -1,0 +1,2 @@
+void work() { return 1; }
+int main() { work(); return 0; }

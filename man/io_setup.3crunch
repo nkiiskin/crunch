@@ -1,0 +1,14 @@
+.TH IO_SETUP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+io_setup \- creates a linux kernel asynchronous i/o context
+.SH SYNOPSIS
+.nf
+.B #include <sys/aio.h>
+.B int io_setup(unsigned int max_events, aio_context_t* context);
+.fi
+.SH DESCRIPTION
+Creates a Linux kernel asynchronous I/O context. The context must initially be zero and must be released with io_destroy. This is the Linux kernel AIO ABI, not POSIX aio.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR io_setup (2)

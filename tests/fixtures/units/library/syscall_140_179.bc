@@ -1,0 +1,122 @@
+#include <unistd.h>
+#include <errno.h>
+#include <sched.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <sys/prctl.h>
+#include <sys/arch_prctl.h>
+#include <sys/timex.h>
+#include <sys/time.h>
+#include <sys/mount.h>
+#include <sys/swap.h>
+#include <sys/reboot.h>
+#include <sys/io.h>
+#include <sys/module.h>
+#include <sys/syscall_extra.h>
+
+struct timex timex_layout;
+struct sched_param sched_layout;
+
+void link_privileged_only(void) {
+    sync();
+    vhangup();
+    pivot_root(".", ".");
+    chroot(".");
+    acct(0);
+    settimeofday(0, 0);
+    mount(0, ".", 0, 0, 0);
+    umount2(".", 0);
+    swapon(".", 0);
+    swapoff(".");
+    crunch_reboot(0, 0);
+    sethostname("", 0);
+    setdomainname("", 0);
+    iopl(0);
+    ioperm(0, 0, 0);
+    init_module(0, 0, "");
+    delete_module("", 0);
+    mlockall(MCL_CURRENT);
+    munlockall();
+}
+
+int child_checks(void) {
+    int status;
+    pid_t child = fork();
+    if (child < 0) return 1;
+    if (child == 0) {
+        int old = getpriority(PRIO_PROCESS, 0);
+        if (old < 19 && (setpriority(PRIO_PROCESS, 0, old + 1) ||
+                         getpriority(PRIO_PROCESS, 0) != old + 1))
+            _exit(1);
+        struct rlimit limits;
+        if (getrlimit(RLIMIT_NOFILE, &limits)) _exit(2);
+        if (limits.rlim_cur > 16) limits.rlim_cur = 16;
+        if (setrlimit(RLIMIT_NOFILE, &limits)) _exit(3);
+        struct rlimit readback;
+        if (getrlimit(RLIMIT_NOFILE, &readback) ||
+            readback.rlim_cur != limits.rlim_cur) _exit(4);
+        if (sched_getscheduler(0) == SCHED_OTHER) {
+            struct sched_param parameter = {0};
+            if (sched_setparam(0, &parameter) ||
+                sched_setscheduler(0, SCHED_OTHER, &parameter)) _exit(5);
+        }
+        _exit(0);
+    }
+    if (waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) return 2;
+    return 0;
+}
+
+int main(void) {
+    errno = EBUSY;
+    int priority = getpriority(PRIO_PROCESS, 0);
+    if (priority < -20 || priority > 19 || errno != EBUSY ||
+        getpriority(-1, 0) != -1 || errno != EINVAL ||
+        setpriority(-1, 0, 0) != -1 || errno != EINVAL)
+        return 1;
+    struct sched_param parameter;
+    struct timespec interval;
+    int policy = sched_getscheduler(0);
+    if (policy < 0 || sched_getparam(0, &parameter) ||
+        sched_rr_get_interval(0, &interval) || interval.tv_sec < 0 ||
+        sched_get_priority_min(SCHED_OTHER) != 0 ||
+        sched_get_priority_max(SCHED_OTHER) != 0 ||
+        sched_get_priority_min(SCHED_FIFO) != 1 ||
+        sched_get_priority_max(SCHED_FIFO) != 99 ||
+        sched_getscheduler(-1) != -1 || errno != EINVAL ||
+        sched_get_priority_min(-1) != -1 || errno != EINVAL)
+        return 2;
+    void* memory = mmap(0, 4096, PROT_READ | PROT_WRITE,
+                        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (map_failed(memory)) return 3;
+    if (!mlock(memory, 4096)) {
+        if (munlock(memory, 4096)) return 4;
+    } else if (errno != EPERM && errno != ENOMEM && errno != EAGAIN)
+        return 5;
+    if (mlockall(0) != -1 || errno != EINVAL || munmap(memory, 4096))
+        return 6;
+
+    char name[16] = {0};
+    if (prctl_ptr(PR_GET_NAME, name, 0, 0, 0) || !name[0] ||
+        prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 1, 0) != -1 || errno != EINVAL ||
+        prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 1) != -1 || errno != EINVAL)
+        return 7;
+    unsigned long fs = 0;
+    if (arch_prctl_ptr(ARCH_GET_FS, &fs)) return 8;
+    struct timex state = {0};
+    if (adjtimex(&state) < 0 || state.time.tv_sec <= 0 ||
+        adjtimex(0) != -1 || errno != EFAULT)
+        return 9;
+    char ldt[16];
+    if (modify_ldt(0, ldt, sizeof ldt) < 0) return 10;
+    if (crunch_sysctl(0) != -1 || !errno ||
+        crunch_create_module("unused", 0) != -1 || !errno ||
+        crunch_get_kernel_syms(0) != -1 || !errno ||
+        crunch_query_module("unused", 0, 0, 0, 0) != -1 || !errno ||
+        quotactl(-1, "absent", 0, 0) != -1 || !errno)
+        return 11;
+    if (child_checks()) return 12;
+    return 42;
+}

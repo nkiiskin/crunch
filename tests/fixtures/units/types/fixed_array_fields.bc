@@ -1,0 +1,130 @@
+struct Leaf {
+    int number;
+    char tag;
+};
+
+struct Cell {
+    int values[3];
+    char text[4];
+    float samples[2];
+    int *pointers[2];
+    struct Leaf leaves[2];
+};
+
+struct Outer {
+    char marker;
+    struct Cell cell;
+    struct {
+        int promoted[2];
+    };
+};
+
+struct Holder {
+    struct Cell cells[2];
+};
+
+struct Outer global;
+struct Cell global_cells[2];
+int *global_values = global.cell.values;
+int *global_nested = &global_cells[1].values[2];
+int *global_refs[2] = {global.promoted, &global_cells[1].values[1]};
+
+int sum(int *p) {
+    return p[0] + p[1] + p[2];
+}
+
+struct Cell *select_cell(struct Cell *p, int *calls) {
+    *calls = *calls + 1;
+    return p;
+}
+
+int main() {
+    if (sizeof(global.cell.values) != 12 || sizeof(global.promoted) != 8 ||
+        global.cell.values[2] != 0 || global.promoted[1] != 0 ||
+        global_cells[1].leaves[1].number != 0)
+        return 1;
+    global_values[1] = 4;
+    *global_nested = 8;
+    global_refs[0][1] = 6;
+    *global_refs[1] = 7;
+    if (global.cell.values[1] != 4 || global_cells[1].values[2] != 8 ||
+        global.promoted[1] != 6 || global_cells[1].values[1] != 7 ||
+        (void *)(&global.cell.values + 1) != (void *)(global.cell.values + 3))
+        return 2;
+
+    struct Outer source;
+    source.marker = 'x';
+    source.cell.values[0] = 10;
+    source.cell.values[1] = 20;
+    source.cell.values[2] = 12;
+    source.cell.text[0] = 'a';
+    source.cell.text[1] = 'b';
+    source.cell.text[2] = 'c';
+    source.cell.text[3] = '\0';
+    source.cell.samples[0] = 1.5f;
+    source.cell.samples[1] = 2.0f;
+    source.cell.pointers[0] = &source.cell.values[0];
+    source.cell.pointers[1] = &source.cell.values[2];
+    source.cell.leaves[0].number = 7;
+    source.cell.leaves[0].tag = 'q';
+    source.cell.leaves[1].number = 9;
+    source.cell.leaves[1].tag = 'r';
+    source.promoted[0] = 31;
+    source.promoted[1] = 32;
+
+    struct Outer copy = source;
+    copy = copy;
+    if (sum(copy.cell.values) != 42 || copy.marker != 'x' ||
+        copy.cell.text[1] != 'b' || copy.cell.samples[0] != 1.5f ||
+        *copy.cell.pointers[1] != 12 || copy.cell.leaves[1].number != 9 ||
+        copy.promoted[1] != 32)
+        return 3;
+    source.cell.values[0] = 1;
+    source.cell.leaves[1].number = 5;
+    source.promoted[1] = 0;
+    if (copy.cell.values[0] != 10 || copy.cell.leaves[1].number != 9 ||
+        copy.promoted[1] != 32)
+        return 4;
+
+    struct Cell *p = &copy.cell;
+    if (p->values[2] != 12 || (*(&p->values))[1] != 20 ||
+        p->leaves[0].tag != 'q' || sizeof(p->text) != 4)
+        return 5;
+    int access_calls = 0;
+    if (select_cell(p, &access_calls)->values[1] != 20 || access_calls != 1)
+        return 8;
+    int destination_calls = 0;
+    int source_calls = 0;
+    *select_cell(&global_cells[0], &destination_calls) =
+        *select_cell(&copy.cell, &source_calls);
+    if (destination_calls != 1 || source_calls != 1 ||
+        global_cells[0].values[1] != 20 || global_cells[0].leaves[1].number != 9)
+        return 6;
+    global = copy;
+    if (global.promoted[0] != 31 || global.cell.values[0] != 10 ||
+        global.cell.text[2] != 'c')
+        return 7;
+    {
+        struct Cell cell;
+        cell.values[0] = 3;
+        {
+            struct Cell cell;
+            cell.values[0] = 4;
+            if (cell.values[0] != 4)
+                return 11;
+        }
+        if (cell.values[0] != 3)
+            return 12;
+    }
+    for (int iteration = 0; iteration < 2; iteration = iteration + 1) {
+        struct Holder holders[2];
+        struct Holder single;
+        holders[1].cells[1].values[1] = 17;
+        single.cells[0].values[0] = 42;
+        struct Holder copied = holders[1];
+        if (copied.cells[1].values[1] != 17 ||
+            single.cells[0].values[0] != 42)
+            return 10;
+    }
+    return 42;
+}

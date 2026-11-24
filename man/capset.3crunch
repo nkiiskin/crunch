@@ -1,0 +1,14 @@
+.TH CAPSET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+capset \- sets linux thread capabilities using the kernel header and data layout
+.SH SYNOPSIS
+.nf
+.B #include <sys/capability.h>
+.B int capset(cap_user_header_t header, const struct __user_cap_data_struct* data);
+.fi
+.SH DESCRIPTION
+Sets Linux thread capabilities using the kernel header and data layout. Versions 2 and 3 require two data elements.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR capset (2)

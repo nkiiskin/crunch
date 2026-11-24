@@ -1,0 +1,21 @@
+struct Container {
+    int values[3];
+};
+
+struct Container global;
+
+int initialize_global() {
+    global.values[0] = 10;
+    global.values[1] = 11;
+    return 2;
+}
+
+int main() {
+    struct Container local;
+    local.values[0] = 10;
+    local.values[1] = 11;
+    if (sizeof(local.values) != 12) return 1;
+    if (local.values[0] != 10 || local.values[1] != 11) return 3;
+    if (initialize_global() != 2) return 4;
+    return local.values[0] + local.values[1] + global.values[0] + global.values[1];
+}

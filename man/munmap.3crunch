@@ -1,0 +1,15 @@
+.TH MUNMAP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+munmap \- unmap a memory range
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int munmap(void* address, size_t byte_count);
+.fi
+.SH DESCRIPTION
+Unmaps the Linux memory range beginning at a page\-aligned address.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR mmap (3crunch),
+.BR munmap (2)

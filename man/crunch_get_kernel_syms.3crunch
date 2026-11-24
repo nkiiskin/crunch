@@ -1,0 +1,14 @@
+.TH CRUNCH_GET_KERNEL_SYMS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_get_kernel_syms \- invokes obsolete get_kernel_syms syscall 177, unimplemented on linux x86-64 and returning enosys
+.SH SYNOPSIS
+.nf
+.B #include <sys/module.h>
+.B int crunch_get_kernel_syms(void* symbols);
+.fi
+.SH DESCRIPTION
+Invokes obsolete get_kernel_syms syscall 177, unimplemented on Linux x86-64 and returning ENOSYS.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR get_kernel_syms (2)

@@ -1,0 +1,23 @@
+CRUNCH-IR 4
+internal crunch_module_init_0
+initializer crunch_module_init_0
+extern_func mark 1 int int
+internal beta
+internal beta$length
+global beta ptr 0
+global beta$length int 0
+func crunch_module_init_0 0 int
+gload beta ptr
+gload beta$length int
+push 3
+call mark 1
+array_resize int
+gstore beta ptr
+gstore beta$length int
+push 0
+ret int
+end
+func beta_length 0 int
+gload beta$length int
+ret int
+end

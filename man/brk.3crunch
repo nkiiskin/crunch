@@ -1,0 +1,19 @@
+.TH BRK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+brk \- request a new program break
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int brk(void* address);
+.fi
+.SH DESCRIPTION
+Requests a new end address for the process data segment. This is a low\-level
+Linux interface; changing the break can conflict with libc or any other
+allocator using it. The caller must coordinate all break users.
+.SH RETURN VALUE
+Returns zero when the kernel break is at or above the requested address.
+Otherwise returns \-1 and sets errno to ENOMEM. Success leaves errno unchanged.
+The kernel may decline a request to shrink the break, in which case this
+glibc\-style return convention can still report success.
+.SH SEE ALSO
+.BR brk (2)

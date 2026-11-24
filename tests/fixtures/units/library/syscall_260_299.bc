@@ -1,0 +1,107 @@
+#include <sys/syscall_260_299.h>
+#include <sys/epoll.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+
+struct crunch_pselect_sigmask pselect_layout;
+struct crunch_mmsghdr message_layout;
+
+void link_privileged_only(void) {
+    unshare(0);
+    set_robust_list(0, 0);
+    move_pages(0, 0, 0, 0, 0, 0);
+    rt_tgsigqueueinfo(0, 0, 0, 0);
+    perf_event_open(0, 0, 0, 0, 0);
+}
+
+int main(void) {
+    int fd = open("file", O_CREAT | O_RDWR, 384);
+    if (fd < 0) return 1;
+    if (fchownat(AT_FDCWD, "file", -1, -1, 0) ||
+        crunch_fchmodat(AT_FDCWD, "file", 384) ||
+        crunch_faccessat(AT_FDCWD, "file", 0) ||
+        linkat(AT_FDCWD, "file", AT_FDCWD, "hardlink", 0)) return 2;
+    struct timeval times[2] = {{123456, 0}, {123457, 0}};
+    struct timespec stamps[2] = {{123456, 0}, {123457, 0}};
+    if (futimesat(AT_FDCWD, "file", times) ||
+        utimensat(AT_FDCWD, "file", stamps, 0)) return 3;
+    char a[3] = "ab", b[3] = "cd", out[5] = {0};
+    struct iovec vectors[2] = {{a, 2}, {b, 2}};
+    off_t offset = 4294967300L;
+    if (pwritev(fd, vectors, 2, offset) != 4 ||
+        lseek(fd, 0, 1) != 0) return 4;
+    struct iovec read_vectors[2] = {{out, 2}, {out + 2, 2}};
+    if (preadv(fd, read_vectors, 2, offset) != 4 ||
+        memcmp(out, "abcd", 4) || lseek(fd, 0, 1) != 0) return 5;
+    if (fallocate(fd, 0, 0, 4096) ||
+        sync_file_range(fd, 0, 4096, SYNC_FILE_RANGE_WRITE)) return 6;
+    if (preadv(-1, read_vectors, 2, 0) != -1 || errno != EBADF) return 7;
+
+    int pipefd[2], pipe2fd[2];
+    if (pipe2(pipefd, O_CLOEXEC) || pipe2(pipe2fd, 0)) return 8;
+    if (write(pipefd[1], "xyz", 3) != 3 ||
+        tee(pipefd[0], pipe2fd[1], 3, 0) != 3 ||
+        read(pipe2fd[0], out, 3) != 3 || memcmp(out, "xyz", 3) ||
+        splice(pipefd[0], 0, pipe2fd[1], 0, 3, 0) != 3 ||
+        read(pipe2fd[0], out, 3) != 3 || memcmp(out, "xyz", 3)) return 9;
+    struct iovec single = {a, 2};
+    if (vmsplice(pipefd[1], &single, 1, 0) != 2 ||
+        read(pipefd[0], out, 2) != 2 || memcmp(out, "ab", 2)) return 10;
+
+    struct timespec timeout = {0, 0};
+    sigset_t mask = 0;
+    struct crunch_pselect_sigmask maskarg = {&mask, 8};
+    if (crunch_pselect6(0, 0, 0, 0, &timeout, &maskarg) != 0 ||
+        crunch_ppoll(0, 0, &timeout, &mask) != 0) return 11;
+    maskarg.size = 7;
+    if (crunch_pselect6(0, 0, 0, 0, &timeout, &maskarg) != -1 ||
+        errno != EINVAL) return 12;
+
+    int ep = epoll_create1(EPOLL_CLOEXEC);
+    unsigned char event[12] = {0}, received[12] = {0};
+    unsigned int flags = EPOLLIN;
+    memcpy(event, &flags, 4);
+    if (ep < 0 || epoll_ctl(ep, EPOLL_CTL_ADD, pipefd[0], event) ||
+        write(pipefd[1], "x", 1) != 1 ||
+        epoll_pwait(ep, received, 1, 1000, &mask) != 1 ||
+        !(received[0] & EPOLLIN)) return 13;
+    if (close(ep)) return 14;
+    int timer = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+    struct itimerspec state = {{0, 0}, {0, 0}}, previous;
+    if (timer < 0 || timerfd_settime(timer, 0, &state, &previous) ||
+        timerfd_gettime(timer, &previous) || close(timer)) return 15;
+    int old_event = crunch_eventfd(0);
+    int event_fd = eventfd(0, EFD_CLOEXEC);
+    int old_signal = crunch_signalfd(-1, &mask);
+    int signal_fd = signalfd(-1, &mask, SFD_CLOEXEC);
+    int notify = inotify_init1(IN_CLOEXEC);
+    if (old_event < 0 || event_fd < 0 || old_signal < 0 || signal_fd < 0 || notify < 0)
+        return 16;
+    if (close(old_event) || close(event_fd) || close(old_signal) ||
+        close(signal_fd) || close(notify)) return 17;
+    int duplicate = dup3(fd, 100, O_CLOEXEC);
+    if (duplicate != 100 || close(duplicate)) return 18;
+    void* head = 0;
+    size_t length = 0;
+    if (get_robust_list(0, &head, &length) || length != 24) return 19;
+
+    int sockets[2];
+    if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets) ||
+        write(sockets[0], "abc", 3) != 3) return 20;
+    struct iovec received_vector = {out, 4};
+    struct crunch_mmsghdr message = {0};
+    message.msg_hdr.msg_iov = &received_vector;
+    message.msg_hdr.msg_iovlen = 1;
+    timeout.tv_sec = 0;
+    timeout.tv_nsec = 0;
+    if (recvmmsg(sockets[1], &message, 1, MSG_DONTWAIT, &timeout) != 1 ||
+        message.msg_len != 3 || memcmp(out, "abc", 3)) return 21;
+    if (accept4(-1, 0, 0, 0) != -1 || errno != EBADF) return 22;
+    if (close(sockets[0]) || close(sockets[1]) || close(fd) ||
+        close(pipefd[0]) || close(pipefd[1]) ||
+        close(pipe2fd[0]) || close(pipe2fd[1]) ||
+        unlink("file") || unlink("hardlink")) return 23;
+    return 42;
+}

@@ -1,0 +1,61 @@
+CRUNCH-IR 7
+func local_count 1 int
+param 0 0 ulong
+local 1 ptr
+local 2 int
+push 0
+store 1 ptr
+push 0
+store 2 int
+load 1
+load 2
+load 0
+dup
+pushu 2147483647 ulong
+gt ulong
+jz L0
+drop
+push 0
+cast int long
+jmp L1
+label L0
+cast ulong long
+label L1
+array_resize uint
+store 1 ptr
+store 2 int
+load 2
+ret int
+push 0
+ret int
+end
+func resize_count 1 int
+param 0 0 uint
+local 1 ptr
+local 2 int
+push 0
+store 1 ptr
+push 0
+store 2 int
+load 1
+load 2
+load 0
+dup
+pushu 2147483647 uint
+gt uint
+jz L2
+drop
+push 0
+cast int long
+jmp L3
+label L2
+cast uint long
+label L3
+array_resize ulong
+store 1 ptr
+store 2 int
+load 2
+ret int
+push 0
+ret int
+end

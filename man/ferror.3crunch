@@ -1,0 +1,40 @@
+.TH FERROR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ferror \- test a Crunch stream's error indicator
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "int ferror(struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+.BR ferror ()
+tests the stream's error indicator without changing it.
+The indicator is set by an unsuccessful stream read or write and remains set
+until
+.BR clearerr (3crunch)
+or
+.BR rewind (3crunch)
+is called, or the stream is closed. A successful
+.BR fseek (3crunch)
+does not clear it.
+.SH RETURN VALUE
+Returns nonzero if the indicator is set and zero otherwise.
+For a null stream, returns \-1 and sets
+.B errno
+to
+.BR EINVAL ;
+null is not a valid C stream argument.
+Valid calls leave
+.B errno
+unchanged.
+.SH NOTES
+Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR clearerr (3crunch),
+.BR feof (3crunch),
+.BR fread (3crunch),
+.BR fwrite (3crunch),
+.BR fseek (3crunch)

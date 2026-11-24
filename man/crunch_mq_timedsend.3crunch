@@ -1,0 +1,15 @@
+.TH CRUNCH_MQ_TIMEDSEND 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_mq_timedsend \- Linux x86-64 syscall 242
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_mq_timedsend(int queue, const char* message, size_t length, unsigned int priority, const struct timespec* timeout);
+.fi
+.SH DESCRIPTION
+Sends a POSIX message using an optional absolute timeout.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR mq_timedsend (2)

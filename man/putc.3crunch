@@ -1,0 +1,15 @@
+.TH PUTC 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+putc \- write one byte to a stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B int putc(int character, FILE *stream);
+.fi
+.SH DESCRIPTION
+Writes the low byte to the Crunch stream, as
+.BR fputc (3crunch).
+.SH RETURN VALUE
+Returns the written byte as an unsigned value, or EOF on error.
+.SH SEE ALSO
+.BR fputc (3crunch)

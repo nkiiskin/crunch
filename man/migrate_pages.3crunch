@@ -1,0 +1,15 @@
+.TH MIGRATE_PAGES 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+migrate_pages \- Linux x86-64 syscall 256
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long migrate_pages(pid_t process, unsigned long maxnode, const unsigned long* from, const unsigned long* to);
+.fi
+.SH DESCRIPTION
+Migrates process pages between NUMA nodes; permissions may be required.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR migrate_pages (2)

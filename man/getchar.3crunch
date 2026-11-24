@@ -1,0 +1,25 @@
+.TH GETCHAR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getchar \- read one byte from standard input
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.B int getchar(void);
+.fi
+.SH DESCRIPTION
+Reads one byte from the Crunch standard input stream. This is a
+function-like macro expanding to
+.BR fgetc (stdin).
+.SH RETURN VALUE
+Returns the byte as an integer from 0 to 255, or
+.B EOF
+(\-1) on end-of-file or error. Use
+.BR feof (3crunch)
+and
+.BR ferror (3crunch)
+to distinguish them.
+.SH SEE ALSO
+.BR fgetc (3crunch),
+.BR stdin (3crunch),
+.BR putchar (3crunch)

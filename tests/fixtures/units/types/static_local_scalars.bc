@@ -1,0 +1,59 @@
+int values[2] = {40, 2};
+int _crunch_static_local_0;
+
+int *counter_address() {
+    static int counter;
+    counter++;
+    return &counter;
+}
+
+int advance(int recurse) {
+    static int count = 37;
+    static int *pointer = &count;
+    static int **indirect = &pointer;
+    static int *references[] = {&count, &values[1]};
+    static char *text = "abc";
+    static int *array_pointer = values + 1;
+    static int *moving = values;
+    static void *self = &self;
+    static float real = 1.5f;
+    static double wide = 2.25;
+    static const int limit = 40;
+    static unsigned long maximum = 18446744073709551615UL;
+    static int invalid_conversion = (int)-2147483648.5;
+    static int *empty;
+    if (*indirect != &count || references[0] != &count || *references[1] != 2 ||
+        text[1] != 'b' || *array_pointer != 2 || self != &self ||
+        real != 1.5f || wide != 2.25 || limit != 40 || maximum != 18446744073709551615UL ||
+        invalid_conversion != -2147483648 || empty != 0)
+        return -1;
+    if (*moving++ != 40 || *moving != 2)
+        return -2;
+    moving -= 1;
+    if (*++moving != 2)
+        return -3;
+    moving -= 1;
+    count++;
+    if (recurse)
+        return advance(0);
+    return count++;
+}
+
+int shadow() {
+    static int number = 7, other = 2;
+    {
+        static int number = 8;
+        if (++number != 9)
+            return 0;
+    }
+    return number + other;
+}
+
+int main() {
+    int *first = counter_address();
+    int *second = counter_address();
+    if (first != second || *first != 2 || advance(1) != 39 ||
+        advance(0) != 41 || shadow() != 9)
+        return 1;
+    return values[0] + values[1];
+}

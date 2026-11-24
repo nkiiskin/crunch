@@ -1,0 +1,49 @@
+.TH CLOSE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+close \- close a file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "int close(int " descriptor ");"
+.fi
+.SH DESCRIPTION
+.BR close ()
+closes
+.I descriptor
+using the Linux x86\-64 close system call.
+The wrapper does not retry an interrupted call.
+Do not blindly retry a failed close: Linux may already have released the
+descriptor and reused its number.
+.SH RETURN VALUE
+Zero is returned on success.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+Possible errors include
+.BR EBADF ,
+.BR EINTR ,
+and
+.BR EIO ;
+other Linux
+.BR close (2)
+errors are possible.
+.SH NOTES
+This Crunch library function is linked from
+.BR libcrunch.a .
+Its
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR read (3crunch),
+.BR write (3crunch),
+.BR close (2)

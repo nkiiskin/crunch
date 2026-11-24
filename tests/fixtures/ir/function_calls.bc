@@ -1,0 +1,30 @@
+int add(int a, int b) {
+    return a + b;
+}
+
+int combine(int a, int b, int c, int d, int e, int f, int g) {
+    return a + b + c + d + e + f + g;
+}
+
+int sum8(int a, int b, int c, int d, int e, int f, int g, int h) {
+    return a + b + c + d + e + f + g + h;
+}
+
+int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+int main() {
+    int x = add(20, 1);
+    if (factorial(5) != 120) {
+        return 1;
+    }
+    if (sum8(1, 2, 3, 4, 5, 6, 7, 14) != 42) {
+        return 2;
+    }
+    return add(x, combine(1, 2, 3, 4, 5, 6, 0));
+}

@@ -1,0 +1,14 @@
+.TH SWAPOFF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+swapoff \- disables swap on a file or device; requires cap_sys_admin
+.SH SYNOPSIS
+.nf
+.B #include <sys/swap.h>
+.B int swapoff(const char* path);
+.fi
+.SH DESCRIPTION
+Disables swap on a file or device; requires CAP_SYS_ADMIN.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR swapoff (2)

@@ -1,0 +1,15 @@
+.TH ARCH_PRCTL_PTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+arch_prctl_ptr \- invoke arch_prctl with a pointer argument
+.SH SYNOPSIS
+.nf
+.B #include <sys/arch_prctl.h>
+.B int arch_prctl_ptr(int operation, void *argument);
+.fi
+.SH DESCRIPTION
+Invokes x86-64 arch_prctl with a pointer argument, for example ARCH_GET_FS.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR arch_prctl (3crunch),
+.BR arch_prctl (2)

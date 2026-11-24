@@ -1,0 +1,87 @@
+#include <float.h>
+
+long double extended_global = 0x1.0000000000000002p0L;
+long double extended_array[3] = {0.25L, 0x1.0000000000000002p0L};
+
+long double extended_sum(long double a, long double b) {
+    long double result = a + b;
+    return result;
+}
+
+long double extended_increment(long double value) {
+    value = value + 1;
+    return value;
+}
+
+long double extended_indirect_call(long double (*fn)(long double, long double),
+                                   long double a, long double b) {
+    return fn(a, b);
+}
+
+long double extended_static(void) {
+    static long double value = 0.25L;
+    value = value + 0.25;
+    return value;
+}
+
+long double *extended_address(long double *value, int *count) {
+    *count = *count + 1;
+    return value;
+}
+
+int main(void) {
+    long double first = 0x1.0000000000000002p0L;
+    long double second = 0.25L;
+    long double result = extended_sum(first, second);
+    if (result != 0x1.4000000000000002p0L)
+        return 1;
+    if (extended_indirect_call(extended_sum, first, second) != result)
+        return 2;
+    if (extended_increment(first) != first + 1)
+        return 3;
+    if (first != 0x1.0000000000000002p0L)
+        return 4;
+    if (extended_global != first || extended_static() != 0.5L ||
+        extended_static() != 0.75L)
+        return 5;
+    extended_global = result;
+    if (extended_global != result)
+        return 6;
+    int count = 0;
+    long double value = 2.0L;
+    long double old = (*extended_address(&value, &count))++;
+    if (count != 1 || old != 2.0L || value != 3.0L)
+        return 7;
+    long double updated = (*extended_address(&value, &count) *= 2);
+    if (count != 2 || updated != 6.0L || value != 6.0L)
+        return 8;
+    if (--value != 5.0L || value-- != 5.0L || value != 4.0L)
+        return 9;
+    value += 1;
+    value -= 1.0;
+    value /= 2;
+    if (value != 2.0L)
+        return 10;
+    long double array[3] = {0.5L, extended_global};
+    static long double static_array[2] = {1.0L, 0.25L};
+    if (extended_array[0] != 0.25L || extended_array[1] != first ||
+        extended_array[2] != 0 || array[0] != 0.5L ||
+        array[1] != result || array[2] != 0)
+        return 11;
+    static_array[1] += array[0];
+    if (static_array[1] != 0.75L)
+        return 12;
+    double ordinary = 1.0;
+    int integer = 3;
+    ordinary += 0x1.0000000000000002p0L;
+    integer *= 1.75L;
+    if (ordinary != 2.0 || integer != 5)
+        return 13;
+    if (sizeof(LDBL_MAX) != sizeof(long double) ||
+        LDBL_MAX != 0x1.fffffffffffffffep16383L ||
+        LDBL_MIN != 0x1p-16382L || LDBL_TRUE_MIN != 0x1p-16445L ||
+        1.0L + LDBL_EPSILON == 1.0L ||
+        1.0L + LDBL_EPSILON / 2 == 1.0L + LDBL_EPSILON)
+        return 14;
+    return 0;
+}

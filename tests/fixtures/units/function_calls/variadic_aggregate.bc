@@ -1,0 +1,72 @@
+#include <stdarg.h>
+
+struct pair { long first; long second; };
+struct mixed_fields { long integer; double real; };
+union mixed { struct mixed_fields value; };
+union floating { double values[2]; };
+union large { long values[3]; };
+enum number { answer = 42 };
+
+int check_pair(struct pair p) {
+    return p.first == 11 && p.second == 22;
+}
+
+int read_aggregates(int marker, ...) {
+    va_list ap, copy, copy2;
+    va_start(ap, marker);
+    va_copy(copy, ap);
+    va_copy(copy2, ap);
+    int evaluations = 0;
+    struct pair p = va_arg((evaluations++, ap), struct pair);
+    union floating f = va_arg(ap, union floating);
+    union mixed m = va_arg(ap, union mixed);
+    union large l = va_arg(ap, union large);
+    enum number e = va_arg(ap, enum number);
+    long again = va_arg(copy, struct pair).first;
+    int passed = check_pair(va_arg(copy2, struct pair));
+    va_end(copy);
+    va_end(copy2);
+    va_end(ap);
+    return evaluations == 1 && p.first == 11 && p.second == 22 &&
+           again == 11 && passed &&
+           f.values[0] == 1.25 && f.values[1] == 2.5 &&
+           m.value.integer == 33 && m.value.real == 3.75 &&
+           l.values[0] == 44 && l.values[1] == 55 && l.values[2] == 66 &&
+           e == answer;
+}
+
+int read_gp_exhausted(long a, long b, long c, long d, long e, ...) {
+    va_list ap;
+    va_start(ap, e);
+    struct pair p = va_arg(ap, struct pair);
+    long remaining = va_arg(ap, long);
+    va_end(ap);
+    return p.first == 11 && p.second == 22 && remaining == 77;
+}
+
+int read_fp_exhausted(double a, double b, double c, double d,
+                      double e, double f, double g, double h, ...) {
+    va_list ap;
+    va_start(ap, h);
+    union mixed m = va_arg(ap, union mixed);
+    long remaining = va_arg(ap, long);
+    va_end(ap);
+    return m.value.integer == 33 && m.value.real == 3.75 && remaining == 77;
+}
+
+int main(void) {
+    struct pair p = {11, 22};
+    union floating f;
+    union mixed m;
+    union large l;
+    f.values[0] = 1.25;
+    f.values[1] = 2.5;
+    m.value.integer = 33;
+    m.value.real = 3.75;
+    l.values[0] = 44;
+    l.values[1] = 55;
+    l.values[2] = 66;
+    return !(read_aggregates(0, p, f, m, l, answer) &&
+             read_gp_exhausted(0, 0, 0, 0, 0, p, 77L) &&
+             read_fp_exhausted(0., 0., 0., 0., 0., 0., 0., 0., m, 77L));
+}

@@ -1,0 +1,19 @@
+.TH SOCKET 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+socket \- create a socket
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int socket(int domain, int type, int protocol);
+.fi
+.SH DESCRIPTION
+Creates a Linux socket in the specified address family, type and protocol.
+The header defines AF_UNIX, AF_INET, AF_INET6, SOCK_STREAM, SOCK_DGRAM,
+SOCK_NONBLOCK and SOCK_CLOEXEC. Protocol zero selects the default.
+.SH RETURN VALUE
+Returns a descriptor, or \-1 and sets errno on failure.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR bind (3crunch), 
+.BR connect (3crunch),
+.BR socket (2)

@@ -1,0 +1,14 @@
+unsigned int zero = 0U;
+unsigned int boundary = 4294967295U;
+unsigned long above = 4294967296u;
+unsigned long maximum = 0xffffffffffffffffU;
+unsigned long decimal_maximum = 18446744073709551615UL;
+unsigned long forced = 1uL;
+unsigned long reverse = 1Lu;
+unsigned int decimal = 010U;
+unsigned long overflow = 18446744073709551616U;
+long signed_hex = 0xffffffff;
+long signed_min = -9223372036854775808;
+typedef unsigned int Word;
+const unsigned long *pointer;
+unsigned long identity(unsigned int value) { return value; }

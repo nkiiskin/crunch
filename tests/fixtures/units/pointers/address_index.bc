@@ -1,0 +1,130 @@
+int global_values[3];
+int base_calls;
+int index_calls;
+int* global_cursor;
+char* global_byte_cursor;
+static long* global_long_cursor;
+double* global_real_cursor;
+const int* global_readonly_cursor;
+struct holder { long entries[2]; };
+
+int* select_values(int* values) {
+    base_calls = base_calls + 1;
+    return values;
+}
+
+int next_index() {
+    index_calls = index_calls + 1;
+    return 1;
+}
+
+int* element(int* values, int index) {
+    return &values[index];
+}
+
+const int* const_element(const int* values, int index) {
+    return &values[index];
+}
+
+int main() {
+    global_values[0] = 7;
+    global_values[1] = 8;
+    global_values[2] = 9;
+    int values[] = {10, 20, 30};
+    int* chosen = &select_values(values)[next_index()];
+    if (base_calls != 1 || index_calls != 1 || *chosen != 20) return 1;
+    *chosen = 42;
+    if (values[1] != 42 || *element(global_values, 2) != 9) return 2;
+    *element(global_values, 0) = 17;
+    if (global_values[0] != 17) return 3;
+
+    int index = 0;
+    int* first = &values[index++];
+    if (index != 1 || *first != 10) return 4;
+    const int* readonly = values;
+    const int* view = &readonly[1];
+    const int frozen[] = {11, 12};
+    const int* frozen_view = const_element(frozen, 1);
+    if (*view != 42 || *frozen_view != 12) return 5;
+
+    char bytes[] = "xyz";
+    long longs[] = {100, 200};
+    double reals[] = {1.5, 2.5};
+    struct holder item;
+    item.entries[1] = 300;
+    char* bp = &bytes[1];
+    long* lp = &longs[1];
+    double* rp = &reals[1];
+    if (*bp != 'y' || *lp != 200 || *rp != 2.5) return 6;
+    *bp = (char)'q';
+    *lp = 201;
+    *rp = 3.5;
+    long* field = &item.entries[1];
+    *field = 301;
+    if (bytes[1] != 'q' || longs[1] != 201 || reals[1] != 3.5 ||
+        item.entries[1] != 301) return 7;
+    void* end = &values[3];
+    if (end != values + 3) return 8;
+
+    int* cursor = values;
+    int* original = cursor++;
+    if (*original != 10 || *cursor != 42) return 9;
+    int* advanced = ++cursor;
+    if (*advanced != 30 || *cursor != 30) return 10;
+    original = cursor--;
+    if (*original != 30 || *cursor != 42) return 11;
+    advanced = --cursor;
+    if (*advanced != 10 || *cursor != 10) return 12;
+    if (*cursor++ != 10 || *cursor != 42) return 13;
+    if (*++cursor != 30 || *cursor != 30) return 14;
+    if (*cursor-- != 30 || *--cursor != 10) return 15;
+    const int* previous = readonly++;
+    if (*previous != 10 || *readonly != 42) return 16;
+    char letter = *bp++;
+    if (letter != 'q' || *bp != 'z') return 17;
+    long old_long = *lp--;
+    if (old_long != 201 || *lp != 100 || *++lp != 201) return 18;
+    double old_real = *rp--;
+    if (old_real != 3.5 || *rp != 1.5 || *++rp != 3.5) return 19;
+    cursor = values + 2;
+    original = cursor++;
+    if (*original != 30 || cursor != values + 3) return 20;
+    original = cursor--;
+    if (original != values + 3 || *cursor != 30) return 21;
+
+    global_cursor = values;
+    original = global_cursor++;
+    if (*original != 10 || *global_cursor != 42) return 22;
+    advanced = ++global_cursor;
+    if (*advanced != 30 || *global_cursor != 30) return 23;
+    original = global_cursor--;
+    if (*original != 30 || *global_cursor != 42) return 24;
+    advanced = --global_cursor;
+    if (*advanced != 10 || *global_cursor != 10) return 25;
+    if (*global_cursor++ != 10 || *++global_cursor != 30) return 26;
+    global_cursor++;
+    if (global_cursor != values + 3) return 27;
+    original = global_cursor--;
+    if (original != values + 3 || *global_cursor != 30) return 28;
+    --global_cursor;
+    if (*global_cursor != 42) return 35;
+    for (; global_cursor != values + 3; global_cursor++) {}
+    if (global_cursor != values + 3) return 36;
+    global_cursor--;
+    {
+        int* global_cursor = values;
+        if (*global_cursor++ != 10 || *global_cursor != 42) return 29;
+    }
+    if (*global_cursor != 30) return 30;
+    global_readonly_cursor = values;
+    previous = global_readonly_cursor++;
+    if (*previous != 10 || *global_readonly_cursor != 42) return 31;
+    global_byte_cursor = bytes;
+    if (*global_byte_cursor++ != 'x' || *global_byte_cursor != 'q') return 32;
+    global_long_cursor = longs + 1;
+    if (*global_long_cursor-- != 201 || *++global_long_cursor != 201) return 33;
+    global_real_cursor = reals + 1;
+    if (*global_real_cursor-- != 3.5 || *++global_real_cursor != 3.5) return 34;
+
+    return 42;
+}

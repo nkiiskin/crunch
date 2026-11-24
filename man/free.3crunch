@@ -1,0 +1,51 @@
+.TH FREE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+free \- release a block of memory
+.SH SYNOPSIS
+.nf
+.B #include <stdlib.h>
+.PP
+.BI "void free(void* " address ");"
+.fi
+.SH DESCRIPTION
+.BR free ()
+releases a block returned by Crunch
+.BR malloc (3crunch)
+or
+.BR realloc (3crunch).
+A null pointer has no effect.
+The pointer must be the current allocation pointer, not an interior pointer
+or a pointer already freed.
+After the call, do not access the allocation or pass its pointer to
+.BR free ()
+or
+.BR realloc ().
+.SH RETURN VALUE
+The function returns no value.
+Successful calls, including
+.BR free(0) ,
+leave
+.B errno
+unchanged.
+If an underlying unmap fails,
+.B errno
+is set to the Linux error number.
+Set
+.B errno
+to zero before the call if the caller needs to detect such a failure.
+.PP
+An empty pool arena that cannot be unmapped remains available for reuse.
+Regardless of an unmap failure, the caller must treat the supplied pointer
+as invalid after
+.BR free ().
+.SH NOTES
+Crunch
+.B errno
+is process\-wide, not thread\-local, and the allocator is not thread\-safe.
+Do not mix Crunch allocation pointers with the system C allocator or
+.BR munmap .
+.SH SEE ALSO
+.BR malloc (3crunch),
+.BR realloc (3crunch),
+.BR allocator_trim (3crunch),
+.BR crunch (1)

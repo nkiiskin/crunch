@@ -1,0 +1,14 @@
+.TH GETRESUID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getresuid \- writes the real, effective and saved user ids to three writable pointers
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int getresuid(uid_t* real, uid_t* effective, uid_t* saved);
+.fi
+.SH DESCRIPTION
+Writes the real, effective and saved user IDs to three writable pointers.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR getresuid (2)

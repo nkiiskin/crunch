@@ -1,0 +1,155 @@
+struct Node { int value; struct Node* next; };
+struct Holder { struct Node** link; int** numbers; };
+
+struct Node** global_link;
+int** global_numbers;
+struct Holder global_holder;
+int calls;
+int index_calls;
+int offset_calls;
+int* global_cursor;
+
+struct Node* select(struct Node* node) { calls = calls + 1; return node; }
+struct Node** identity(struct Node** link) { return link; }
+int** select_numbers(int** link) { calls = calls + 1; return link; }
+struct Node** select_nodes(struct Node** link) { calls = calls + 1; return link; }
+int zero_index() { index_calls = index_calls + 1; return 0; }
+int backward() { offset_calls = offset_calls + 1; return -1; }
+void insert(struct Node** link, struct Node* node) {
+    node->next = *link;
+    *link = node;
+}
+
+int main() {
+    int a = 12;
+    int b = 30;
+    int* number = &a;
+    int** ref = &number;
+    int*** triple = &ref;
+    if (**ref != 12 || ***triple != 12) return 1;
+    *ref = &b;
+    **ref = 31;
+    if (number != &b || b != 31) return 2;
+    *triple = &number;
+    if (*ref != &b) return 3;
+    int** empty;
+    if (empty != 0 || global_link != 0 || global_numbers != 0 ||
+        global_holder.link != 0) return 4;
+
+    struct Node first;
+    struct Node second;
+    struct Node third;
+    struct Node* head = 0;
+    first.value = 11;
+    second.value = 22;
+    third.value = 9;
+    insert(&head, &first);
+    insert(&head, &second);
+    insert(&select(head)->next, &third);
+    if (calls != 1 || head->value != 22 || head->next->value != 9 ||
+        head->next->next->value != 11) return 5;
+    struct Node** link = identity(&head->next);
+    if ((*link)->value != 9) return 6;
+    (**link).value = 10;
+    if ((**link).value != 10) return 20;
+    struct Node copied = **link;
+    if (copied.value != 10 || copied.next != &first) return 21;
+    **link = first;
+    if (third.value != 11 || third.next != 0) return 22;
+    third.next = &first;
+    *link = (*link)->next;
+    if (head->next != &first) return 7;
+    global_link = &head;
+    global_holder.link = global_link;
+    if (*global_holder.link != &second) return 8;
+    *global_holder.link = &first;
+    if (head != &first) return 9;
+
+    struct Holder holder;
+    holder.numbers = &number;
+    if (**holder.numbers != 31) return 10;
+    struct Holder* hp = &holder;
+    global_numbers = &number;
+    hp->numbers = global_numbers;
+    *hp->numbers = &a;
+    if (number != &a) return 11;
+    int** old = ref++;
+    if (old != &number || ref != &number + 1) return 12;
+    ref -= 1;
+    if (ref != &number) return 13;
+    global_numbers++;
+    if (global_numbers != &number + 1) return 14;
+    global_numbers -= 1;
+    hp->numbers += 1;
+    if (hp->numbers != &number + 1) return 15;
+    hp->numbers--;
+    if (hp->numbers != &number) return 16;
+    if (&ref[0] != ref || ref[0] != number) return 17;
+    ref[0] = &b;
+    if (number != &b) return 18;
+
+    void* opaque = &a;
+    void** opaque_ref = &opaque;
+    *opaque_ref = &b;
+    if (opaque != &b) return 19;
+
+    int data[] = {11, 22, 33, 44};
+    int* cursor = data;
+    int** indirect = &cursor;
+    calls = 0;
+    int* previous = (*select_numbers(indirect))++;
+    if (calls != 1 || previous != data || cursor != &data[1]) return 23;
+    previous = ++(*select_numbers(indirect));
+    if (calls != 2 || previous != &data[2] || cursor != &data[2]) return 24;
+    previous = (*select_numbers(indirect))--;
+    if (calls != 3 || previous != &data[2] || cursor != &data[1]) return 25;
+    previous = --(*select_numbers(indirect));
+    if (calls != 4 || previous != data || cursor != data) return 26;
+    previous = (select_numbers(indirect)[zero_index()] += 3);
+    if (calls != 5 || index_calls != 1 || previous != &data[3]) return 27;
+    previous = (select_numbers(indirect)[zero_index()] -= 2);
+    if (calls != 6 || index_calls != 2 || previous != &data[1]) return 28;
+    previous = select_numbers(indirect)[zero_index()]++;
+    if (calls != 7 || index_calls != 3 || previous != &data[1] ||
+        cursor != &data[2]) return 29;
+    previous = --select_numbers(indirect)[zero_index()];
+    if (calls != 8 || index_calls != 4 || previous != &data[1]) return 30;
+    global_cursor = data;
+    (*select_numbers(&global_cursor)) += 4;
+    if (calls != 9 || global_cursor != &data[4]) return 31;
+    (*select_numbers(&global_cursor)) -= 4;
+    if (calls != 10 || global_cursor != data) return 32;
+
+    struct Node nodes[4];
+    struct Node* current = &nodes[2];
+    struct Node** node_link = &current;
+    struct Node* node_previous = (*select_nodes(node_link))++;
+    if (calls != 11 || node_previous != &nodes[2] || current != &nodes[3]) return 33;
+    node_previous = (select_nodes(node_link)[zero_index()] += backward());
+    if (calls != 12 || index_calls != 5 || offset_calls != 1 ||
+        node_previous != &nodes[2]) return 34;
+    node_previous = (*select_nodes(node_link) -= backward());
+    if (calls != 13 || offset_calls != 2 || node_previous != &nodes[3]) return 35;
+    node_previous = select_nodes(node_link)[zero_index()]--;
+    if (calls != 14 || index_calls != 6 || node_previous != &nodes[3] ||
+        current != &nodes[2]) return 36;
+    int*** refs = &indirect;
+    int** old_ref = (*refs)++;
+    if (old_ref != &cursor || indirect != &cursor + 1) return 37;
+    --(*refs);
+    if (indirect != &cursor) return 38;
+    previous = ++indirect[0];
+    if (previous != &data[2]) return 39;
+    previous = indirect[0]--;
+    if (previous != &data[2] || cursor != &data[1]) return 40;
+    const int* readonly = data;
+    const int** view_link = &readonly;
+    (*view_link)++;
+    if (readonly != &data[1]) return 41;
+    long long_data[2];
+    long* long_cursor = long_data;
+    long** long_link = &long_cursor;
+    (*long_link)++;
+    if (long_cursor != &long_data[1]) return 43;
+    return 42;
+}

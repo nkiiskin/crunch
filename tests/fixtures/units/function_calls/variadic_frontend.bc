@@ -1,0 +1,7 @@
+int choose(int value, ...);
+typedef int (*chooser)(int, ...);
+int choose(int value, ...) { return value; }
+int main() {
+    chooser function = choose;
+    return choose(1) + choose(2, 1.5f, 4) + function(3, "extra");
+}

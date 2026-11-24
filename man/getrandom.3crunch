@@ -1,0 +1,16 @@
+.TH GETRANDOM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getrandom \- read kernel random bytes
+.SH SYNOPSIS
+.nf
+.B #include <sys/random.h>
+.B ssize_t getrandom(void* buffer, size_t count, unsigned int flags);
+.fi
+.SH DESCRIPTION
+Writes at most count random bytes into the supplied buffer.
+Flags are Linux getrandom flags; zero requests default behavior.
+Short reads and interruptions are possible.
+.SH RETURN VALUE
+Returns bytes read, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR getrandom (2)

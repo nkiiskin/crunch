@@ -1,0 +1,16 @@
+extern int (*verify(void))[!!sizeof(struct { unsigned int bit : 1; })];
+int file_size = sizeof(struct Named { char c; int value; });
+int file_array[sizeof(struct { int value; }) == 4 ? 1 : -1];
+_Alignas(struct { long value; }) int aligned;
+
+int main(void)
+{
+    enum { width = 3 };
+    unsigned long local = sizeof(struct { unsigned int bit : width; });
+    unsigned long nested = sizeof(struct { struct { int value; } member; });
+    unsigned long array = sizeof(struct { int value; }[2]);
+    unsigned long alignment = _Alignof(union { char c; long value; });
+    return file_size != 8 || sizeof(struct Named) != 8 || sizeof(file_array) != 4 ||
+           local != 4 || nested != 4 || array != 8 || alignment != 8 ||
+           (unsigned long)&aligned % 8 != 0;
+}

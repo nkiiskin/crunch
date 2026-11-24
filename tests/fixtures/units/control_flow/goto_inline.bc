@@ -1,0 +1,59 @@
+typedef int Count;
+
+static inline int increment(int value) { return value + 1; }
+inline static int double_value(int value) { return value * 2; }
+static int inline identity(int value) { return value; }
+
+int first(int value) {
+    if (value) goto result;
+    return 3;
+result:
+    return 7;
+}
+
+int second() {
+result:
+    return 2;
+}
+
+int falling() {
+    goto end;
+    return 8;
+end:
+    ;
+}
+
+int main() {
+    int total = 0;
+    int marker = 0;
+    goto skip;
+    int unused = (marker = 99);
+skip:
+    if (marker) return 1;
+    goto start;
+    total = 100;
+start:
+    total = increment(total);
+    if (total < 3) goto start;
+    goto inside_switch;
+    switch (0) {
+        int extra;
+inside_switch:
+        extra = 4;
+        total = total + extra;
+        goto after_switch;
+    case 0:
+        total = 999;
+        break;
+    }
+after_switch:
+    if (total != 7) return 1;
+    goto inside_loop;
+    while (0) {
+inside_loop:
+        total = total + 2;
+        goto Count;
+    }
+Count:
+    return double_value(identity(total)) + first(1) + first(0) + second() + 12;
+}

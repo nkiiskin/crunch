@@ -1,0 +1,18 @@
+.TH PREAD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+pread \- read bytes at a file offset
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B ssize_t pread(int descriptor, void* buffer, size_t byte_count, off_t offset);
+.fi
+.SH DESCRIPTION
+Reads bytes at offset without changing the open file's current position.
+Reads may be short; the caller must provide sufficient writable storage.
+.SH RETURN VALUE
+Returns bytes read, zero at EOF, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR pwrite (3crunch),
+.BR read (3crunch),
+.BR pread (2)

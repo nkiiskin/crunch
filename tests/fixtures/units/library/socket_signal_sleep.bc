@@ -1,0 +1,146 @@
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <netinet/in.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <time.h>
+#include <unistd.h>
+#include <string.h>
+#include <errno.h>
+
+int signals = 0;
+void on_signal(int number) {
+    if (number == SIGUSR1) signals = signals + 1;
+}
+
+int main() {
+    struct sigaction action;
+    struct sigaction previous;
+    if (sizeof(struct sockaddr_in) != 16 || sizeof(struct msghdr) != 56 ||
+        sizeof(struct iovec) != 16 || sizeof(struct sigaction) != 32) return 36;
+    action.sa_handler = on_signal;
+    action.sa_flags = 0;
+    action.sa_restorer = 0;
+    if (sigemptyset(&action.sa_mask) || action.sa_mask != 0) return 1;
+    if (sigaction(SIGUSR1, &action, &previous)) return 2;
+    if (kill(getpid(), SIGUSR1) || signals != 1) return 3;
+    errno = 0;
+    if (sigemptyset(0) != -1 || errno != EINVAL) return 4;
+    struct timespec zero;
+    zero.tv_sec = 0;
+    zero.tv_nsec = 0;
+    errno = EBUSY;
+    if (nanosleep(&zero, 0) || errno != EBUSY || sleep(0)) return 5;
+    zero.tv_nsec = 1000000000;
+    errno = 0;
+    if (nanosleep(&zero, 0) != -1 || errno != EINVAL) return 6;
+
+    int parent = getpid();
+    int child = fork();
+    if (child < 0) return 7;
+    if (!child) {
+        zero.tv_nsec = 100000000;
+        if (nanosleep(&zero, 0) || kill(parent, SIGUSR1)) _exit(10);
+        _exit(0);
+    }
+    unsigned int left = sleep(3);
+    int status;
+    if (waitpid(child, &status, 0) != child || !WIFEXITED(status) ||
+        WEXITSTATUS(status) || signals != 2 || left < 2 || left > 3) return 8;
+    child = fork();
+    if (child < 0) return 30;
+    if (!child) {
+        zero.tv_nsec = 100000000;
+        if (nanosleep(&zero, 0) || kill(parent, SIGUSR1)) _exit(10);
+        _exit(0);
+    }
+    struct timespec requested;
+    struct timespec remaining;
+    requested.tv_sec = 3;
+    requested.tv_nsec = 0;
+    errno = 0;
+    if (nanosleep(&requested, &remaining) != -1 || errno != EINTR ||
+        remaining.tv_sec < 1 || remaining.tv_sec > 3) return 31;
+    if (waitpid(child, &status, 0) != child || !WIFEXITED(status) ||
+        WEXITSTATUS(status) || signals != 3) return 32;
+    action.sa_handler = SIG_IGN;
+    if (sigaction(SIGUSR1, &action, 0) || kill(getpid(), SIGUSR1) || signals != 3) return 33;
+    struct sigaction current;
+    if (sigaction(SIGUSR1, 0, &current) || current.sa_handler != SIG_IGN) return 37;
+    if (sigaction(SIGUSR1, &previous, 0)) return 9;
+    action.sa_handler = SIG_DFL;
+    errno = 0;
+    if (sigaction(0, 0, 0) != -1 || errno != EINVAL) return 34;
+
+    errno = EBUSY;
+    int server = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (server < 0 || errno != EBUSY) return 11;
+    struct sockaddr_un address;
+    address.sun_family = AF_UNIX;
+    strcpy(address.sun_path, "socket-test");
+    if (bind(server, (struct sockaddr*)&address, sizeof address) || listen(server, 2)) return 12;
+    child = fork();
+    if (child < 0) return 13;
+    if (!child) {
+        int client = socket(AF_UNIX, SOCK_STREAM, 0);
+        if (client < 0 || connect(client, (struct sockaddr*)&address, sizeof address)) _exit(14);
+        struct iovec vec;
+        struct msghdr msg;
+        memset(&msg, 0, sizeof msg);
+        vec.iov_base = "abc";
+        vec.iov_len = 3;
+        msg.msg_iov = &vec;
+        msg.msg_iovlen = 1;
+        if (sendmsg(client, &msg, MSG_NOSIGNAL) != 3) _exit(15);
+        char reply[2];
+        if (recvfrom(client, reply, 2, 0, 0, 0) != 2 || memcmp(reply, "ok", 2)) _exit(16);
+        close(client);
+        _exit(0);
+    }
+    int connected = accept(server, 0, 0);
+    if (connected < 0) return 17;
+    char buffer[3];
+    if (recvfrom(connected, buffer, 3, MSG_PEEK, 0, 0) != 3 ||
+        memcmp(buffer, "abc", 3)) return 18;
+    struct iovec vec;
+    struct msghdr msg;
+    memset(&msg, 0, sizeof msg);
+    vec.iov_base = buffer;
+    vec.iov_len = 3;
+    msg.msg_iov = &vec;
+    msg.msg_iovlen = 1;
+    if (recvmsg(connected, &msg, 0) != 3 || memcmp(buffer, "abc", 3)) return 19;
+    vec.iov_base = "ok";
+    vec.iov_len = 2;
+    if (sendmsg(connected, &msg, MSG_NOSIGNAL) != 2) return 20;
+    if (waitpid(child, &status, 0) != child || !WIFEXITED(status) || WEXITSTATUS(status)) return 21;
+    if (close(connected) || close(server) || unlink("socket-test")) return 22;
+    int receiver = socket(AF_UNIX, SOCK_DGRAM, 0);
+    int sender = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (receiver < 0 || sender < 0) return 24;
+    strcpy(address.sun_path, "socket-recv");
+    if (bind(receiver, (struct sockaddr*)&address, sizeof address)) return 25;
+    struct sockaddr_un source;
+    source.sun_family = AF_UNIX;
+    strcpy(source.sun_path, "socket-send");
+    if (bind(sender, (struct sockaddr*)&source, sizeof source)) return 26;
+    msg.msg_name = &address;
+    msg.msg_namelen = sizeof address;
+    if (sendmsg(sender, &msg, 0) != 2) return 27;
+    struct sockaddr_un actual;
+    socklen_t address_length = sizeof actual;
+    if (recvfrom(receiver, buffer, sizeof buffer, 0, (struct sockaddr*)&actual,
+                 &address_length) != 2 || actual.sun_family != AF_UNIX ||
+        strcmp(actual.sun_path, "socket-send") || address_length < 3) return 28;
+    if (close(receiver) || close(sender) || unlink("socket-recv") ||
+        unlink("socket-send")) return 29;
+    errno = 0;
+    if (recvfrom(-1, buffer, 3, MSG_DONTWAIT, 0, 0) != -1 || errno != EBADF) return 23;
+    if (sendmsg(-1, &msg, 0) != -1 || errno != EBADF ||
+        recvmsg(-1, &msg, 0) != -1 || errno != EBADF ||
+        listen(-1, 1) != -1 || errno != EBADF ||
+        accept(-1, 0, 0) != -1 || errno != EBADF ||
+        bind(-1, (struct sockaddr*)&address, sizeof address) != -1 || errno != EBADF ||
+        connect(-1, (struct sockaddr*)&address, sizeof address) != -1 || errno != EBADF) return 35;
+    return 0;
+}

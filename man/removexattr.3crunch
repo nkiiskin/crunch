@@ -1,0 +1,14 @@
+.TH REMOVEXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+removexattr \- removes an extended attribute by path, following symbolic links
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B int removexattr(const char* path, const char* name);
+.fi
+.SH DESCRIPTION
+Removes an extended attribute by path, following symbolic links.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR removexattr (2)

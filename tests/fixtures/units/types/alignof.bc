@@ -1,0 +1,29 @@
+struct Record { char tag; long value; };
+union Number { int i; long double d; };
+struct Bits { unsigned int a : 3; char b; };
+struct Flexible { int n; long values[]; };
+typedef int Row[3];
+
+enum { INT_ALIGN = _Alignof(int), ROW_ALIGN = _Alignof(Row) };
+_Static_assert(_Alignof(char) == 1, "char alignment");
+_Static_assert(_Alignof(struct Record) == 8, "structure alignment");
+_Static_assert(_Alignof(union Number) == 16, "union alignment");
+_Static_assert(_Alignof(struct Bits) == 4, "bit-field alignment");
+_Static_assert(_Alignof(struct Flexible) == 8, "flexible array alignment");
+_Static_assert(_Alignof(int (*)[3]) == 8, "pointer alignment");
+_Static_assert(_Alignof(struct Forward *) == 8, "incomplete pointee");
+_Static_assert(_Alignof(const volatile short) == 2, "qualified alignment");
+
+unsigned long global_alignment = _Alignof(long double);
+unsigned long enum_alignment = _Alignof(enum { INLINE_VALUE = 3 });
+int bounds[_Alignof(int) == 4 ? 2 : 1];
+
+int main(void) {
+    unsigned long minus_one = _Alignof(int) - 5;
+    if (INT_ALIGN != 4 || ROW_ALIGN != 4 || sizeof(bounds) != 8) return 1;
+    if (global_alignment != 16 || minus_one != (unsigned long)-1 ||
+        enum_alignment != 4 || INLINE_VALUE != 3) return 2;
+    if (_Alignof(int[2][3]) != _Alignof(int)) return 3;
+    switch (0) { case _Alignof(long): return 4; default: break; }
+    return 42;
+}

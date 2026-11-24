@@ -1,0 +1,14 @@
+.TH SCHED_GETAFFINITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_getaffinity \- gets a thread cpu affinity into a linux cpu bitmap of size bytes; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_getaffinity(pid_t process, size_t size, void* mask);
+.fi
+.SH DESCRIPTION
+Gets a thread CPU affinity into a Linux CPU bitmap of size bytes; process zero selects the caller. Returns zero on success and clears unused trailing bytes.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_getaffinity (2)

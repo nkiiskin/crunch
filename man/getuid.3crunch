@@ -1,0 +1,14 @@
+.TH GETUID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getuid \- returns the calling process's real user id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B uid_t getuid(void);
+.fi
+.SH DESCRIPTION
+Returns the calling process's real user ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR getuid (2)

@@ -1,0 +1,25 @@
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    char *line = 0, *end = 0;
+    size_t capacity = 0;
+    while (getline(&line, &capacity, stdin) >= 0) {
+        errno = 0;
+        long double value = strtold(line, &end);
+        unsigned char *bytes = (unsigned char *)&value;
+        int error = errno;
+        long length = 0;
+        while (line + length != end)
+            ++length;
+        for (int i = 9; i >= 0; --i)
+            printf("%02x", (unsigned int)bytes[i]);
+        printf(" %ld %d\n", length, error);
+    }
+    free(line);
+    errno = EDOM;
+    if (strtold("no conversion", 0) != 0.0L || errno != EDOM)
+        return 1;
+    return 0;
+}

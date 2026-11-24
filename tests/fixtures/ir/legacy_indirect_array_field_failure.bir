@@ -1,0 +1,410 @@
+CRUNCH-IR 2
+extern_global fail_mode int
+extern_global free_calls int
+global bases int 0
+global elements int 0
+func select 1 ptr
+param 0 0 ptr
+gload bases int
+push 1
+add int
+dup
+gstore bases int
+drop
+load 0
+ret ptr
+end
+func value 0 int
+gload elements int
+push 1
+add int
+dup
+gstore elements int
+drop
+gload elements int
+ret int
+end
+func main 0 int
+local 0 int
+localblock __local_struct_0 32 8
+localalias __local_struct_address_0 __local_struct_0 0 byte
+localalias box.values __local_struct_0 0 ptr
+localalias box.values$length __local_struct_0 8 int
+push 0
+lstore box.values ptr
+push 0
+lstore box.values$length int
+localalias box.text __local_struct_0 16 ptr
+localalias box.text$length __local_struct_0 24 int
+push 0
+lstore box.text ptr
+push 0
+lstore box.text$length int
+local 1 ptr
+laddr __local_struct_address_0
+call select 1
+store 1 ptr
+load 1
+loadind ptr
+load 1
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize int
+local 2 ptr
+local 3 int
+store 2 ptr
+store 3 int
+load 1
+load 2
+storeind ptr
+drop
+load 1
+push 8
+ptradd byte
+load 3
+storeind int
+drop
+load 1
+loadind ptr
+bool ptr
+jz L0
+load 1
+loadind ptr
+push 0
+ptradd int
+call value 0
+storeind int
+drop
+load 1
+loadind ptr
+push 1
+ptradd int
+call value 0
+storeind int
+drop
+label L0
+local 4 ptr
+laddr __local_struct_address_0
+call select 1
+push 16
+ptradd byte
+store 4 ptr
+load 4
+loadind ptr
+load 4
+push 8
+ptradd byte
+loadind int
+push 4
+array_resize byte
+local 5 ptr
+local 6 int
+store 5 ptr
+store 6 int
+load 4
+load 5
+storeind ptr
+drop
+load 4
+push 8
+ptradd byte
+load 6
+storeind int
+drop
+load 4
+loadind ptr
+bool ptr
+jz L1
+load 4
+loadind ptr
+push 0
+ptradd byte
+push 97
+storeind byte
+drop
+load 4
+loadind ptr
+push 1
+ptradd byte
+push 98
+storeind byte
+drop
+load 4
+loadind ptr
+push 2
+ptradd byte
+push 99
+storeind byte
+drop
+load 4
+loadind ptr
+push 3
+ptradd byte
+push 0
+storeind byte
+drop
+label L1
+gload bases int
+push 2
+ne int
+bool int
+jnz L12
+gload elements int
+push 0
+ne int
+bool
+jmp L13
+label L12
+push 1
+label L13
+bool int
+jnz L10
+lload box.values ptr
+bool
+jmp L11
+label L10
+push 1
+label L11
+bool int
+jnz L8
+lload box.text ptr
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jnz L6
+lload box.values$length int
+push 0
+ne int
+bool
+jmp L7
+label L6
+push 1
+label L7
+bool int
+jnz L4
+lload box.text$length int
+push 0
+ne int
+bool
+jmp L5
+label L4
+push 1
+label L5
+bool int
+jz L2
+push 1
+ret int
+label L2
+push 0
+dup
+gstore fail_mode int
+drop
+local 7 ptr
+laddr __local_struct_address_0
+call select 1
+store 7 ptr
+load 7
+loadind ptr
+load 7
+push 8
+ptradd byte
+loadind int
+push 2
+array_resize int
+local 8 ptr
+local 9 int
+store 8 ptr
+store 9 int
+load 7
+load 8
+storeind ptr
+drop
+load 7
+push 8
+ptradd byte
+load 9
+storeind int
+drop
+load 7
+loadind ptr
+bool ptr
+jz L14
+load 7
+loadind ptr
+push 0
+ptradd int
+call value 0
+storeind int
+drop
+load 7
+loadind ptr
+push 1
+ptradd int
+call value 0
+storeind int
+drop
+label L14
+gload bases int
+push 3
+ne int
+bool int
+jnz L23
+gload elements int
+push 2
+ne int
+bool
+jmp L24
+label L23
+push 1
+label L24
+bool int
+jnz L21
+lload box.values$length int
+push 2
+ne int
+bool
+jmp L22
+label L21
+push 1
+label L22
+bool int
+jnz L19
+lload box.values ptr
+push 0
+ptradd int
+loadind int
+push 1
+ne int
+bool
+jmp L20
+label L19
+push 1
+label L20
+bool int
+jnz L17
+lload box.values ptr
+push 1
+ptradd int
+loadind int
+push 2
+ne int
+bool
+jmp L18
+label L17
+push 1
+label L18
+bool int
+jz L15
+push 2
+ret int
+label L15
+push 1
+dup
+gstore fail_mode int
+drop
+local 10 ptr
+laddr __local_struct_address_0
+call select 1
+store 10 ptr
+load 10
+loadind ptr
+load 10
+push 8
+ptradd byte
+loadind int
+push 3
+array_resize int
+local 11 ptr
+local 12 int
+store 11 ptr
+store 12 int
+load 10
+load 11
+storeind ptr
+drop
+load 10
+push 8
+ptradd byte
+load 12
+storeind int
+drop
+load 10
+loadind ptr
+bool ptr
+jz L25
+load 10
+loadind ptr
+push 0
+ptradd int
+call value 0
+storeind int
+drop
+load 10
+loadind ptr
+push 1
+ptradd int
+call value 0
+storeind int
+drop
+load 10
+loadind ptr
+push 2
+ptradd int
+call value 0
+storeind int
+drop
+label L25
+gload bases int
+push 4
+ne int
+bool int
+jnz L34
+gload elements int
+push 2
+ne int
+bool
+jmp L35
+label L34
+push 1
+label L35
+bool int
+jnz L32
+lload box.values ptr
+bool
+jmp L33
+label L32
+push 1
+label L33
+bool int
+jnz L30
+lload box.values$length int
+push 0
+ne int
+bool
+jmp L31
+label L30
+push 1
+label L31
+bool int
+jnz L28
+gload free_calls int
+push 1
+ne int
+bool
+jmp L29
+label L28
+push 1
+label L29
+bool int
+jz L26
+push 3
+ret int
+label L26
+push 42
+ret int
+end

@@ -1,0 +1,14 @@
+.TH CRUNCH_SECURITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_security \- invokes reserved security syscall slot 185, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B long crunch_security(void);
+.fi
+.SH DESCRIPTION
+Invokes reserved security syscall slot 185, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR security (2)

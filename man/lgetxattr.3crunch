@@ -1,0 +1,14 @@
+.TH LGETXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+lgetxattr \- reads an extended attribute without following the final symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B ssize_t lgetxattr(const char* path, const char* name, void* value, size_t size);
+.fi
+.SH DESCRIPTION
+Reads an extended attribute without following the final symbolic link. A zero size queries the required length.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR lgetxattr (2)

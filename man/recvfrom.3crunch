@@ -1,0 +1,20 @@
+.TH RECVFROM 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+recvfrom \- receive bytes and optionally a source address
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B ssize_t recvfrom(int descriptor, void* buffer, size_t length, int flags,
+.B                  struct sockaddr* address, socklen_t* address_length);
+.fi
+.SH DESCRIPTION
+Receives up to length bytes. The buffer must be writable and large enough.
+When address is supplied, address_length supplies its capacity and receives
+the actual address length. Pass NULL for both to omit the address.
+Flags include MSG_PEEK and MSG_DONTWAIT; Linux receive semantics apply.
+.SH RETURN VALUE
+Returns the byte count, possibly short, or \-1 with errno set.
+Zero can indicate end of stream. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR recvmsg (3crunch),
+.BR recvfrom (2)

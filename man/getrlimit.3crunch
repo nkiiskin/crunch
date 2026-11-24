@@ -1,0 +1,17 @@
+.TH GETRLIMIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getrlimit \- read a process resource limit
+.SH SYNOPSIS
+.nf
+.B #include <sys/resource.h>
+.B int getrlimit(int resource, struct rlimit* limits);
+.fi
+.SH DESCRIPTION
+Reads the soft and hard limits for a Linux RLIMIT_* selector.  Limits use
+rlim_t; RLIM_INFINITY indicates no limit.  Crunch uses the POSIX int selector;
+GNU libc with GNU extensions declares an enum selector instead.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR getrusage (3crunch),
+.BR getrlimit (2)

@@ -1,0 +1,39 @@
+struct Mixed {
+    double x;
+    unsigned a:5;
+    signed b:7;
+    unsigned :0;
+    char tail;
+};
+struct Reverse { unsigned a:3; double x; };
+struct Aligned { unsigned a:3; long double data[]; };
+struct Padding { double x; unsigned :1; };
+struct Big { unsigned a:3; long double x; unsigned b:5; };
+union Bits { unsigned a:3; unsigned b:5; double x; };
+
+struct Mixed change_mixed(struct Mixed value);
+struct Reverse change_reverse(struct Reverse value);
+struct Aligned change_aligned(struct Aligned value);
+union Bits change_union(union Bits value);
+int inspect_padding(struct Padding value, int tail);
+struct Big change_big(struct Big value);
+int inspect_variadic(int marker, ...);
+
+int check(void) {
+    struct Mixed m = {2.5, 5, -4, 8};
+    struct Reverse r = {4, 7.5};
+    struct Aligned a = {4};
+    union Bits u = {.a = 1};
+    struct Padding p = {6.5};
+    struct Big b = {2, 7.5L, 6};
+    int variadic_ok = inspect_variadic(0, m, b);
+    m = change_mixed(m);
+    r = change_reverse(r);
+    a = change_aligned(a);
+    u = change_union(u);
+    b = change_big(b);
+    return !(m.x == 3.5 && m.a == 7 && m.b == -6 && m.tail == 8 &&
+             r.a == 5 && r.x == 8.5 && a.a == 5 && u.a == 3 &&
+             inspect_padding(p, 42) && variadic_ok &&
+             b.a == 3 && b.x == 7.5L && b.b == 7);
+}

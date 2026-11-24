@@ -1,0 +1,14 @@
+.TH CRUNCH_CREATE_MODULE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_create_module \- invokes obsolete create_module syscall 174, unimplemented on linux x86-64 and returning enosys
+.SH SYNOPSIS
+.nf
+.B #include <sys/module.h>
+.B long crunch_create_module(const char* name, size_t size);
+.fi
+.SH DESCRIPTION
+Invokes obsolete create_module syscall 174, unimplemented on Linux x86-64 and returning ENOSYS.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR create_module (2)

@@ -1,0 +1,76 @@
+typedef unsigned short int Word;
+struct Pair {
+    char first;
+    short value;
+    Word last;
+};
+
+short global = -32768;
+Word values[3] = {0, 40000, 65535};
+short const_expr[(short)3 + (short)2];
+short *global_pointer = &global;
+short static_invalid = (short)32768.0;
+short static_negative_invalid = (short)-32768.5;
+Word static_unsigned_invalid = (Word)65536.0;
+double static_real = (Word)65535;
+float static_float = (short)-100;
+
+short identity(short value) {
+    return value;
+}
+
+int main() {
+    if (sizeof(short) != 2 || sizeof(Word) != 2 || sizeof(struct Pair) != 6)
+        return 1;
+    if (global != -32768 || *global_pointer != -32768 ||
+        values[1] != 40000 || values[2] != 65535)
+        return 2;
+    short a = -12;
+    Word b = 65535;
+    double real = a;
+    float single = b;
+    if (identity(a) != -12 || a + b != 65523 || ~a != 11 ||
+        -b != -65535 || (b >> 15) != 1 ||
+        sizeof(a + a) != 4 || sizeof(a << (long)1) != 4 ||
+        real != -12.0 || single != 65535.0f ||
+        static_real != 65535.0 || static_float != -100.0f)
+        return 3;
+    short local[3] = {1, -2, 3};
+    short *p = local;
+    p[1] += 5;
+    p++;
+    if (*p != 3 || (void *)(p + 1) != (void *)&local[2])
+        return 4;
+    struct Pair pair;
+    pair.first = 'x';
+    pair.value = -123;
+    pair.last = 65535;
+    if (pair.first != 'x' || pair.value != -123 || pair.last != 65535)
+        return 5;
+    static short count = -2;
+    static Word high = 65535;
+    count++;
+    high++;
+    if (count != -1 || high != 0)
+        return 6;
+    if ((short)65535 != -1 || (Word)-1 != 65535 ||
+        (short)12.5 != 12 || (Word)65535.5 != 65535)
+        return 7;
+    double invalid = 32768.0;
+    double negative_invalid = -32768.5;
+    double unsigned_invalid = 65536.0;
+    if (static_invalid != 0 || static_negative_invalid != -32768 || static_unsigned_invalid != 0 ||
+        (short)invalid != 0 || (short)negative_invalid != -32768 || (Word)unsigned_invalid != 0 ||
+        sizeof(const_expr) != 10)
+        return 8;
+    switch (a) {
+    case (short)-12: break;
+    default: return 9;
+    }
+    switch (b) {
+    case -1: return 10;
+    case 65535: break;
+    default: return 11;
+    }
+    return 42;
+}

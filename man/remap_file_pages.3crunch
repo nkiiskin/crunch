@@ -1,0 +1,14 @@
+.TH REMAP_FILE_PAGES 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+remap_file_pages \- invokes deprecated linux remap_file_pages on a shared file mapping
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int remap_file_pages(void* address, size_t size, int protection, size_t page_offset, int flags);
+.fi
+.SH DESCRIPTION
+Invokes deprecated Linux remap_file_pages on a shared file mapping. Modern kernels emulate it; it can change an existing mapping.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR remap_file_pages (2)

@@ -1,0 +1,9 @@
+int main() {
+    char src[] = "Hello";
+    char dst[6];
+    char *p = (char *)copy(dst, src, 6);
+    if ((int)compare(p, src, 5) != 0) return 1;
+    char *q = (char *)fill(dst, 65, 5);
+    if (q[0] != 65 || dst[4] != 65) return 2;
+    return 42;
+}

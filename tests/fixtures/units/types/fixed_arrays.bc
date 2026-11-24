@@ -1,0 +1,25 @@
+struct Record {
+    char tag;
+    int values[3];
+};
+
+int global_values[2] = {1, 2};
+char global_text[] = "a\0b";
+
+int main() {
+    int values[2 + 2] = {1, 2};
+    int inferred[] = {1, 2, 3};
+    char text[3] = "abc";
+    const int readonly[2] = {1, 2};
+    const { int *pointers[2]; };
+    struct Record record;
+    int size_check[sizeof(values) == 16 && sizeof(inferred) == 12 &&
+                   sizeof(global_text) == 4 && sizeof(record) == 16 &&
+                   sizeof(record.values) == 12 && sizeof(&values) == 8 ? 1 : -1];
+    int *p = values;
+    const int *view = readonly;
+    pointers[0] = 0;
+    p = record.values;
+    values[0] = inferred[0];
+    return p[0] + view[0] + text[0] + size_check[0];
+}

@@ -1,0 +1,176 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/times.h>
+#include <sys/ptrace.h>
+#include <sys/klog.h>
+#include <sys/fsuid.h>
+#include <sys/capability.h>
+#include <sys/stat.h>
+#include <sys/vfs.h>
+#include <sys/personality.h>
+#include <sys/legacy_syscalls.h>
+#include <sys/wait.h>
+#include <utime.h>
+
+struct tms times_layout;
+struct statfs statfs_layout;
+siginfo_t signal_layout;
+stack_t stack_layout;
+struct __user_cap_header_struct cap_header_layout;
+struct __user_cap_data_struct cap_data_layout;
+struct ustat ustat_layout;
+long trace_word = 42;
+volatile int alarm_received;
+
+void on_alarm(int signal) {
+    alarm_received = signal;
+}
+
+int child_tests(void) {
+    pid_t child = fork();
+    int status;
+    if (child < 0) return 1;
+    if (child == 0) {
+        struct sigaction action = {0};
+        action.sa_handler = on_alarm;
+        if (sigaction(SIGALRM, &action, 0)) _exit(1);
+        sigset_t mask = 0;
+        alarm(1);
+        if (sigsuspend(&mask) != -1 || errno != EINTR || alarm_received != SIGALRM)
+            _exit(2);
+        if (setreuid((uid_t)-1, (uid_t)-1) ||
+            setregid((gid_t)-1, (gid_t)-1) ||
+            setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1) ||
+            setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1))
+            _exit(3);
+        if (setsid() != getpid() || getpgrp() != getpid()) _exit(4);
+        if (setpgid(0, 0) != -1 || errno != EPERM) _exit(5);
+        _exit(0);
+    }
+    if (waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) return 2;
+    child = fork();
+    if (child < 0) return 3;
+    if (child == 0) {
+        if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1) _exit(77);
+        kill(getpid(), SIGSTOP);
+        _exit(0);
+    }
+    if (waitpid(child, &status, 0) != child) return 4;
+    if (WIFEXITED(status)) return WEXITSTATUS(status) == 77 ? 0 : 5;
+    long result = 0;
+    int ok = (status & 255) == 127 &&
+             ptrace(PTRACE_PEEKDATA, child, &trace_word, &result) == 0 &&
+             result == 42 &&
+             ptrace_value(PTRACE_POKEDATA, child, &trace_word, 91) == 0 &&
+             ptrace(PTRACE_PEEKDATA, child, &trace_word, &result) == 0 &&
+             result == 91;
+    if (ptrace(PTRACE_CONT, child, 0, 0) == -1) {
+        kill(child, SIGKILL);
+        ok = 0;
+    }
+    if (waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) ok = 0;
+    return ok ? 0 : 6;
+}
+
+int link_all(void) {
+    uid_t u = 0;
+    gid_t g = 0;
+    sigset_t mask = 0;
+    return setuid(u) + setgid(g) + setpgid(0, 0) + setsid() +
+           setreuid(u, u) + setregid(g, g) + setgroups(0, &g) +
+           setresuid(u, u, u) + setresgid(g, g, g) +
+           setfsuid(u) + setfsgid(g) + capset(0, 0) + sigsuspend(&mask);
+}
+
+int main(void) {
+    struct tms ticks;
+    errno = EBUSY;
+    if (times(&ticks) == -1 || ticks.tms_utime < 0 || errno != EBUSY)
+        return 1;
+    uid_t real, effective, saved;
+    gid_t greal, geffective, gsaved;
+    if (getresuid(&real, &effective, &saved) ||
+        getresgid(&greal, &geffective, &gsaved) ||
+        real != getuid() || effective != geteuid() ||
+        greal != getgid() || geffective != getegid() ||
+        getppid() <= 0 || getpgid(0) != getpgrp() || getsid(0) <= 0)
+        return 2;
+    if (getresuid(0, &effective, &saved) != -1 || errno != EFAULT ||
+        getresgid(&greal, 0, &gsaved) != -1 || errno != EFAULT ||
+        getgroups(-1, 0) != -1 || errno != EINVAL ||
+        getpgid(-1) != -1 || errno != ESRCH)
+        return 3;
+    int count = getgroups(0, 0);
+    gid_t groups[256];
+    if (count < 0 || (count <= 256 && getgroups(256, groups) != count))
+        return 4;
+    if (setfsuid((uid_t)-1) != setfsuid((uid_t)-1) ||
+        setfsgid((gid_t)-1) != setfsgid((gid_t)-1))
+        return 5;
+
+    struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
+    struct __user_cap_data_struct caps[2];
+    if (capget(&header, caps) || header.version != _LINUX_CAPABILITY_VERSION_3)
+        return 6;
+    if (capget(0, caps) != -1 || errno != EFAULT)
+        return 7;
+
+    sigset_t mask = 1UL << (SIGUSR1 - 1), old, pending;
+    if (sigprocmask(SIG_BLOCK, &mask, &old)) return 8;
+    siginfo_t info = {0};
+    info.si_signo = SIGUSR1;
+    info.si_code = SI_QUEUE;
+    info.data.queued.pid = getpid();
+    info.data.queued.uid = getuid();
+    info.data.queued.value.sival_int = 42;
+    if (rt_sigqueueinfo(getpid(), SIGUSR1, &info) ||
+        sigpending(&pending) || !(pending & mask))
+        return 9;
+    struct timespec timeout = {0, 0};
+    siginfo_t received = {0};
+    if (sigtimedwait(&mask, &received, &timeout) != SIGUSR1 ||
+        received.si_signo != SIGUSR1 || received.si_code != SI_QUEUE ||
+        received.data.queued.pid != getpid() ||
+        received.data.queued.value.sival_int != 42 ||
+        sigtimedwait(&mask, &received, &timeout) != -1 || errno != EAGAIN ||
+        sigprocmask(SIG_SETMASK, &old, 0))
+        return 10;
+    stack_t stack;
+    if (sigaltstack(0, &stack) || sigaltstack(0, 0))
+        return 11;
+
+    int fd = open("file", O_CREAT | O_RDWR, 384);
+    if (fd < 0) return 12;
+    struct utimbuf dates = {123456789, 123456790};
+    struct stat status;
+    struct statfs bypath, byfd;
+    if (utime("file", &dates) || fstat(fd, &status) ||
+        status.st_atime != dates.actime || status.st_mtime != dates.modtime ||
+        statfs("file", &bypath) || fstatfs(fd, &byfd) ||
+        bypath.f_type != byfd.f_type || bypath.f_bsize <= 0 ||
+        bypath.f_blocks != byfd.f_blocks ||
+        fstatfs(-1, &byfd) != -1 || errno != EBADF ||
+        statfs("absent", &bypath) != -1 || errno != ENOENT)
+        return 13;
+    if (mknod("fifo", 4480, 0) || stat("fifo", &status) ||
+        (status.st_mode & 61440) != 4096 ||
+        close(fd) || unlink("file") || unlink("fifo"))
+        return 14;
+    char fsname[256];
+    if (ptrace(-1, 0, 0, 0) != -1 || !errno ||
+        klogctl(-1, 0, 0) != -1 || !errno ||
+        uselib("absent") != -1 || !errno ||
+        ustat(0, 0) != -1 || !errno ||
+        crunch_sysfs(-1, 0, 0) != -1 || !errno ||
+        crunch_sysfs_index("crunch-invalid-filesystem") != -1 || !errno ||
+        crunch_sysfs_name(-1, fsname) != -1 || !errno)
+        return 15;
+    int persona = personality(0xffffffffUL);
+    if (persona == -1 && errno != EPERM) return 16;
+    if (child_tests()) return 17;
+    return 42;
+}

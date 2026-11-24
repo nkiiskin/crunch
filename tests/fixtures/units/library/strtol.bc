@@ -1,0 +1,32 @@
+#include <stdlib.h>
+#include <errno.h>
+
+int main() {
+    char text[] = " \t-0XfFz";
+    char *end;
+    errno = 17;
+    if (strtol(text, &end, 0) != -255 ||
+        (void*)end != (void*)(text + 7) || errno != 17) return 1;
+    if (strtol("9223372036854775807", 0, 10) != 9223372036854775807 ||
+        errno != 17) return 2;
+    if (strtol("-9223372036854775808", 0, 10) != -9223372036854775807 - 1 ||
+        errno != 17) return 3;
+    char positive[] = "9223372036854775808000!";
+    if (strtol(positive, &end, 10) != 9223372036854775807 ||
+        errno != ERANGE || *end != '!') return 4;
+    errno = 17;
+    char negative[] = "-9223372036854775809000!";
+    if (strtol(negative, &end, 10) != -9223372036854775807 - 1 ||
+        errno != ERANGE || *end != '!') return 5;
+    errno = 17;
+    char empty[] = "  +xyz";
+    if (strtol(empty, &end, 10) != 0 ||
+        (void*)end != (void*)empty || errno != 17) return 6;
+    char prefix[] = "0x";
+    if (strtol(prefix, &end, 0) != 0 || *end != 'x' || errno != 17) return 7;
+    if (strtol("zZ", 0, 36) != 1295 || errno != 17) return 8;
+    if (strtol("077", 0, 0) != 63 || errno != 17) return 9;
+    if (strtol(text, &end, 37) != 0 ||
+        (void*)end != (void*)text || errno != EINVAL) return 10;
+    return 42;
+}

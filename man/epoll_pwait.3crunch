@@ -1,0 +1,15 @@
+.TH EPOLL_PWAIT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+epoll_pwait \- Linux x86-64 syscall 281
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int epoll_pwait(int epoll, void* events, int maximum, int timeout, const sigset_t* mask);
+.fi
+.SH DESCRIPTION
+Waits for epoll events with an optional eight-byte kernel signal mask. Events use the packed 12-byte Linux x86-64 layout.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR epoll_pwait (2)

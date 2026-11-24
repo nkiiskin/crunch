@@ -1,0 +1,16 @@
+.TH MINCORE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mincore \- query memory residency
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int mincore(void* address, size_t byte_count, unsigned char* vector);
+.fi
+.SH DESCRIPTION
+Writes one byte per page in the page\-aligned range. The low bit indicates
+whether that page was resident at the instant of the query. The writable
+vector must contain at least ceil(byte_count / page size) bytes.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR mincore (2)

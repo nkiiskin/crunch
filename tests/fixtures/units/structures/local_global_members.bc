@@ -1,0 +1,22 @@
+struct Point {
+    int x;
+    int y;
+};
+
+struct Point origin;
+
+int read_origin_x() {
+    return origin.x;
+}
+
+int main() {
+    struct Point local;
+    local.x = 19;
+    local.y = 23;
+    origin.x = local.x;
+    origin.y = local.y;
+    if (read_origin_x() != 19) {
+        return 1;
+    }
+    return origin.x + origin.y;
+}

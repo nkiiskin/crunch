@@ -1,0 +1,14 @@
+.TH MUNLOCKALL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+munlockall \- unlocks the calling process's locked pages
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int munlockall(void);
+.fi
+.SH DESCRIPTION
+Unlocks the calling process's locked pages.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR munlockall (2)

@@ -1,0 +1,64 @@
+.TH WRITE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+write \- write bytes to a file descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "ssize_t write(int " descriptor ", const void* " buffer ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+.BR write ()
+requests that up to
+.I byte_count
+bytes be written from
+.I buffer
+to
+.IR descriptor .
+The caller must provide enough readable storage for the count.
+The buffer is not required to be NUL\-terminated.
+.PP
+Short writes are possible; the caller must handle any unwritten bytes.
+This wrapper does not retry automatically.
+.B STDOUT_FILENO
+and
+.B STDERR_FILENO
+in
+.B <unistd.h>
+name the standard output and standard error descriptors.
+.SH RETURN VALUE
+On success, the number of bytes written is returned.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+Possible errors include
+.BR EBADF ,
+.BR EFAULT ,
+.BR EINTR ,
+.BR ENOSPC ,
+and
+.BR EPIPE .
+A broken pipe can also generate
+.BR SIGPIPE ;
+see
+.BR write (2)
+for Linux behavior and other possible errors.
+.SH NOTES
+This Crunch function uses the Linux x86\-64 syscall and is linked from
+.BR libcrunch.a .
+Its
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR read (3crunch),
+.BR close (3crunch),
+.BR write (2)

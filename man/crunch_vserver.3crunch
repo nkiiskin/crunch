@@ -1,0 +1,15 @@
+.TH CRUNCH_VSERVER 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_vserver \- Linux x86-64 syscall 236
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long crunch_vserver(void);
+.fi
+.SH DESCRIPTION
+Invokes the obsolete vserver syscall slot, unimplemented on Linux x86-64; policy may return a different error.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR vserver (2)

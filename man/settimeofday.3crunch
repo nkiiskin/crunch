@@ -1,0 +1,14 @@
+.TH SETTIMEOFDAY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+settimeofday \- sets wall clock time or the obsolete kernel timezone; typically requires cap_sys_time
+.SH SYNOPSIS
+.nf
+.B #include <sys/time.h>
+.B int settimeofday(const struct timeval* value, const struct timezone* zone);
+.fi
+.SH DESCRIPTION
+Sets wall clock time or the obsolete kernel timezone; typically requires CAP_SYS_TIME.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR settimeofday (2)

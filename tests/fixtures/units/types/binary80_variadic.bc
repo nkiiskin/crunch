@@ -1,0 +1,16 @@
+#include <stdarg.h>
+
+long double variadic_extended(int marker, ...) {
+    va_list arguments;
+    va_start(arguments, marker);
+    long first = va_arg(arguments, long);
+    long double second = va_arg(arguments, long double);
+    double third = va_arg(arguments, double);
+    va_end(arguments);
+    return first + second + third;
+}
+
+int main(void) {
+    return variadic_extended(0, 0L, 0x1.0000000000000002p0L, 0.25) ==
+           0x1.4000000000000002p0L ? 0 : 1;
+}

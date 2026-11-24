@@ -1,0 +1,173 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <poll.h>
+#include <time.h>
+#include <sched.h>
+#include <sys/wait.h>
+#include <sys/mman.h>
+#include <sys/xattr.h>
+#include <sys/futex.h>
+#include <sys/aio.h>
+#include <sys/epoll.h>
+#include <sys/legacy_syscalls.h>
+#include <sys/syscall_extra.h>
+
+struct iocb iocb_layout;
+struct io_event event_layout;
+unsigned long affinity[512];
+unsigned long affinity_copy[512];
+
+void link_restart_only(void) {
+    crunch_restart_syscall();
+}
+
+int child_checks(void) {
+    int status;
+    pid_t child = fork();
+    if (child < 0) return 1;
+    if (child == 0) {
+        if (set_tid_address(0) != gettid()) _exit(1);
+        if (sched_setaffinity(0, sizeof affinity, affinity)) _exit(2);
+        _exit(0);
+    }
+    if (waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) return 2;
+    return 0;
+}
+
+int check_xattr(int fd) {
+    char buffer[128];
+    if (setxattr("file", "user.crunch_test", "abc", 3, XATTR_CREATE)) {
+        if (errno == ENOTSUP || errno == EPERM || errno == EACCES) return 0;
+        return 1;
+    }
+    if (setxattr("file", "user.crunch_test", "abc", 3, XATTR_CREATE) != -1 ||
+        errno != EEXIST ||
+        getxattr("file", "user.crunch_test", buffer, sizeof buffer) != 3 ||
+        buffer[0] != 'a' || buffer[1] != 'b' || buffer[2] != 'c' ||
+        fgetxattr(fd, "user.crunch_test", 0, 0) != 3 ||
+        lgetxattr("file", "user.crunch_test", buffer, sizeof buffer) != 3 ||
+        listxattr("file", buffer, sizeof buffer) <= 0 ||
+        llistxattr("file", buffer, sizeof buffer) <= 0 ||
+        flistxattr(fd, buffer, sizeof buffer) <= 0)
+        return 2;
+    if (symlink("file", "link") ||
+        getxattr("link", "user.crunch_test", buffer, sizeof buffer) != 3 ||
+        lgetxattr("link", "user.crunch_test", buffer, sizeof buffer) != -1 ||
+        !errno || unlink("link")) return 5;
+    if (lsetxattr("file", "user.crunch_test", "z", 1, XATTR_REPLACE) ||
+        fgetxattr(fd, "user.crunch_test", buffer, sizeof buffer) != 1 ||
+        buffer[0] != 'z' || fremovexattr(fd, "user.crunch_test"))
+        return 3;
+    if (fsetxattr(fd, "user.crunch_test", "q", 1, XATTR_CREATE) ||
+        lremovexattr("file", "user.crunch_test") ||
+        fsetxattr(fd, "user.crunch_test", "q", 1, XATTR_CREATE) ||
+        removexattr("file", "user.crunch_test") ||
+        getxattr("file", "user.crunch_test", buffer, sizeof buffer) != -1 ||
+        errno != ENODATA)
+        return 4;
+    return 0;
+}
+
+int check_aio(int fd) {
+    aio_context_t context = 0;
+    if (io_setup(4, &context)) {
+        if (errno == ENOSYS || errno == EPERM || errno == EAGAIN) return 0;
+        return 1;
+    }
+    char buffer[4] = "aio";
+    struct iocb request = {0};
+    request.aio_data = 1234;
+    request.aio_lio_opcode = IOCB_CMD_PWRITE;
+    request.aio_fildes = fd;
+    request.aio_buf.pointer = buffer;
+    request.aio_nbytes = 3;
+    struct iocb* requests[1];
+    requests[0] = &request;
+    if (io_submit(context, 1, requests) != 1) {
+        int saved = errno;
+        io_destroy(context);
+        if (saved == EINVAL || saved == ENOTSUP || saved == EPERM) return 0;
+        return 2;
+    }
+    struct io_event event = {0};
+    struct timespec timeout = {2, 0};
+    long count = io_getevents(context, 1, 1, &event, &timeout);
+    int good = count == 1 && event.data == 1234 && event.obj == &request &&
+               event.res == 3 && event.res2 == 0;
+    if (io_cancel(context, &request, &event) != -1) good = 0;
+    int descriptors[2];
+    if (pipe(descriptors)) good = 0;
+    else {
+        struct iocb poll_request = {0};
+        poll_request.aio_lio_opcode = IOCB_CMD_POLL;
+        poll_request.aio_fildes = descriptors[0];
+        poll_request.aio_buf.value = POLLIN;
+        requests[0] = &poll_request;
+        if (io_submit(context, 1, requests) == 1) {
+            if (write(descriptors[1], "x", 1) != 1 ||
+                io_getevents(context, 1, 1, &event, &timeout) != 1 ||
+                event.obj != &poll_request || !(event.res & POLLIN)) good = 0;
+        } else if (errno != EINVAL && errno != ENOSYS && errno != ENOTSUP)
+            good = 0;
+        close(descriptors[0]);
+        close(descriptors[1]);
+    }
+    if (io_destroy(context)) return 3;
+    return good ? 0 : 4;
+}
+
+int main(void) {
+    pid_t tid = gettid();
+    time_t now;
+    time_t returned = time(&now);
+    if (tid <= 0 || tkill(tid, 0) || returned != now || now <= 0)
+        return 1;
+    int fd = open("file", O_CREAT | O_RDWR, 384);
+    if (fd < 0 || write(fd, "abc", 3) != 3 ||
+        readahead(fd, 0, 3) || lseek(fd, 0, SEEK_CUR) != 3)
+        return 2;
+    if (readahead(-1, 0, 3) != -1 || errno != EBADF ||
+        check_xattr(fd) || check_aio(fd) || close(fd) || unlink("file"))
+        return 3;
+    int word = 0;
+    int other = 0;
+    struct timespec zero = {0, 0};
+    if (futex(&word, FUTEX_WAIT | FUTEX_PRIVATE_FLAG, 1, &zero, 0, 0) != -1 ||
+        errno != EAGAIN ||
+        futex(&word, FUTEX_WAIT | FUTEX_PRIVATE_FLAG, 0, &zero, 0, 0) != -1 ||
+        errno != ETIMEDOUT ||
+        futex(&word, FUTEX_WAKE | FUTEX_PRIVATE_FLAG, 1, 0, 0, 0) != 0 ||
+        futex_value(&word, FUTEX_WAKE_OP | FUTEX_PRIVATE_FLAG, 0, 0, &other, 20480) != 0 ||
+        other != 5)
+        return 4;
+    for (int i = 0; i < 512; i++) affinity_copy[i] = ~0UL;
+    if (sched_getaffinity(0, sizeof affinity, affinity) ||
+        sched_getaffinity(0, sizeof affinity_copy, affinity_copy))
+        return 5;
+    for (int i = 0; i < 512; i++)
+        if (affinity[i] != affinity_copy[i]) return 5;
+    if (child_checks() || sched_getaffinity(-1, sizeof affinity, affinity) != -1)
+        return 5;
+    int epoll = epoll_create(1);
+    if (epoll < 0 || close(epoll) || epoll_create(0) != -1 || errno != EINVAL)
+        return 6;
+    char cookie[32];
+    if (lookup_dcookie(0, cookie, sizeof cookie) != -1 || !errno ||
+        remap_file_pages(0, 0, 0, 0, 0) != -1 || !errno)
+        return 7;
+    if (crunch_nfsservctl() != -1 || !errno ||
+        crunch_getpmsg() != -1 || !errno ||
+        crunch_putpmsg() != -1 || !errno ||
+        crunch_afs_syscall() != -1 || !errno ||
+        crunch_tuxcall() != -1 || !errno ||
+        crunch_security() != -1 || !errno ||
+        crunch_set_thread_area(0) != -1 || !errno ||
+        crunch_get_thread_area(0) != -1 || !errno ||
+        crunch_epoll_ctl_old(-1, 0, 0, 0) != -1 || !errno ||
+        crunch_epoll_wait_old(-1, 0, 0, 0) != -1 || !errno)
+        return 8;
+    return 42;
+}

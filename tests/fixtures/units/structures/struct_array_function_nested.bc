@@ -1,0 +1,26 @@
+struct point {
+    int x;
+    int y;
+};
+
+struct record {
+    char kind;
+    struct point location;
+};
+
+int sum_x(struct record records[], int count) {
+    int sum = 0;
+    for (int i = 0; i < count; i++) {
+        sum += records[i].location.x;
+    }
+    return sum;
+}
+
+int main() {
+    struct record records[2];
+    records[0].location.x = 19;
+    records[0].location.y = 1;
+    records[1].location.x = 23;
+    records[1].location.y = 2;
+    return sum_x(records, (int)(sizeof(records) / sizeof(records[0])));
+}

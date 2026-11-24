@@ -1,0 +1,14 @@
+.TH ACCT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+acct \- enables process accounting at path or disables it with null; requires privilege
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int acct(const char* path);
+.fi
+.SH DESCRIPTION
+Enables process accounting at path or disables it with NULL; requires privilege.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR acct (2)

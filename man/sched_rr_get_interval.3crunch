@@ -1,0 +1,14 @@
+.TH SCHED_RR_GET_INTERVAL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_rr_get_interval \- reads the round-robin scheduling quantum for a thread
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_rr_get_interval(pid_t process, struct timespec* interval);
+.fi
+.SH DESCRIPTION
+Reads the round-robin scheduling quantum for a thread.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_rr_get_interval (2)

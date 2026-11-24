@@ -1,0 +1,70 @@
+struct Inner { int a[3]; int b; int *pointer; };
+struct Outer { int first; struct Inner inner; int last; };
+int left = 10;
+int right = 32;
+int values[] = {[4] = 5, [0] = 1, 2, 3, 4};
+struct Outer outer = {.inner.a[1] = 7, 8, 9, .first = 1, .last = 4,
+                      .inner.pointer = &left, .inner.pointer = &right};
+struct Outer replaced = {.first = 5, .inner = {{1, 2, 3}, 4, &left},
+                         .inner = {.b = 9}};
+struct Outer array[] = {[2].inner.a[1] = 11, 12, 13,
+                        [0].first = 3, [0].last = 4};
+struct Names { char name[5]; int value; };
+struct Names names = {.name = "abcd", .name[1] = 'Z'};
+struct Anonymous { struct { int a; int b; }; int c; };
+struct Anonymous anonymous = {.b = 8, .a = 7, .c = 9};
+int sized_by_enum[] = {sizeof(enum { LAST_GLOBAL = 3 }), [LAST_GLOBAL] = 7};
+int effects;
+int effect() { effects += 1; return 9; }
+int identity(int value) { return value; }
+int parameter_enum(enum ParameterEnum { PARAMETER_VALUE = 3 } value) {
+    return value + PARAMETER_VALUE;
+}
+
+int main() {
+    int local[] = {[3] = 9, [0] = 1, 2, [1] = 4};
+    struct Outer item = {.inner.a[1] = 2, 3, 4, .last = 5, .first = 6,
+                         .inner.pointer = &left, .inner.pointer = &right};
+    struct Outer reset = {.inner = {{1, 2, 3}, 4, &left},
+                          .inner = {.a[1] = 8}, .last = 6};
+    struct Outer copied = {.inner = item.inner};
+    struct Outer partially_overridden = {.inner = item.inner, .inner.b = 12};
+    static int stored[] = {[2] = 3, [0] = 1, 2};
+    static struct Outer refs[] = {[1].inner.pointer = &right, [0].first = 5};
+    int local_enum[] = {sizeof(enum { LAST_LOCAL = 2 }), [LAST_LOCAL] = 8};
+    int call_enum[] = {identity(sizeof(enum { LAST_CALL = 2 })), [LAST_CALL] = 8};
+    int overwritten[] = {[0] = effect(), [0] = 2};
+    if (sizeof(values) != 5 * sizeof(int) || values[0] != 1 ||
+        values[1] != 2 || values[2] != 3 || values[3] != 4 || values[4] != 5) return 1;
+    if (outer.first != 1 || outer.inner.a[0] || outer.inner.a[1] != 7 ||
+        outer.inner.a[2] != 8 || outer.inner.b != 9 || *outer.inner.pointer != 32 ||
+        outer.last != 4) return 2;
+    if (replaced.first != 5 || replaced.inner.a[0] || replaced.inner.a[2] ||
+        replaced.inner.b != 9 || replaced.inner.pointer || replaced.last) return 3;
+    if (sizeof(array) != 3 * sizeof(struct Outer) || array[0].first != 3 ||
+        array[0].last != 4 || array[1].first || array[2].inner.a[1] != 11 ||
+        array[2].inner.a[2] != 12 || array[2].inner.b != 13) return 4;
+    if (names.name[0] != 'a' || names.name[1] != 'Z' ||
+        names.name[2] != 'c' || names.name[4] || names.value) return 5;
+    if (anonymous.a != 7 || anonymous.b != 8 || anonymous.c != 9) return 6;
+    if (sizeof(local) != 4 * sizeof(int) || local[0] != 1 || local[1] != 4 ||
+        local[2] || local[3] != 9) return 7;
+    if (item.first != 6 || item.inner.a[0] || item.inner.a[1] != 2 ||
+        item.inner.a[2] != 3 || item.inner.b != 4 || *item.inner.pointer != 32 ||
+        item.last != 5) return 8;
+    if (reset.inner.a[0] || reset.inner.a[1] != 8 || reset.inner.a[2] ||
+        reset.inner.b || reset.inner.pointer || reset.last != 6) return 9;
+    if (copied.inner.a[1] != 2 || copied.inner.b != 4 ||
+        copied.inner.pointer != &right || partially_overridden.inner.b != 12 ||
+        (partially_overridden.inner.a[1] != 0 &&
+         partially_overridden.inner.a[1] != 2)) return 12;
+    if (sizeof(stored) != 3 * sizeof(int) || stored[1] != 2 || stored[2] != 3 ||
+        sizeof(refs) != 2 * sizeof(struct Outer) || refs[0].first != 5 ||
+        *refs[1].inner.pointer != 32) return 10;
+    if (sizeof(sized_by_enum) != 4 * sizeof(int) || sized_by_enum[3] != 7 ||
+        sizeof(local_enum) != 3 * sizeof(int) || local_enum[2] != 8 ||
+        sizeof(call_enum) != 3 * sizeof(int) || call_enum[2] != 8 ||
+        parameter_enum(3) != 6 || overwritten[0] != 2 ||
+        (effects != 0 && effects != 1)) return 11;
+    return 42;
+}

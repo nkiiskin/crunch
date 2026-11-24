@@ -1,0 +1,11 @@
+#include <stdio.h>
+
+extern int scale;
+int weighted_sum(int *values, int count);
+
+int main() {
+    int values[3] = {2, 4, 6};
+    int result = weighted_sum(values, 3);
+    printf("modules:%d:%d\n", result, scale);
+    return result == 48 && scale == 4 ? 0 : 1;
+}

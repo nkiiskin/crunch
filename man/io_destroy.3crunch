@@ -1,0 +1,14 @@
+.TH IO_DESTROY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+io_destroy \- destroys a kernel asynchronous i/o context, waiting for outstanding requests
+.SH SYNOPSIS
+.nf
+.B #include <sys/aio.h>
+.B int io_destroy(aio_context_t context);
+.fi
+.SH DESCRIPTION
+Destroys a kernel asynchronous I/O context, waiting for outstanding requests. This is the Linux kernel AIO ABI, not POSIX aio.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR io_destroy (2)

@@ -1,0 +1,19 @@
+.TH SHMCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+shmctl \- control a System V shared memory segment
+.SH SYNOPSIS
+.nf
+.B #include <sys/shm.h>
+.B int shmctl(int id, int command, struct shmid_ds* buffer);
+.fi
+.SH DESCRIPTION
+IPC_STAT reads segment metadata into buffer; IPC_SET updates permitted fields;
+IPC_RMID marks a segment for removal. SHM_LOCK and SHM_UNLOCK request Linux
+locking operations. Pass NULL when the command requires no buffer.
+The supplied structures use Linux x86\-64 layouts and are not portable.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR shmget (3crunch),
+.BR shmdt (3crunch),
+.BR shmctl (2)

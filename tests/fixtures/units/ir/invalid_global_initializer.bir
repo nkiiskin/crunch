@@ -1,0 +1,6 @@
+CRUNCH-IR 2
+global count int not_a_number
+func main 0 int
+push 0
+ret int
+end

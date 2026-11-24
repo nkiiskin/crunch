@@ -1,0 +1,15 @@
+.TH REQUEST_KEY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+request_key \- Linux x86-64 syscall 249
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B long request_key(const char* type, const char* description, const char* callout, int keyring);
+.fi
+.SH DESCRIPTION
+Requests a key from a Linux keyring.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR request_key (2)

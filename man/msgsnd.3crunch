@@ -1,0 +1,17 @@
+.TH MSGSND 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+msgsnd \- send a System V message
+.SH SYNOPSIS
+.nf
+.B #include <sys/msg.h>
+.B int msgsnd(int id, const void* message, size_t size, int flags);
+.fi
+.SH DESCRIPTION
+Message begins with a positive long message type followed by size bytes of
+text.  IPC_NOWAIT makes a full queue fail instead of blocking.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR msgrcv (3crunch),
+.BR msgget (3crunch),
+.BR msgsnd (2)

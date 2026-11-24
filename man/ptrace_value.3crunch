@@ -1,0 +1,16 @@
+.TH PTRACE_VALUE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ptrace_value \- invoke ptrace with integer data
+.SH SYNOPSIS
+.nf
+.B #include <sys/ptrace.h>
+.B long ptrace_value(long request, pid_t process, void *address, unsigned long data);
+.fi
+.SH DESCRIPTION
+Invokes Linux ptrace with integer data, for example a word for PTRACE_POKEDATA
+or a signal for PTRACE_CONT.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR ptrace (3crunch),
+.BR ptrace (2)

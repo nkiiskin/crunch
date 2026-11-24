@@ -1,0 +1,15 @@
+.TH CRUNCH_EVENTFD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_eventfd \- Linux x86-64 syscall 284
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int crunch_eventfd(unsigned int value);
+.fi
+.SH DESCRIPTION
+Invokes the original eventfd syscall without flags.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR eventfd (2)

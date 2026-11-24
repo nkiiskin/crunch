@@ -1,0 +1,39 @@
+typedef int *IntPtr;
+
+int global_value = 40, *global_pointer = &global_value;
+int *global_uninitialized, global_number = 2;
+
+struct Holder {
+    int *pointer, value, *references[2];
+};
+
+int persistent() {
+    static int value = 39, *pointer = &value;
+    return ++*pointer;
+}
+
+int main() {
+    int value = 40, *pointer = &value, array[2] = {1, 2};
+    int *first = &value, number = 2, **indirect = &first;
+    int *references[2] = {&value, &number}, count = 2;
+    const int *readable = &value, fixed = 7;
+    int *const locked = &value, *mutable = &number;
+    IntPtr alias = &value, second = &number, *alias_pointer = &alias;
+    struct Holder holder;
+    holder.pointer = &value;
+    holder.value = 2;
+    holder.references[0] = &value;
+    holder.references[1] = &number;
+    readable = &number;
+    mutable = &value;
+    for (int *item = &number, index = 0; index < 1; index++)
+        count += *item;
+    if (*pointer != 40 || array[1] != 2 || number != 2 || **indirect != 40 ||
+        *references[1] != 2 || count != 4 || *readable != 2 || fixed != 7 ||
+        *locked != 40 || *mutable != 40 || *second != 2 || **alias_pointer != 40 ||
+        *holder.pointer != 40 || holder.value != 2 || *holder.references[1] != 2 ||
+        *global_pointer != 40 || global_uninitialized != 0 ||
+        persistent() != 40 || persistent() != 41)
+        return 1;
+    return global_value + global_number;
+}

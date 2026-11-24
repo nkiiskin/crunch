@@ -1,0 +1,76 @@
+.TH OPEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+open \- open or create a file
+.SH SYNOPSIS
+.nf
+.B #include <fcntl.h>
+.PP
+.BI "int open(const char* " path ", int " flags ", mode_t " mode ");"
+.fi
+.SH DESCRIPTION
+.BR open ()
+opens the NUL\-terminated path and returns a file descriptor.
+All three arguments are required.
+.I flags
+contains one access mode,
+.BR O_RDONLY ,
+.B O_WRONLY
+or
+.BR O_RDWR ,
+optionally combined using bitwise OR with
+.BR O_CREAT ,
+.BR O_EXCL ,
+.BR O_TRUNC ,
+or
+.BR O_APPEND .
+Their meanings are the Linux
+.BR openat (2)
+flag meanings.
+.PP
+When a file is created,
+.I mode
+specifies the numeric permission bits, modified by the process umask.
+For example, 420 specifies permissions equivalent to Unix 0644.
+Pass 0 when creation permissions are not needed.
+Existing files are not changed by the mode argument.
+.PP
+The header also declares
+.BR STDIN_FILENO ,
+.BR STDOUT_FILENO ,
+and
+.BR STDERR_FILENO
+for descriptors 0, 1, and 2.
+.SH RETURN VALUE
+The new descriptor is returned on success.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+for error constants and the writable
+.BR errno .
+Possible errors include
+.BR EACCES ,
+.BR EEXIST ,
+.BR EINVAL ,
+.BR EISDIR ,
+and
+.BR ENOENT .
+Other Linux
+.BR openat (2)
+errors are possible.
+.SH NOTES
+This is a Crunch library function, not a variadic C prototype.
+Its implementation is linked from
+.BR libcrunch.a ;
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR close (3crunch),
+.BR read (3crunch),
+.BR write (3crunch),
+.BR openat (2)

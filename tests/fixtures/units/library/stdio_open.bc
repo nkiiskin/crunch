@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main() {
+    struct FILE* stream = fopen("missing", "r");
+    if (stream != 0 || errno != ENOENT) return 1;
+    stream = fopen("untouched", "invalid");
+    if (stream != 0 || errno != EINVAL) return 2;
+    stream = fopen("untouched", "rb+");
+    if (stream == 0) return 3;
+    char buf[1];
+    if (read(stream[0]._descriptor, buf, 1) != 1 || buf[0] != (char)'o' ||
+        fclose(stream) != 0) return 9;
+    stream = fopen("append", "a+be");
+    if (stream == 0 || lseek(stream[0]._descriptor, 0, SEEK_SET) != 0 ||
+        write(stream[0]._descriptor, "!", 1) != 1 || fclose(stream) != 0) return 4;
+    stream = fopen("truncate", "w+");
+    if (stream == 0 || fclose(stream) != 0) return 5;
+    stream = fopen("created", "wbx");
+    if (stream == 0 || fclose(stream) != 0) return 6;
+    stream = fopen("created", "wx");
+    if (stream != 0 || errno != EEXIST) return 7;
+    stream = fopen("untouched", "r");
+    if (stream == 0 || write(stream[0]._descriptor, "!", 1) != -1 || errno != EBADF) return 10;
+    if (close(stream[0]._descriptor) != 0 || fclose(stream) != EOF || errno != EBADF) return 11;
+    if (fclose(0) != EOF || errno != EINVAL) return 8;
+    return 0;
+}

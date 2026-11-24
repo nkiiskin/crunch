@@ -1,0 +1,14 @@
+.TH ADJTIMEX 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+adjtimex \- queries or adjusts the system clock using the linux x86-64 timex layout
+.SH SYNOPSIS
+.nf
+.B #include <sys/timex.h>
+.B int adjtimex(struct timex* state);
+.fi
+.SH DESCRIPTION
+Queries or adjusts the system clock using the Linux x86-64 timex layout. A zero modes field performs a query; modifications generally require privilege.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR adjtimex (2)

@@ -1,0 +1,79 @@
+#include <stdarg.h>
+struct Record { int tag; long double value; int tail; };
+struct Wrapper { int head; struct Record record; };
+union Number { long double value; unsigned char bytes[16]; };
+struct Box { long double value; };
+
+struct Box box_add(struct Box box, long double amount) {
+    box.value += amount;
+    return box;
+}
+
+struct Box variadic_box(int marker, ...) {
+    va_list arguments;
+    va_start(arguments, marker);
+    struct Box box = va_arg(arguments, struct Box);
+    va_end(arguments);
+    return box;
+}
+
+struct Record record_add(long a, long b, long c, long d, long e, long f, long g,
+                         struct Record record, long tail) {
+    record.value += a + b + c + d + e + f + g + tail;
+    return record;
+}
+
+union Number number_add(union Number number) {
+    number.value += 0.5L;
+    return number;
+}
+
+struct Record variadic_record(int marker, ...) {
+    va_list arguments;
+    va_start(arguments, marker);
+    for (int i = 0; i < 7; ++i)
+        va_arg(arguments, long);
+    struct Record record = va_arg(arguments, struct Record);
+    va_end(arguments);
+    return record;
+}
+
+struct Record global_record = {2, 0x1.0000000000000002p0L, 3};
+
+int main(void) {
+    struct Record local = {4, 0.25L, 5};
+    struct Wrapper nested = {1, {6, 0.5L, 7}};
+    static struct Record saved = {8, 0.75L, 9};
+    struct Record *p = &local;
+    if (global_record.value != 0x1.0000000000000002p0L ||
+        local.value != 0.25L || nested.record.value != 0.5L ||
+        saved.value != 0.75L)
+        return 1;
+    p->value += global_record.value;
+    nested.record.value = ++saved.value;
+    if (p->value != 0x1.4000000000000002p0L ||
+        nested.record.value != 1.75L || saved.value != 1.75L)
+        return 2;
+    if (local.tag != 4 || local.tail != 5)
+        return 3;
+    union Number number = {1.0L};
+    number.value += 0.25L;
+    if (number.value != 1.25L)
+        return 4;
+    struct Box original = {0x1.0000000000000002p0L};
+    struct Box updated = box_add(original, 0.25L);
+    if (original.value != 0x1.0000000000000002p0L ||
+        updated.value != 0x1.4000000000000002p0L ||
+        variadic_box(0, original).value != original.value)
+        return 5;
+    struct Record copy = record_add(1, 0, 0, 0, 0, 0, 2, local, 3);
+    if (copy.tag != 4 || copy.tail != 5 || copy.value != p->value + 6 ||
+        local.value != p->value)
+        return 6;
+    if (number_add(number).value != 1.75L)
+        return 7;
+    copy = variadic_record(0, 0L, 0L, 0L, 0L, 0L, 0L, 0L, local);
+    if (copy.value != local.value || copy.tag != local.tag)
+        return 8;
+    return 0;
+}

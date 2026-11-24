@@ -1,0 +1,15 @@
+.TH CRUNCH_PSELECT6 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_pselect6 \- Linux x86-64 syscall 270
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B int crunch_pselect6(int count, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timespec* timeout, const struct crunch_pselect_sigmask* signals);
+.fi
+.SH DESCRIPTION
+Invokes raw pselect6. The signals descriptor contains a pointer to an eight-byte Crunch sigset_t and its size, 8. The kernel may modify timeout, including on interruption.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR pselect6 (2)

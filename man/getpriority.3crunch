@@ -1,0 +1,14 @@
+.TH GETPRIORITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getpriority \- gets the lowest nice value among matching processes
+.SH SYNOPSIS
+.nf
+.B #include <sys/resource.h>
+.B int getpriority(int which, unsigned int who);
+.fi
+.SH DESCRIPTION
+Gets the lowest nice value among matching processes. A successful result can be -1; clear errno before the call to distinguish an error. Linux priorities are per-thread.
+.SH RETURN VALUE
+Returns the nice value, or \-1 with errno set. A successful nice value may also be \-1.
+.SH SEE ALSO
+.BR getpriority (2)

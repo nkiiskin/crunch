@@ -1,0 +1,14 @@
+.TH SETSID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setsid \- creates a session and process group, subject to linux session rules
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B pid_t setsid(void);
+.fi
+.SH DESCRIPTION
+Creates a session and process group, subject to Linux session rules.
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR setsid (2)

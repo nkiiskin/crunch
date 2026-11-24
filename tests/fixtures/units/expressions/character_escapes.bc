@@ -1,0 +1,23 @@
+#include <stdio.h>
+
+char newline = '\n';
+char zero = '\0';
+char high = '\xFF';
+char controls[] = "\a\b\f\v\?";
+
+int main() {
+    if ('A' != 65 || '\n' != 10 || '\r' != 13 || '\t' != 9 ||
+        '\a' != 7 || '\b' != 8 || '\f' != 12 || '\v' != 11 || '\?' != 63 ||
+        '\0' != 0 || '\\' != 92 || '\'' != 39 || '\"' != 34 ||
+        '\x00' != 0 || '\x41' != 65 || '\xaf' != 175 || '\xFF' != 255)
+        return 1;
+    if (newline != 10 || zero != 0 || high != 255) return 2;
+    if (controls[0] != 7 || controls[1] != 8 || controls[2] != 12 ||
+        controls[3] != 11 || controls[4] != 63 || controls[5] != 0) return 5;
+    switch (newline) {
+    case '\n': break;
+    default: return 3;
+    }
+    if (fputc('\n', stdout) != 10) return 4;
+    return 0;
+}

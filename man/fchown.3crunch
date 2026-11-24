@@ -1,0 +1,16 @@
+.TH FCHOWN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fchown \- change ownership of an open file
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int fchown(int descriptor, uid_t owner, gid_t group);
+.fi
+.SH DESCRIPTION
+Changes ownership of the open file.  Either ID may be \-1, converted to its
+respective unsigned type, to leave that ID unchanged.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR chown (3crunch),
+.BR fchown (2)

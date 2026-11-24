@@ -1,0 +1,15 @@
+.TH CRUNCH_FADVISE64 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_fadvise64 \- Linux x86-64 syscall 221
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B int crunch_fadvise64(int descriptor, off_t offset, off_t length, int advice);
+.fi
+.SH DESCRIPTION
+Invokes the raw fadvise64 syscall; unlike posix_fadvise, errors return -1 and set errno.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR fadvise64 (2)

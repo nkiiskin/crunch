@@ -1,0 +1,15 @@
+.TH CRUNCH_EXIT_GROUP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_exit_group \- Linux x86-64 syscall 231
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_220_259.h>
+.B void noreturn crunch_exit_group(int status);
+.fi
+.SH DESCRIPTION
+Terminates all threads in the process without running finalizers.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Does not return.
+.SH SEE ALSO
+.BR exit_group (2)

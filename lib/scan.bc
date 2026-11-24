@@ -1,0 +1,390 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <errno.h>
+
+int _crunch_scan_fgetc(FILE *stream);
+int _crunch_scan_isspace(int c);
+int _crunch_scan_tolower(int c);
+void *_crunch_scan_realloc(void *p, unsigned long size);
+void _crunch_scan_free(void *p);
+float _crunch_scan_strtof(const char *text, char **end);
+double _crunch_scan_strtod(const char *text, char **end);
+long double _crunch_scan_strtold(const char *text, char **end);
+
+#macro fgetc _crunch_scan_fgetc
+#macro isspace _crunch_scan_isspace
+#macro tolower _crunch_scan_tolower
+#macro realloc _crunch_scan_realloc
+#macro free _crunch_scan_free
+#macro strtof _crunch_scan_strtof
+#macro strtod _crunch_scan_strtod
+#macro strtold _crunch_scan_strtold
+
+struct scan_state {
+    FILE *stream;
+    long consumed;
+    void **slots;
+    unsigned long remaining;
+    struct __crunch_va_list_tag *ap;
+};
+
+static int scan_peek(struct scan_state *s)
+{
+    int c = fgetc(s->stream);
+    if (c != EOF)
+        s->stream->_status = (s->stream->_status & -65286) | 4 | (c << 8);
+    return c;
+}
+
+static int scan_take(struct scan_state *s)
+{
+    int c = fgetc(s->stream);
+    if (c != EOF)
+        ++s->consumed;
+    return c;
+}
+
+static void *scan_argument(struct scan_state *s)
+{
+    if (s->slots) {
+        if (!s->remaining)
+            return 0;
+        void **p = (void **)((char *)s->slots - 8);
+        s->slots = (void **)((char *)s->slots - 16);
+        --s->remaining;
+        return *p;
+    }
+    if (s->ap->gp_offset < 48) {
+        void **p = (void **)((char *)s->ap->reg_save_area + s->ap->gp_offset);
+        s->ap->gp_offset += 8;
+        return *p;
+    }
+    void **p = (void **)s->ap->overflow_arg_area;
+    s->ap->overflow_arg_area = (char *)s->ap->overflow_arg_area + 8;
+    return *p;
+}
+
+static void scan_signed(void *p, int length, long value)
+{
+    if (length == 1) *(signed char *)p = (signed char)value;
+    else if (length == 2) *(short *)p = (short)value;
+    else if (length == 3) *(long *)p = value;
+    else if (length == 4) *(long long *)p = (long long)value;
+    else if (length == 5 || length == 6 || length == 7) *(long *)p = value;
+    else *(int *)p = (int)value;
+}
+
+static void scan_unsigned(void *p, int length, unsigned long value)
+{
+    if (length == 1) *(unsigned char *)p = (unsigned char)value;
+    else if (length == 2) *(unsigned short *)p = (unsigned short)value;
+    else if (length == 3) *(unsigned long *)p = value;
+    else if (length == 4) *(unsigned long long *)p = (unsigned long long)value;
+    else if (length == 5 || length == 6 || length == 7) *(unsigned long *)p = value;
+    else *(unsigned int *)p = (unsigned int)value;
+}
+
+static int scan_digit(int c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static int scan_integer(struct scan_state *s, int width, int base, unsigned long *result)
+{
+    int automatic = base == 0;
+    int negative = 0;
+    int digits = 0;
+    unsigned long value = 0;
+    int c = scan_peek(s);
+    if (width && (c == '+' || c == '-')) {
+        negative = c == '-';
+        scan_take(s);
+        --width;
+    }
+    c = width ? scan_peek(s) : EOF;
+    if (c == '0') {
+        scan_take(s);
+        --width;
+        digits = 1;
+        if (base == 0) base = 8;
+        if ((automatic || base == 16) && width &&
+            (scan_peek(s) == 'x' || scan_peek(s) == 'X')) {
+            scan_take(s);
+            --width;
+            base = 16;
+            digits = 0;
+        }
+    } else if (base == 0) {
+        base = 10;
+    }
+    while (width) {
+        int d = scan_digit(scan_peek(s));
+        if (d < 0 || d >= base) break;
+        scan_take(s);
+        --width;
+        value = value * (unsigned long)base + (unsigned long)d;
+        digits = 1;
+    }
+    if (!digits) return 0;
+    *result = negative ? 0UL - value : value;
+    return 1;
+}
+
+static int scan_append(char **buffer, unsigned long *size, unsigned long *capacity, int c)
+{
+    if (*size + 1 >= *capacity) {
+        unsigned long next = *capacity ? *capacity * 2 : 32;
+        if (next <= *capacity) return 0;
+        char *p = realloc(*buffer, next);
+        if (!p) return 0;
+        *buffer = p;
+        *capacity = next;
+    }
+    (*buffer)[(*size)++] = (char)c;
+    return 1;
+}
+
+static int scan_float_take(struct scan_state *s, int *width, char **buffer,
+                           unsigned long *size, unsigned long *capacity)
+{
+    int c = scan_peek(s);
+    if (!scan_append(buffer, size, capacity, c)) return 0;
+    scan_take(s);
+    --*width;
+    return 1;
+}
+
+static int scan_float(struct scan_state *s, int width, int length, void *destination)
+{
+    char *text = 0;
+    unsigned long size = 0;
+    unsigned long capacity = 0;
+    int valid = 1;
+    int digits = 0;
+    int hex = 0;
+    int c = scan_peek(s);
+    if (width && (c == '+' || c == '-')) {
+        if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+    }
+    c = width ? tolower(scan_peek(s)) : EOF;
+    if (valid && (c == 'i' || c == 'n')) {
+        const char *word = c == 'i' ? "inf" : "nan";
+        while (*word && valid) {
+            if (!width || tolower(scan_peek(s)) != *word) valid = 0;
+            else if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            ++word;
+        }
+        if (valid && c == 'i' && width && tolower(scan_peek(s)) == 'i') {
+            word = "inity";
+            while (*word && valid) {
+                if (!width || tolower(scan_peek(s)) != *word) valid = 0;
+                else if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+                ++word;
+            }
+        }
+    } else if (valid) {
+        if (width && scan_peek(s) == '0') {
+            if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            digits = 1;
+            if (valid && width && tolower(scan_peek(s)) == 'x') {
+                if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+                hex = 1;
+                digits = 0;
+            }
+        }
+        while (valid && width && scan_digit(scan_peek(s)) >= 0 &&
+               scan_digit(scan_peek(s)) < (hex ? 16 : 10)) {
+            if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            digits = 1;
+        }
+        if (valid && width && scan_peek(s) == '.') {
+            if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            while (valid && width && scan_digit(scan_peek(s)) >= 0 &&
+                   scan_digit(scan_peek(s)) < (hex ? 16 : 10)) {
+                if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+                digits = 1;
+            }
+        }
+        if (!digits) valid = 0;
+        if (valid && width && tolower(scan_peek(s)) == (hex ? 'p' : 'e')) {
+            if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            c = width ? scan_peek(s) : EOF;
+            if (valid && width && (c == '+' || c == '-'))
+                if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+            digits = 0;
+            while (valid && width && scan_peek(s) >= '0' && scan_peek(s) <= '9') {
+                if (!scan_float_take(s, &width, &text, &size, &capacity)) valid = 0;
+                digits = 1;
+            }
+            if (!digits) valid = 0;
+        }
+    }
+    if (valid && !scan_append(&text, &size, &capacity, 0)) valid = 0;
+    if (valid && destination) {
+        if (length == 8) *(long double *)destination = strtold(text, 0);
+        else if (length == 3) *(double *)destination = strtod(text, 0);
+        else *(float *)destination = strtof(text, 0);
+    }
+    free(text);
+    return valid;
+}
+
+int _crunch_scan_engine(FILE *stream, const char *format, void **slots,
+                        unsigned long count, struct __crunch_va_list_tag *ap)
+{
+    if (!stream || !format) {
+        errno = EINVAL;
+        return EOF;
+    }
+    struct scan_state state;
+    state.stream = stream;
+    state.consumed = 0;
+    state.slots = slots;
+    state.remaining = count;
+    state.ap = ap;
+    int assigned = 0;
+    int completed = 0;
+    int input_failure = 0;
+    while (*format) {
+        if (isspace((unsigned char)*format)) {
+            while (isspace((unsigned char)*format)) ++format;
+            while (isspace(scan_peek(&state))) scan_take(&state);
+            continue;
+        }
+        if (*format != '%') {
+            int c = scan_peek(&state);
+            if (c == EOF) { input_failure = 1; break; }
+            if (c != (unsigned char)*format) break;
+            scan_take(&state);
+            ++format;
+            continue;
+        }
+        ++format;
+        if (*format == '%') {
+            int c = scan_peek(&state);
+            if (c == EOF) { input_failure = 1; break; }
+            if (c != '%') break;
+            scan_take(&state);
+            ++format;
+            continue;
+        }
+        int suppress = 0;
+        if (*format == '*') { suppress = 1; ++format; }
+        int width = 0;
+        while (*format >= '0' && *format <= '9') {
+            int digit = *format++ - '0';
+            if (width > (2147483647 - digit) / 10) width = 2147483647;
+            else width = width * 10 + digit;
+        }
+        if (!width) width = 2147483647;
+        int length = 0;
+        if (*format == 'h') {
+            ++format;
+            length = 2;
+            if (*format == 'h') { ++format; length = 1; }
+        } else if (*format == 'l') {
+            ++format;
+            length = 3;
+            if (*format == 'l') { ++format; length = 4; }
+        } else if (*format == 'j') { ++format; length = 5; }
+        else if (*format == 'z') { ++format; length = 6; }
+        else if (*format == 't') { ++format; length = 7; }
+        else if (*format == 'L') { ++format; length = 8; }
+        int conversion = (unsigned char)*format;
+        if (!conversion) break;
+        ++format;
+        unsigned char set[256];
+        if (conversion == '[') {
+            for (int i = 0; i < 256; ++i) set[i] = 0;
+            int invert = 0;
+            if (*format == '^') { invert = 1; ++format; }
+            if (*format == ']') { set[']'] = 1; ++format; }
+            int previous = -1;
+            while (*format && *format != ']') {
+                int ch = (unsigned char)*format++;
+                if (ch == '-' && previous >= 0 && *format && *format != ']' &&
+                    (unsigned char)*format >= previous) {
+                    int end = (unsigned char)*format++;
+                    while (previous <= end) set[previous++] = 1;
+                    previous = end;
+                } else {
+                    set[ch] = 1;
+                    previous = ch;
+                }
+            }
+            if (*format != ']') break;
+            ++format;
+            if (invert)
+                for (int i = 0; i < 256; ++i) set[i] = !set[i];
+        }
+        if ((conversion == 'c' || conversion == 's' || conversion == '[') && length)
+            break;
+        if (conversion != 'c' && conversion != '[' && conversion != 'n')
+            while (isspace(scan_peek(&state))) scan_take(&state);
+        if (conversion == 'n') {
+            if (!suppress) {
+                void *p = scan_argument(&state);
+                if (!p) break;
+                scan_signed(p, length, state.consumed);
+            }
+            ++completed;
+            continue;
+        }
+        int c = scan_peek(&state);
+        if (c == EOF) { input_failure = 1; break; }
+        if (conversion == 'c' || conversion == 's' || conversion == '[') {
+            if (conversion == 'c' && width == 2147483647) width = 1;
+            char *p = suppress ? 0 : scan_argument(&state);
+            if (!suppress && !p) break;
+            int n = 0;
+            while (width && c != EOF &&
+                   (conversion == 'c' || (conversion == 's' && !isspace(c)) ||
+                    (conversion == '[' && set[c]))) {
+                if (p) p[n] = (char)c;
+                ++n;
+                --width;
+                scan_take(&state);
+                if (width) c = scan_peek(&state);
+            }
+            if (!n) break;
+            if (p && conversion != 'c') p[n] = 0;
+            if (!suppress) ++assigned;
+            ++completed;
+            continue;
+        }
+        if (conversion == 'd' || conversion == 'i' || conversion == 'u' ||
+            conversion == 'o' || conversion == 'x' || conversion == 'X' ||
+            conversion == 'p') {
+            int base = conversion == 'i' ? 0 : conversion == 'o' ? 8 :
+                       (conversion == 'x' || conversion == 'X' || conversion == 'p') ? 16 : 10;
+            unsigned long value = 0;
+            if (!scan_integer(&state, width, base, &value)) break;
+            if (!suppress) {
+                void *p = scan_argument(&state);
+                if (!p) break;
+                if (conversion == 'p') *(unsigned long *)p = value;
+                else if (conversion == 'd' || conversion == 'i') scan_signed(p, length, (long)value);
+                else scan_unsigned(p, length, value);
+                ++assigned;
+            }
+            ++completed;
+            continue;
+        }
+        if (conversion == 'a' || conversion == 'A' || conversion == 'e' ||
+            conversion == 'E' || conversion == 'f' || conversion == 'F' ||
+            conversion == 'g' || conversion == 'G') {
+            void *p = suppress ? 0 : scan_argument(&state);
+            if (!suppress && !p) break;
+            if (!scan_float(&state, width, length, p)) break;
+            if (!suppress) ++assigned;
+            ++completed;
+            continue;
+        }
+        break;
+    }
+    return input_failure && !completed ? EOF : assigned;
+}

@@ -1,0 +1,124 @@
+#include <stdlib.h>
+
+static const {
+    int mask = 0xfe ^ 0xf0;
+    long wide = 0x80000000;
+};
+
+int trace = 0;
+static int global_number = 50;
+static char global_byte = (char)255;
+static double global_real = 2.5;
+int calls = 0;
+char* select_buffer(char* buffer) { trace = trace * 10 + 1; return buffer; }
+int select_index() { trace = trace * 10 + 2; return 0; }
+int select_mask() { trace = trace * 10 + 3; return 0xfe; }
+int next_add() { calls += 1; return 4; }
+
+int main() {
+    char *buf = malloc(0xffff);
+    if (!buf) return 1;
+    buf[0] = (char)0xfe;
+    buf[0xfffe] = (char)0x80;
+    int index = 0;
+    buf[index++] = (char)(buf[0] ^ 0xff);
+    if (index != 1 || buf[0] != 1 || buf[0xfffe] != 0x80) return 2;
+    if ((select_buffer(buf)[select_index()] ^= select_mask()) != 255 ||
+        trace != 123 || buf[0] != 255) return 6;
+    if ((buf[0] += 2) != 1 || buf[0] != 1) return 7;
+    index = 0;
+    if ((buf[index++] += 2) != 3 || index != 1 || buf[0] != 3) return 12;
+    trace = 0;
+    if ((*select_buffer(buf) ^= select_mask()) != 253 ||
+        trace != 13 || buf[0] != 253) return 18;
+    if ((*buf += (char)4) != 1 || buf[0] != 1) return 19;
+    trace = 0;
+    if (++*select_buffer(buf) != 2 || trace != 1 || buf[0] != 2) return 25;
+    if ((*buf)-- != 2 || buf[0] != 1) return 26;
+    free(buf);
+
+    int values[] = {50};
+    int* p = values;
+    if ((p[0] += 4) != 54) return 8;
+    p[0] -= 2;
+    p[0] *= 2;
+    p[0] /= 4;
+    p[0] %= 7;
+    p[0] &= 6;
+    p[0] |= 8;
+    p[0] ^= 3;
+    p[0] <<= 2;
+    if ((p[0] >>= 2) != 15 || values[0] != 15) return 9;
+    if ((values[0] += 1.75) != 16 || values[0] != 16) return 10;
+    if ((*p++ += 1) != 17 || p != values + 1 || values[0] != 17) return 20;
+    p = values;
+    *p -= 2;
+    *p *= 2;
+    *p /= 5;
+    *p %= 5;
+    *p |= 8;
+    *p &= 11;
+    *p ^= 3;
+    *p <<= 2;
+    if ((*p >>= 2) != 10 || values[0] != 10) return 21;
+    if ((*p += 1.75) != 11 || values[0] != 11) return 22;
+    if ((*p)++ != 11 || *p != 12 || ++*p != 13 || --*p != 12 ||
+        (*p)-- != 12 || *p != 11) return 27;
+    int indices[] = {0};
+    if (values[indices[0]++]++ != 11 || indices[0] != 1 || values[0] != 12) return 28;
+    double reals[] = {2.5};
+    if ((reals[0] *= 2) != 5.0 || reals[0] != 5.0) return 11;
+    double* r = reals;
+    if ((*r /= 2) != 2.5 || reals[0] != 2.5) return 23;
+    long magnitude = -4294967296;
+    long* long_ptr = &magnitude;
+    if ((*long_ptr /= 2) != -2147483648 || magnitude != -2147483648) return 24;
+    if ((*long_ptr)++ != -2147483648 || magnitude != -2147483647) return 32;
+
+    if ((global_number += next_add()) != 54 || global_number != 54 || calls != 1) return 13;
+    global_number -= 2;
+    global_number *= 2;
+    global_number /= 4;
+    global_number %= 7;
+    global_number &= 6;
+    global_number |= 8;
+    global_number ^= 3;
+    global_number <<= 2;
+    if ((global_number >>= 2) != 15 || global_number != 15) return 14;
+    if ((global_byte += (char)1) != 0 || global_byte != 0) return 15;
+    if ((global_number += 1.75) != 16 || global_number != 16) return 16;
+    if ((global_real *= 2) != 5.0 || global_real != 5.0) return 17;
+    if (global_number++ != 16 || global_number != 17 || ++global_number != 18 ||
+        --global_number != 17 || global_number-- != 17 || global_number != 16) return 29;
+    global_byte = (char)255;
+    if (global_byte++ != 255 || global_byte != 0 || --global_byte != 255) return 30;
+    global_real = 0.1;
+    double original = global_real;
+    if (global_real++ != original || global_real != original + 1.0) return 31;
+    global_real = 9007199254740992.0;
+    if (global_real++ != 9007199254740992.0 ||
+        global_real != 9007199254740992.0) return 33;
+
+    int x = 1;
+    int y = 0XF5;
+    int z;
+    x <<= 5;
+    z = y ^ 0xf0;
+    if (x != 32 || z != 5 || mask != 14) return 3;
+    x |= 0x40;
+    x ^= 0x30;
+    x &= 0x7f;
+    x >>= 4;
+    if (x != 5 || (0xf0 & 0x3c) != 0x30 ||
+        (0xa0 | 0x05) != 0xa5 || (0x04 | 0x03 & 0x01) != 5 ||
+        (1 << 2 + 1) != 8 || ~0 != -1) return 4;
+
+    int negative = -0x10;
+    negative >>= 2;
+    long maximum = 0x7fffffffffffffff;
+    long minimum = -0x8000000000000000;
+    if (negative != -4 || 0x7fffffff != 2147483647 ||
+        wide != 2147483648 || (maximum >> 60) != 7 ||
+        (minimum >> 63) != -1) return 5;
+    return 42;
+}

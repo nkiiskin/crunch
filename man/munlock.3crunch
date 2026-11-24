@@ -1,0 +1,14 @@
+.TH MUNLOCK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+munlock \- unlocks pages containing the specified range
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int munlock(const void* address, size_t byte_count);
+.fi
+.SH DESCRIPTION
+Unlocks pages containing the specified range.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR munlock (2)

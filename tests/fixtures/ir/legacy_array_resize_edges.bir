@@ -1,0 +1,789 @@
+CRUNCH-IR 2
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+local 2 ptr
+local 3 int
+push 0
+store 2 ptr
+push 0
+store 3 int
+local 4 ptr
+local 5 int
+push 0
+store 4 ptr
+push 0
+store 5 int
+local 6 ptr
+local 7 int
+push 0
+store 6 ptr
+push 0
+store 7 int
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L0
+push 1
+ret int
+label L0
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+load 1
+push 2
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+push 0
+ptradd byte
+push 17
+cast int byte
+storeind byte
+drop
+load 0
+load 1
+push 4
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 4
+ne int
+bool int
+jnz L4
+load 0
+push 0
+ptradd byte
+loadind byte
+cast byte int
+push 17
+ne int
+bool
+jmp L5
+label L4
+push 1
+label L5
+bool int
+jz L2
+push 1
+ret int
+label L2
+load 0
+push 3
+ptradd byte
+push 23
+cast int byte
+storeind byte
+drop
+load 0
+load 1
+push 1
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 1
+ne int
+bool int
+jnz L8
+load 0
+push 0
+ptradd byte
+loadind byte
+cast byte int
+push 17
+ne int
+bool
+jmp L9
+label L8
+push 1
+label L9
+bool int
+jz L6
+push 2
+ret int
+label L6
+load 0
+load 1
+push 1
+neg int
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L10
+push 4
+ret int
+label L10
+load 0
+load 1
+push 1
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+push 0
+ptradd byte
+push 31
+cast int byte
+storeind byte
+drop
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L12
+push 4
+ret int
+label L12
+load 0
+load 1
+push 0
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L14
+push 4
+ret int
+label L14
+load 2
+load 3
+push 0
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L16
+push 5
+ret int
+label L16
+load 2
+load 3
+push 0
+array_resize int
+store 2 ptr
+store 3 int
+load 2
+load 3
+push 2
+array_resize int
+store 2 ptr
+store 3 int
+load 2
+push 0
+ptradd int
+push 123456
+storeind int
+drop
+load 2
+load 3
+push 4
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 4
+ne int
+bool int
+jnz L20
+load 2
+push 0
+ptradd int
+loadind int
+push 123456
+ne int
+bool
+jmp L21
+label L20
+push 1
+label L21
+bool int
+jz L18
+push 5
+ret int
+label L18
+load 2
+push 3
+ptradd int
+push 765432
+storeind int
+drop
+load 2
+load 3
+push 1
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 1
+ne int
+bool int
+jnz L24
+load 2
+push 0
+ptradd int
+loadind int
+push 123456
+ne int
+bool
+jmp L25
+label L24
+push 1
+label L25
+bool int
+jz L22
+push 6
+ret int
+label L22
+load 2
+load 3
+push 1
+neg int
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L26
+push 8
+ret int
+label L26
+load 2
+load 3
+push 1
+array_resize int
+store 2 ptr
+store 3 int
+load 2
+push 0
+ptradd int
+push 31
+storeind int
+drop
+load 2
+load 3
+push 0
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L28
+push 8
+ret int
+label L28
+load 2
+load 3
+push 0
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L30
+push 8
+ret int
+label L30
+load 4
+load 5
+push 0
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L32
+push 9
+ret int
+label L32
+load 4
+load 5
+push 0
+array_resize long
+store 4 ptr
+store 5 int
+load 4
+load 5
+push 2
+array_resize long
+store 4 ptr
+store 5 int
+load 4
+push 0
+ptradd long
+push 123456789
+cast int long
+storeind long
+drop
+load 4
+load 5
+push 4
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 4
+ne int
+bool int
+jnz L36
+load 4
+push 0
+ptradd long
+loadind long
+push 123456789
+cast int long
+ne long
+bool
+jmp L37
+label L36
+push 1
+label L37
+bool int
+jz L34
+push 9
+ret int
+label L34
+load 4
+push 3
+ptradd long
+push 7654321
+cast int long
+storeind long
+drop
+load 4
+load 5
+push 1
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 1
+ne int
+bool int
+jnz L40
+load 4
+push 0
+ptradd long
+loadind long
+push 123456789
+cast int long
+ne long
+bool
+jmp L41
+label L40
+push 1
+label L41
+bool int
+jz L38
+push 10
+ret int
+label L38
+load 4
+load 5
+push 1
+neg int
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L42
+push 12
+ret int
+label L42
+load 4
+load 5
+push 1
+array_resize long
+store 4 ptr
+store 5 int
+load 4
+push 0
+ptradd long
+push 31
+cast int long
+storeind long
+drop
+load 4
+load 5
+push 0
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L44
+push 12
+ret int
+label L44
+load 4
+load 5
+push 0
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L46
+push 12
+ret int
+label L46
+load 6
+load 7
+push 0
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L48
+push 13
+ret int
+label L48
+load 6
+load 7
+push 0
+array_resize real
+store 6 ptr
+store 7 int
+load 6
+load 7
+push 2
+array_resize real
+store 6 ptr
+store 7 int
+load 6
+push 0
+ptradd real
+pushr 0x3ff4000000000000
+storeind real
+drop
+load 6
+load 7
+push 4
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 4
+ne int
+bool int
+jnz L52
+load 6
+push 0
+ptradd real
+loadind real
+pushr 0x3ff4000000000000
+ne real
+bool
+jmp L53
+label L52
+push 1
+label L53
+bool int
+jz L50
+push 13
+ret int
+label L50
+load 6
+push 3
+ptradd real
+pushr 0x4004000000000000
+storeind real
+drop
+load 6
+load 7
+push 1
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 1
+ne int
+bool int
+jnz L56
+load 6
+push 0
+ptradd real
+loadind real
+pushr 0x3ff4000000000000
+ne real
+bool
+jmp L57
+label L56
+push 1
+label L57
+bool int
+jz L54
+push 14
+ret int
+label L54
+load 6
+load 7
+push 1
+neg int
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L58
+push 16
+ret int
+label L58
+load 6
+load 7
+push 1
+array_resize real
+store 6 ptr
+store 7 int
+load 6
+push 0
+ptradd real
+pushr 0x400e000000000000
+storeind real
+drop
+load 6
+load 7
+push 0
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L60
+push 16
+ret int
+label L60
+load 6
+load 7
+push 0
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L62
+push 16
+ret int
+label L62
+load 0
+load 1
+push 1
+array_resize byte
+store 0 ptr
+store 1 int
+load 0
+push 0
+ptradd byte
+push 29
+cast int byte
+storeind byte
+drop
+load 0
+load 1
+push 9223372036854775807
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L64
+push 17
+ret int
+label L64
+load 0
+load 1
+push 9223372036854775807
+array_resize byte
+store 0 ptr
+store 1 int
+load 1
+push 0
+ne int
+bool int
+jz L66
+push 17
+ret int
+label L66
+load 2
+load 3
+push 1
+array_resize int
+store 2 ptr
+store 3 int
+load 2
+push 0
+ptradd int
+push 29
+storeind int
+drop
+load 2
+load 3
+push 9223372036854775807
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L68
+push 18
+ret int
+label L68
+load 2
+load 3
+push 9223372036854775807
+array_resize int
+store 2 ptr
+store 3 int
+load 3
+push 0
+ne int
+bool int
+jz L70
+push 18
+ret int
+label L70
+load 4
+load 5
+push 1
+array_resize long
+store 4 ptr
+store 5 int
+load 4
+push 0
+ptradd long
+push 29
+cast int long
+storeind long
+drop
+load 4
+load 5
+push 9223372036854775807
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L72
+push 19
+ret int
+label L72
+load 4
+load 5
+push 9223372036854775807
+array_resize long
+store 4 ptr
+store 5 int
+load 5
+push 0
+ne int
+bool int
+jz L74
+push 19
+ret int
+label L74
+load 6
+load 7
+push 1
+array_resize real
+store 6 ptr
+store 7 int
+load 6
+push 0
+ptradd real
+pushr 0x4007333333333333
+storeind real
+drop
+load 6
+load 7
+push 9223372036854775807
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L76
+push 20
+ret int
+label L76
+load 6
+load 7
+push 9223372036854775807
+array_resize real
+store 6 ptr
+store 7 int
+load 7
+push 0
+ne int
+bool int
+jz L78
+push 20
+ret int
+label L78
+push 42
+ret int
+end

@@ -1,0 +1,50 @@
+.TH FOPEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fopen \- open a Crunch file stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "struct FILE* fopen(const char* " path ", const char* " mode ");"
+.fi
+.SH DESCRIPTION
+.BR fopen ()
+opens a path and allocates a Crunch stream. The initial mode character is
+.B r
+(read an existing file),
+.B w
+(write, creating or truncating), or
+.B a
+(write, creating if necessary, with writes forced to the end).
+An optional
+.B +
+enables both reading and writing.
+.B b
+is accepted and has no effect on Linux.
+.B e
+sets close-on-exec.
+With
+.B w
+only,
+.B x
+requires creation of a new file.
+Each modifier may appear once, in any order.
+New files use permissions 0666 modified by the process umask.
+.SH RETURN VALUE
+Returns a stream pointer on success, or null with
+.B errno
+set on failure. Invalid modes or null arguments fail with
+.BR EINVAL .
+.SH NOTES
+The stream belongs to Crunch and must be released with
+.BR fclose (3crunch).
+Its fields are private and it is not compatible with a C library
+.BR FILE .
+Stream I/O is unbuffered.
+Crunch's allocator and errno are not thread-safe.
+.SH SEE ALSO
+.BR fclose (3crunch),
+.BR fseek (3crunch),
+.BR fread (3crunch),
+.BR fwrite (3crunch),
+.BR open (3crunch)

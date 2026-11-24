@@ -1,0 +1,15 @@
+.TH MOVE_PAGES 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+move_pages \- Linux x86-64 syscall 279
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_260_299.h>
+.B long move_pages(pid_t process, unsigned long count, void** pages, const int* nodes, int* status, int flags);
+.fi
+.SH DESCRIPTION
+Queries or migrates pages across NUMA nodes; privileges and kernel support vary.
+This is a direct Linux x86-64 syscall wrapper; availability and permissions depend on the kernel and security policy.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set on failure.
+.SH SEE ALSO
+.BR move_pages (2)

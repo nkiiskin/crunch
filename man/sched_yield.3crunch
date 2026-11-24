@@ -1,0 +1,14 @@
+.TH SCHED_YIELD 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_yield \- yield the processor
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_yield(void);
+.fi
+.SH DESCRIPTION
+Relinquishes the calling thread's processor according to Linux scheduling rules.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR sched_yield (2)

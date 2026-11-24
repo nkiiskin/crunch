@@ -1,0 +1,16 @@
+.TH WAIT4 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+wait4 \- wait for a child and obtain resource usage
+.SH SYNOPSIS
+.nf
+.B #include <sys/wait.h>
+.B pid_t wait4(pid_t process, int* status, int options, struct rusage* usage);
+.fi
+.SH DESCRIPTION
+Waits for a child selected by process.  Status and usage may be NULL.
+Options include WNOHANG, WUNTRACED, and WCONTINUED.
+.SH RETURN VALUE
+Returns the child PID, zero for WNOHANG, or \-1 with errno set.
+.SH SEE ALSO
+.BR waitpid (3crunch),
+.BR wait4 (2)

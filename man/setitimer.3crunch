@@ -1,0 +1,20 @@
+.TH SETITIMER 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setitimer \- set an interval timer
+.SH SYNOPSIS
+.nf
+.B #include <sys/time.h>
+.B int setitimer(int which, const struct itimerval* value, struct itimerval* previous);
+.fi
+.SH DESCRIPTION
+Sets ITIMER_REAL, ITIMER_VIRTUAL or ITIMER_PROF. A zero it_value disarms the
+timer; a nonzero it_interval enables periodic delivery. If previous is not
+NULL, it receives the prior timer state. Linux also permits a NULL value,
+with Linux\-specific behavior; portable callers should supply a value.
+ITIMER_REAL and alarm share a timer.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR getitimer (3crunch),
+.BR alarm (3crunch),
+.BR setitimer (2)

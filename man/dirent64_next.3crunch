@@ -1,0 +1,47 @@
+.TH DIRENT64_NEXT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+dirent64_next \- decode one Linux directory record
+.SH SYNOPSIS
+.nf
+.B #include <dirent.h>
+.PP
+.BI "int dirent64_next(const char* " buffer ", long " byte_count ,
+.BI "                  long* " position ", struct dirent64* " entry ");"
+.fi
+.SH DESCRIPTION
+Decode the next record in the bytes returned by
+.BR getdents64 (3crunch).
+Set
+.I position
+to zero for each new buffer. A successful call advances it by the record
+length and fills the entry. The entry's
+.B name
+points into the input buffer and remains valid only until the buffer is
+modified or released;
+.B name_length
+excludes the NUL terminator.
+.B inode
+and
+.B offset
+hold the kernel bit patterns in signed longs; offset is an opaque directory
+position cookie, not an offset into the buffer.
+.B kind
+is a
+.B DT_*
+value and may be
+.BR DT_UNKNOWN .
+The function checks bounds and NUL termination, but the caller must provide
+accessible storage and avoid changing the buffer while decoding it.
+.SH RETURN VALUE
+Returns 1 for an entry or 0 at the end of the buffer, leaving
+.B errno
+unchanged. Returns \-1 with
+.B errno
+set to
+.B EINVAL
+for invalid arguments or malformed records; position and entry remain unchanged.
+.SH NOTES
+This interface decodes Linux x86\-64 records. Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR getdents64 (3crunch),
+.BR getdents64 (2)

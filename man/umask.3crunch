@@ -1,0 +1,17 @@
+.TH UMASK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+umask \- set the file creation mask
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.B mode_t umask(mode_t mask);
+.fi
+.SH DESCRIPTION
+Sets the process file mode creation mask to the low permission bits of mask.
+The mask is inherited by children and retained across exec.
+.SH RETURN VALUE
+Returns the previous mask; this call does not fail.
+.SH SEE ALSO
+.BR creat (3crunch),
+.BR open (3crunch),
+.BR umask (2)

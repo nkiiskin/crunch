@@ -1,0 +1,60 @@
+.TH LSEEK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+lseek \- change the file offset of a descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "off_t lseek(int " descriptor ", off_t " offset ", int " whence ");"
+.fi
+.SH DESCRIPTION
+.BR lseek ()
+changes the open file's offset by a signed byte
+.I offset
+relative to the position selected by
+.IR whence .
+.B SEEK_SET
+selects the beginning,
+.B SEEK_CUR
+the current offset, and
+.B SEEK_END
+the end of the file.
+These constants are declared in
+.BR <unistd.h> .
+Seeking beyond the end does not itself extend the file.
+.SH RETURN VALUE
+The resulting byte offset is returned on success.
+On failure, \-1 is returned and
+.B errno
+is set to the positive Linux error number.
+Successful calls leave
+.B errno
+unchanged.
+.SH ERRORS
+Include
+.B <errno.h>
+to inspect
+.BR errno .
+Possible errors include
+.B EBADF
+for an invalid descriptor,
+.B EINVAL
+for an invalid origin or resulting offset, and
+.B ESPIPE
+for a pipe or another nonseekable descriptor.
+Other Linux
+.BR lseek (2)
+errors are possible.
+.SH NOTES
+The offset and result use Crunch's signed 64\-bit
+.BR long .
+This Crunch library function is linked from
+.BR libcrunch.a ;
+its
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR open (3crunch),
+.BR read (3crunch),
+.BR write (3crunch),
+.BR lseek (2)

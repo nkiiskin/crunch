@@ -1,0 +1,7 @@
+int scale = 4;
+
+int weighted_sum(int *values, int count) {
+    int total = 0;
+    for (int i = 0; i < count; i++) total += values[i] * scale;
+    return total;
+}

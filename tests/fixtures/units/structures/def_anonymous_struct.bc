@@ -1,0 +1,35 @@
+typedef struct {
+    char marker;
+    struct {
+        int x;
+        struct { long y; };
+    };
+    int tail;
+} Record;
+
+Record global;
+
+int main() {
+    Record local, copy;
+    local.marker = (char)3;
+    local.x = 7;
+    local.y = 11;
+    local.tail = 17;
+    copy = local;
+    global = copy;
+
+    if (global.marker != 3 || global.x != 7 || global.y != 11 || global.tail != 17)
+        return 1;
+
+    typedef struct { int value; } Local;
+    Local value;
+    value.value = 42;
+    {
+        typedef struct { long value; } Local;
+        Local inner;
+        inner.value = 9;
+        if (inner.value != 9)
+            return 2;
+    }
+    return value.value;
+}

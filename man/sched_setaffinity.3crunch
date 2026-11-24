@@ -1,0 +1,14 @@
+.TH SCHED_SETAFFINITY 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sched_setaffinity \- sets a thread cpu affinity from a linux cpu bitmap of size bytes; process zero selects the caller
+.SH SYNOPSIS
+.nf
+.B #include <sched.h>
+.B int sched_setaffinity(pid_t process, size_t size, const void* mask);
+.fi
+.SH DESCRIPTION
+Sets a thread CPU affinity from a Linux CPU bitmap of size bytes; process zero selects the caller.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sched_setaffinity (2)

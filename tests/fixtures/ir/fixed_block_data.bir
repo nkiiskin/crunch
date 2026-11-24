@@ -1,0 +1,16 @@
+CRUNCH-IR 10
+globalblock values 12 4
+blockdata values 2a00000008000000
+globalalias first values 0 int
+globalalias second values 4 int
+globalalias zero values 8 int
+func main 0 int
+gload first int
+gload second int
+add int
+gload zero int
+add int
+push 8
+sub int
+ret int
+end

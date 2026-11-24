@@ -1,0 +1,10 @@
+unsigned long strlen(const char* text);
+int main() {
+    char text[] = "Hello";
+    int n = (int)strlen(text);
+    char small = (char)strlen(text);
+    long wide = (long)strlen(text);
+    int sum = n + (int)small + (int)wide;
+    if (sum != 15) return 1;
+    return 42;
+}

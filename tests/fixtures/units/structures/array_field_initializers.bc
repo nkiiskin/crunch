@@ -1,0 +1,24 @@
+struct Container {
+    int values[2];
+    char name[5];
+};
+
+struct Container global;
+
+int main() {
+    struct Container local;
+    local.values[0] = 19;
+    local.values[1] = 23;
+    copy(local.name, "Nick", 5);
+    global.values[0] = 19;
+    global.values[1] = 23;
+    copy(global.name, "Nick", 5);
+
+    if (sizeof(local.values) != 8) return 1;
+    if (sizeof(global.values) != 8) return 2;
+    if (sizeof(local.name) != 5) return 3;
+    if (sizeof(global.name) != 5) return 4;
+    if (local.name[0] != 'N' || local.name[3] != 'k' || local.name[4] != 0) return 5;
+    if (global.name[0] != 'N' || global.name[3] != 'k' || global.name[4] != 0) return 6;
+    return local.values[0] + local.values[1];
+}

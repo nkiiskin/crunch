@@ -1,0 +1,57 @@
+#include <stdarg.h>
+
+struct Mixed {
+    double x;
+    unsigned a:5;
+    signed b:7;
+    unsigned :0;
+    char tail;
+};
+struct Reverse { unsigned a:3; double x; };
+struct Aligned { unsigned a:3; long double data[]; };
+struct Padding { double x; unsigned :1; };
+struct Big { unsigned a:3; long double x; unsigned b:5; };
+union Bits { unsigned a:3; unsigned b:5; double x; };
+
+struct Mixed change_mixed(struct Mixed value) {
+    value.x += 1.0;
+    value.a += 2;
+    value.b -= 2;
+    return value;
+}
+
+struct Reverse change_reverse(struct Reverse value) {
+    value.a++;
+    value.x += 1.0;
+    return value;
+}
+
+struct Aligned change_aligned(struct Aligned value) {
+    value.a++;
+    return value;
+}
+
+union Bits change_union(union Bits value) {
+    value.a = 3;
+    return value;
+}
+
+int inspect_padding(struct Padding value, int tail) {
+    return value.x == 6.5 && tail == 42;
+}
+
+struct Big change_big(struct Big value) {
+    value.a++;
+    value.b++;
+    return value;
+}
+
+int inspect_variadic(int marker, ...) {
+    va_list ap;
+    va_start(ap, marker);
+    struct Mixed m = va_arg(ap, struct Mixed);
+    struct Big b = va_arg(ap, struct Big);
+    va_end(ap);
+    return m.x == 2.5 && m.a == 5 && m.b == -4 && m.tail == 8 &&
+           b.a == 2 && b.x == 7.5L && b.b == 6;
+}

@@ -1,0 +1,9 @@
+typedef struct { int value; } First;
+typedef struct { int value; } Second;
+
+int main() {
+    First first;
+    Second second;
+    first = second;
+    return 0;
+}

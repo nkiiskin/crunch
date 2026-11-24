@@ -1,0 +1,14 @@
+.TH CRUNCH_SYSCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_sysctl \- invokes obsolete _sysctl syscall 156 with a raw argument structure
+.SH SYNOPSIS
+.nf
+.B #include <sys/syscall_extra.h>
+.B int crunch_sysctl(void* arguments);
+.fi
+.SH DESCRIPTION
+Invokes obsolete _sysctl syscall 156 with a raw argument structure. Modern Linux kernels return ENOSYS.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR _sysctl (2)

@@ -1,0 +1,385 @@
+CRUNCH-IR 3
+global shared ptr 0
+global shared$length int 0
+globalblock global_box 16 8
+globalalias global_box__values global_box 0 ptr
+globalalias global_box__values$length global_box 8 int
+func second 1 int
+param 0 0 ptr
+load 0
+push 1
+ptradd int
+store 0 ptr
+load 0
+loadind int
+ret int
+push 0
+ret int
+end
+func main 0 int
+local 0 ptr
+local 1 int
+push 0
+store 0 ptr
+push 0
+store 1 int
+push 0
+push 0
+push 3
+array_resize int
+store 0 ptr
+store 1 int
+load 0
+bool ptr
+jz L0
+load 0
+push 0
+ptradd int
+push 12
+storeind int
+drop
+load 0
+push 1
+ptradd int
+push 30
+storeind int
+drop
+load 0
+push 2
+ptradd int
+push 44
+storeind int
+drop
+label L0
+local 2 ptr
+load 0
+store 2 ptr
+load 2
+push 1
+ptradd int
+store 2 ptr
+load 2
+loadind int
+push 30
+ne int
+bool int
+jnz L3
+load 0
+call second 1
+push 30
+ne int
+bool
+jmp L4
+label L3
+push 1
+label L4
+bool int
+jz L1
+push 1
+ret int
+label L1
+local 3 ptr
+load 0
+store 3 ptr
+load 3
+push 1
+ptradd int
+store 3 ptr
+load 3
+loadind int
+push 30
+ne int
+bool int
+jz L5
+push 2
+ret int
+label L5
+local 4 ptr
+local 5 long
+load 0
+store 4 ptr
+load 1
+store 5 long
+load 5
+push 2147483647
+cast int long
+gt long
+jnz L7
+gload shared$length int
+cast int long
+load 5
+lt long
+jz L8
+gload shared ptr
+gload shared$length int
+load 5
+array_resize int
+gstore shared ptr
+gstore shared$length int
+label L8
+gload shared$length int
+cast int long
+load 5
+lt long
+jnz L9
+gload shared ptr
+load 4
+load 5
+push 4
+mul long
+runtime_call memcpy 3
+drop
+jmp L9
+label L7
+label L9
+gload shared ptr
+push 0
+ptradd int
+push 13
+storeind int
+drop
+load 0
+push 0
+ptradd int
+loadind int
+push 12
+ne int
+bool int
+jnz L12
+gload shared ptr
+push 0
+ptradd int
+loadind int
+push 13
+ne int
+bool
+jmp L13
+label L12
+push 1
+label L13
+bool int
+jz L10
+push 3
+ret int
+label L10
+local 6 int
+localblock __local_struct_6 16 8
+localalias __local_struct_address_6 __local_struct_6 0 byte
+localalias original.values __local_struct_6 0 ptr
+localalias original.values$length __local_struct_6 8 int
+push 0
+lstore original.values ptr
+push 0
+lstore original.values$length int
+local 7 ptr
+local 8 long
+load 0
+store 7 ptr
+load 1
+store 8 long
+load 8
+push 2147483647
+cast int long
+gt long
+jnz L14
+lload original.values$length int
+cast int long
+load 8
+lt long
+jz L15
+lload original.values ptr
+lload original.values$length int
+load 8
+array_resize int
+lstore original.values ptr
+lstore original.values$length int
+label L15
+lload original.values$length int
+cast int long
+load 8
+lt long
+jnz L16
+lload original.values ptr
+load 7
+load 8
+push 4
+mul long
+runtime_call memcpy 3
+drop
+jmp L16
+label L14
+label L16
+local 9 int
+localblock __local_struct_9 16 8
+localalias __local_struct_address_9 __local_struct_9 0 byte
+localalias copy.values __local_struct_9 0 ptr
+localalias copy.values$length __local_struct_9 8 int
+push 0
+lstore copy.values ptr
+push 0
+lstore copy.values$length int
+lload original.values ptr
+lstore copy.values ptr
+lload original.values$length int
+lstore copy.values$length int
+push 0
+lload copy.values ptr
+lload original.values ptr
+ne ptr
+bool int
+jnz L21
+lload copy.values$length int
+push 3
+ne int
+bool
+jmp L22
+label L21
+push 1
+label L22
+bool int
+jnz L19
+lload copy.values ptr
+push 1
+ptradd int
+loadind int
+push 30
+ne int
+bool
+jmp L20
+label L19
+push 1
+label L20
+bool int
+jz L17
+push 4
+ret int
+label L17
+local 10 ptr
+local 11 int
+push 0
+store 10 ptr
+push 0
+store 11 int
+load 10
+load 11
+push 1
+array_resize_bytes 16
+store 10 ptr
+store 11 int
+local 12 ptr
+load 10
+push 0
+ptradd_bytes 16
+store 12 ptr
+load 12
+push 0
+ptradd_bytes 16
+lload original.values ptr
+storeind ptr
+drop
+load 12
+push 0
+ptradd_bytes 16
+push 8
+ptradd byte
+lload original.values$length int
+storeind int
+push 0
+drop
+load 10
+push 0
+ptradd_bytes 16
+loadind ptr
+lload original.values ptr
+ne ptr
+bool int
+jnz L25
+local 13 ptr
+load 10
+push 0
+ptradd_bytes 16
+store 13 ptr
+load 13
+push 8
+ptradd byte
+loadind int
+push 3
+ne int
+bool
+jmp L26
+label L25
+push 1
+label L26
+bool int
+jz L23
+push 5
+ret int
+label L23
+local 14 ptr
+load 10
+push 0
+ptradd_bytes 16
+store 14 ptr
+gaddr global_box__values
+load 14
+push 0
+ptradd_bytes 16
+loadind ptr
+storeind ptr
+drop
+load 14
+push 0
+ptradd_bytes 16
+push 8
+ptradd byte
+loadind int
+gstore global_box__values$length int
+push 0
+drop
+gload global_box__values ptr
+lload original.values ptr
+ne ptr
+bool int
+jnz L29
+gload global_box__values$length int
+push 3
+ne int
+bool
+jmp L30
+label L29
+push 1
+label L30
+bool int
+jz L27
+push 6
+ret int
+label L27
+lload original.values ptr
+lload original.values$length int
+push 0
+array_resize int
+lstore original.values ptr
+lstore original.values$length int
+load 10
+load 11
+push 0
+array_resize_bytes 16
+store 10 ptr
+store 11 int
+gload shared ptr
+gload shared$length int
+push 0
+array_resize int
+gstore shared ptr
+gstore shared$length int
+load 0
+load 1
+push 0
+array_resize int
+store 0 ptr
+store 1 int
+push 42
+ret int
+push 0
+ret int
+end

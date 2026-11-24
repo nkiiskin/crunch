@@ -1,0 +1,14 @@
+.TH SETHOSTNAME 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+sethostname \- sets the hostname of the calling uts namespace; requires cap_sys_admin in its user namespace
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int sethostname(const char* name, size_t length);
+.fi
+.SH DESCRIPTION
+Sets the hostname of the calling UTS namespace; requires CAP_SYS_ADMIN in its user namespace.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR sethostname (2)

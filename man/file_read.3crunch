@@ -1,0 +1,17 @@
+.TH FILE_READ 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+file_read \- read bytes from a descriptor
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B long file_read(long descriptor, char* buffer, long byte_count);
+.fi
+.SH DESCRIPTION
+Reads bytes into a writable buffer. Reads may be short and are not retried.
+Supply a nonnegative byte count and sufficient buffer space.
+.SH RETURN VALUE
+Returns bytes read, zero at EOF, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR file_open (3crunch),
+.BR read (3crunch)

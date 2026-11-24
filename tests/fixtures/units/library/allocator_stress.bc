@@ -1,0 +1,31 @@
+#include <stdlib.h>
+#include <errno.h>
+
+int main() {
+    errno = ERANGE;
+    for (int round = 0; round < 1200; round++) {
+        int size = 1 + (round * 37) % 256;
+        char* first = malloc(size);
+        char* second = malloc(size);
+        char* other = malloc(257);
+        if (!first || !second || !other || errno != ERANGE) return 1;
+        for (int i = 0; i < size; i++) {
+            first[i] = (char)(i % 251);
+            second[i] = (char)((i + 19) % 251);
+        }
+        other[0] = (char)71;
+        other[256] = (char)72;
+        char* grown = realloc(first, size + 260);
+        if (!grown || errno != ERANGE) return 2;
+        for (int i = 0; i < size; i++) {
+            if (grown[i] != i % 251 || second[i] != (i + 19) % 251) return 3;
+        }
+        if (other[0] != 71 || other[256] != 72) return 4;
+        char* shrunk = realloc(grown, 1);
+        if (!shrunk || shrunk[0] != 0 || errno != ERANGE) return 5;
+        free(second);
+        free(other);
+        free(shrunk);
+    }
+    return errno == ERANGE ? 42 : 6;
+}

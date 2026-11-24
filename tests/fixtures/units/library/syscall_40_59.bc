@@ -1,0 +1,114 @@
+#include <unistd.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <sys/sendfile.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <errno.h>
+
+int shared_value = 0;
+int child_entry(void* argument) {
+    int* value = argument;
+    return *value;
+}
+
+int shared_child(void* argument) {
+    int* value = argument;
+    shared_value = *value;
+    return 0;
+}
+
+int main(void) {
+    int input = open("sendfile-source", O_CREAT | O_TRUNC | O_RDWR, 384);
+    int output = open("sendfile-destination", O_CREAT | O_TRUNC | O_RDWR, 384);
+    if (input < 0 || output < 0 || write(input, "abcdef", 6) != 6 ||
+        lseek(input, 1, SEEK_SET) != 1) return 1;
+    off_t offset = 2;
+    errno = EBUSY;
+    if (sendfile(output, input, &offset, 3) != 3 || offset != 5 ||
+        lseek(input, 0, SEEK_CUR) != 1 || errno != EBUSY) return 2;
+    if (sendfile(output, input, 0, 2) != 2 || lseek(input, 0, SEEK_CUR) != 3)
+        return 3;
+    char buffer[8];
+    if (pread(output, buffer, 5, 0) != 5 || memcmp(buffer, "cdebc", 5))
+        return 4;
+    if (sendfile(-1, input, 0, 1) != -1 || errno != EBADF ||
+        close(input) || close(output) || unlink("sendfile-source") ||
+        unlink("sendfile-destination")) return 5;
+
+    int pair[2];
+    errno = EBUSY;
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, pair) || errno != EBUSY) return 6;
+    int enabled = 1;
+    int actual = 0;
+    socklen_t optlen = sizeof(actual);
+    if (setsockopt(pair[0], SOL_SOCKET, SO_KEEPALIVE, &enabled, sizeof(enabled)) ||
+        getsockopt(pair[0], SOL_SOCKET, SO_KEEPALIVE, &actual, &optlen) ||
+        actual != 1 || optlen != sizeof(actual)) return 7;
+    struct sockaddr_un address;
+    socklen_t length = sizeof(address);
+    if (getsockname(pair[0], (struct sockaddr*)&address, &length) ||
+        address.sun_family != AF_UNIX) return 8;
+    length = sizeof(address);
+    if (getpeername(pair[0], (struct sockaddr*)&address, &length) ||
+        address.sun_family != AF_UNIX) return 9;
+    if (sendto(pair[0], "xy", 2, MSG_NOSIGNAL, 0, 0) != 2 ||
+        read(pair[1], buffer, 2) != 2 || memcmp(buffer, "xy", 2) ||
+        shutdown(pair[0], SHUT_WR) || read(pair[1], buffer, 1) != 0) return 10;
+    if (close(pair[0]) || close(pair[1])) return 11;
+    int receiver = socket(AF_UNIX, SOCK_DGRAM, 0);
+    int sender = socket(AF_UNIX, SOCK_DGRAM, 0);
+    if (receiver < 0 || sender < 0) return 12;
+    address.sun_family = AF_UNIX;
+    strcpy(address.sun_path, "destination.sock");
+    if (bind(receiver, (struct sockaddr*)&address, sizeof(address)) ||
+        sendto(sender, "test", 4, MSG_NOSIGNAL, (struct sockaddr*)&address,
+               sizeof(address)) != 4 ||
+        recvfrom(receiver, buffer, 4, 0, 0, 0) != 4 ||
+        memcmp(buffer, "test", 4) || close(sender) || close(receiver) ||
+        unlink("destination.sock")) return 13;
+    if (shutdown(-1, SHUT_RD) != -1 || errno != EBADF ||
+        getsockname(-1, (struct sockaddr*)&address, &length) != -1 || errno != EBADF ||
+        getpeername(-1, (struct sockaddr*)&address, &length) != -1 || errno != EBADF ||
+        getsockopt(-1, SOL_SOCKET, SO_TYPE, &actual, &optlen) != -1 || errno != EBADF ||
+        setsockopt(-1, SOL_SOCKET, SO_TYPE, &actual, optlen) != -1 || errno != EBADF ||
+        sendto(-1, buffer, 1, 0, 0, 0) != -1 || errno != EBADF) return 14;
+    if (clone(0, 0, SIGCHLD, 0) != -1 || errno != EINVAL) return 15;
+    char* stack = mmap(0, 65536, PROT_READ | PROT_WRITE,
+                       MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (map_failed(stack)) return 16;
+    int argument = 23;
+    if (clone(child_entry, stack + 65536, SIGCHLD | CLONE_SETTLS, &argument) != -1 ||
+        errno != EINVAL) return 19;
+    errno = EBUSY;
+    int child = clone(child_entry, stack + 65536, SIGCHLD, &argument);
+    int status;
+    if (child < 0 || errno != EBUSY || waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status) != 23) return 17;
+    child = clone(shared_child, stack + 65536, SIGCHLD | CLONE_VM, &argument);
+    if (child < 0 || waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status) ||
+        shared_value != 23 || munmap(stack, 65536)) return 20;
+
+    child = vfork();
+    if (child == 0) _exit(37);
+    if (child < 0 || waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status) != 37) return 18;
+    char* arguments[2];
+    char* environment[1];
+    arguments[0] = "/bin/true";
+    arguments[1] = 0;
+    environment[0] = 0;
+    child = vfork();
+    if (child == 0) {
+        execve("/bin/true", arguments, environment);
+        _exit(99);
+    }
+    if (child < 0 || waitpid(child, &status, 0) != child ||
+        !WIFEXITED(status) || WEXITSTATUS(status)) return 21;
+    return 42;
+}

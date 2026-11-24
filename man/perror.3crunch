@@ -1,0 +1,17 @@
+.TH PERROR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+perror \- print an error message to standard error
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B void perror(const char *prefix);
+.fi
+.SH DESCRIPTION
+Prints the message for the current errno to Crunch standard error, followed
+by a newline. A nonempty prefix is followed by a colon and space.
+The messages are those supplied by
+.BR strerror (3crunch).
+The original errno is preserved even if output fails.
+.SH SEE ALSO
+.BR strerror (3crunch),
+.BR fputs (3crunch)

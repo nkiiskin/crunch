@@ -1,0 +1,16 @@
+.TH LISTEN 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+listen \- mark a socket as accepting connections
+.SH SYNOPSIS
+.nf
+.B #include <sys/socket.h>
+.B int listen(int descriptor, int backlog);
+.fi
+.SH DESCRIPTION
+Marks a socket as passive; backlog requests the maximum queue length.
+Linux may cap the backlog.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set. Success leaves errno unchanged.
+.SH SEE ALSO
+.BR accept (3crunch),
+.BR listen (2)

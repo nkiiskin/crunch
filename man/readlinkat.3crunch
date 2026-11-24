@@ -1,0 +1,29 @@
+.TH READLINKAT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+readlinkat \- read a directory-relative symbolic link
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.PP
+.BI "ssize_t readlinkat(int " directory ", const char* " path ","
+.BI "                char* " buffer ", size_t " byte_count ");"
+.fi
+.SH DESCRIPTION
+Resolves a relative link path from an open directory descriptor, or from the
+current directory if it is
+.BR AT_FDCWD .
+An absolute path ignores the descriptor.
+The caller supplies enough writable storage for the count.
+At most that many bytes are copied; no NUL terminator is appended. A result
+equal to the buffer size may indicate truncation.
+.SH RETURN VALUE
+Returns the byte count on success, leaving
+.B errno
+unchanged, or \-1 on failure with positive Linux
+.BR errno .
+.SH NOTES
+Crunch errno is process\-wide.
+.SH SEE ALSO
+.BR readlink (3crunch),
+.BR symlinkat (3crunch),
+.BR readlinkat (2)

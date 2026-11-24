@@ -1,0 +1,53 @@
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+
+int main() {
+    struct FILE* f = fopen("data", "r");
+    if (f == 0) return 1;
+    char buf[16];
+    if ((void*)fgets(buf, 1, f) != (void*)buf || buf[0] != 0 ||
+        ftell(f) != 0 || feof(f) != 0) return 2;
+    if ((void*)fgets(buf, 4, f) != (void*)buf || strcmp(buf, "abc") != 0 ||
+        ftell(f) != 3 || feof(f) != 0) return 3;
+    if ((void*)fgets(buf, 16, f) != (void*)buf || strcmp(buf, "d\n") != 0) return 4;
+    if ((void*)fgets(buf, 16, f) != (void*)buf || strcmp(buf, "\n") != 0) return 5;
+    if ((void*)fgets(buf, 16, f) != (void*)buf || strcmp(buf, "last") != 0 ||
+        feof(f) == 0 || ferror(f) != 0) return 6;
+    buf[0] = (char)'X';
+    if ((void*)fgets(buf, 16, f) != 0 || buf[0] != (char)'X') return 7;
+    if ((void*)fgets(buf, 1, f) != (void*)buf || buf[0] != 0 || feof(f) == 0) return 19;
+    clearerr(f);
+    if ((void*)fgets(buf, 0, f) != 0 || errno != EINVAL || ferror(f) == 0) return 8;
+    clearerr(f);
+    if ((void*)fgets(0, 3, f) != 0 || errno != EINVAL || ferror(f) == 0) return 9;
+    if (fclose(f) != 0) return 10;
+
+    f = fopen("output", "w+");
+    if (f == 0 || fputs("hello", f) < 0 || fputs("", f) < 0 ||
+        fputs("\nworld", f) < 0 || ftell(f) != 11) return 11;
+    rewind(f);
+    if ((void*)fgets(buf, 16, f) != (void*)buf || strcmp(buf, "hello\n") != 0 ||
+        (void*)fgets(buf, 16, f) != (void*)buf || strcmp(buf, "world") != 0) return 12;
+    if (fclose(f) != 0) return 13;
+    f = fopen("data", "r");
+    if (f == 0 || fputs("x", f) != EOF || errno != EBADF || ferror(f) == 0) return 14;
+    if (fclose(f) != 0) return 15;
+    f = fopen("binary", "r");
+    if (f == 0) return 20;
+    if ((void*)fgets(buf, 16, f) != (void*)buf) return 21;
+    if (buf[0] != (char)'a') return 22;
+    if (buf[1] != 0) return 23;
+    if (buf[2] != (char)'b') return 24;
+    if (buf[3] != (char)'\n') return 25;
+    if (buf[4] != 0) return 26;
+    if (fclose(f) != 0) return 27;
+    f = fopen("output", "a");
+    if (f == 0 || (void*)fgets(buf, 16, f) != 0 || errno != EBADF ||
+        ferror(f) == 0 || fclose(f) != 0) return 16;
+    if ((void*)fgets(buf, 3, 0) != 0 || errno != EINVAL ||
+        fputs("x", 0) != EOF || errno != EINVAL) return 17;
+    if ((void*)fgets(buf, 16, stdin) != (void*)buf || strcmp(buf, "in\n") != 0 ||
+        fputs("out", stdout) < 0 || fputs("err", stderr) < 0) return 18;
+    return 0;
+}

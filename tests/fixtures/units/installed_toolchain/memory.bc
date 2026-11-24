@@ -1,0 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    char *text = malloc(32);
+    if (text == 0) return 1;
+    strcpy(text, "crunch");
+    strcat(text, "-compiler");
+    int length = (int)strlen(text);
+    printf("memory:%s:%d\n", text, length);
+    free(text);
+    return length == 15 ? 0 : 1;
+}

@@ -1,0 +1,17 @@
+.TH GETRUSAGE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getrusage \- read resource usage
+.SH SYNOPSIS
+.nf
+.B #include <sys/resource.h>
+.B int getrusage(int who, struct rusage* usage);
+.fi
+.SH DESCRIPTION
+Reads Linux resource usage for RUSAGE_SELF, RUSAGE_CHILDREN, or RUSAGE_THREAD.
+The structure uses the Linux x86\-64 ABI.  Crunch uses the POSIX int selector;
+GNU libc with GNU extensions declares an enum selector instead.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set.
+.SH SEE ALSO
+.BR wait4 (3crunch),
+.BR getrusage (2)

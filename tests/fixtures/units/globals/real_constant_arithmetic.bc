@@ -1,0 +1,44 @@
+static const {
+    double width = 1.5 + 2.5;
+    double combined = (3 + 5) * 0.5;
+    double difference = -(7.0 - 2) / 2.0;
+};
+
+double character = 'A' + 0.5;
+double wrapped = (2147483647 + 1) + 0.0;
+double integer_first = (9007199254740993 + 1) + 0.0;
+double rounded = (9007199254740992.0 + 1.0) - 9007199254740992.0;
+double nested_power = (1.0 + 1.0)**3 + 2.0;
+double negative_zero = -0.0 * 3.0;
+double overflow = 1.0e308 * 1.0e308;
+double extreme_overflow = 1.0e308 * 1.0e308 * 1.0e308 * 1.0e308 *
+                       1.0e308 * 1.0e308 * 1.0e308 * 1.0e308 *
+                       1.0e308 * 1.0e308 * 1.0e308 * 1.0e308 *
+                       1.0e308 * 1.0e308 * 1.0e308 * 1.0e308 * 1.0e308;
+double underflow = 1.0e-300 * 1.0e-300;
+double positive_infinity = 1.0 / 0.0;
+double not_a_number = 0.0 / 0.0;
+
+int main() {
+    int maximum = 2147483647;
+    long precise = 9007199254740993;
+    double one = 1.0, zero = 0.0, huge = 1.0e308, tiny = 1.0e-300;
+    double negative = -0.0, three = 3.0;
+    double runtime_wrapped = (maximum + 1) + 0.0;
+    double runtime_integer_first = (precise + 1) + 0.0;
+    double runtime_negative_zero = negative * three;
+    double runtime_overflow = huge * huge;
+    double runtime_underflow = tiny * tiny;
+    double runtime_infinity = one / zero;
+    double runtime_nan = zero / zero;
+    if (width != 4.0 || combined != 4.0 || difference != -2.5 ||
+        character != 65.5 || nested_power != 10.0) return 1;
+    if (wrapped != runtime_wrapped || integer_first != runtime_integer_first ||
+        rounded != 0.0) return 2;
+    if (one / negative_zero != one / runtime_negative_zero ||
+        overflow != runtime_overflow || extreme_overflow != runtime_overflow ||
+        underflow != runtime_underflow ||
+        positive_infinity != runtime_infinity) return 3;
+    if (not_a_number == not_a_number || runtime_nan == runtime_nan) return 4;
+    return 42;
+}

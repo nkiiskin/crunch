@@ -1,0 +1,14 @@
+.TH SETXATTR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+setxattr \- sets an extended attribute on the file named by path, following symbolic links
+.SH SYNOPSIS
+.nf
+.B #include <sys/xattr.h>
+.B int setxattr(const char* path, const char* name, const void* value, size_t size, int flags);
+.fi
+.SH DESCRIPTION
+Sets an extended attribute on the file named by path, following symbolic links.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR setxattr (2)

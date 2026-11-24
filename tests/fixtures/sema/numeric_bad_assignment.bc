@@ -1,0 +1,5 @@
+int main() {
+    char value = (char)0;
+    value = 300;
+    return 0;
+}

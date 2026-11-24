@@ -1,0 +1,39 @@
+extern int variadic_probe(int mode, ...);
+extern int variadic_probe_fp(double fixed, int mode, ...);
+typedef int (*Probe)(int, ...);
+union Pair { struct { long integer; double real; } values; };
+union Big { long values[3]; };
+extern union Pair variadic_return(int mode, ...);
+extern union Big variadic_return_big(int mode, ...);
+
+int main() {
+    Probe probe = variadic_probe;
+    signed char small = -5;
+    float real = 1.5f;
+    if (variadic_probe(0, small, real) != 1) return 1;
+    if (probe(0, small, real) != 1) return 2;
+    if (probe(1, 1, 2, 3, 4, 5, 6, 7,
+              1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0) != 1) return 3;
+    union Pair pair;
+    pair.values.integer = 42;
+    pair.values.real = 1.5;
+    if (variadic_probe(2, pair, 2.5) != 1) return 4;
+    if (variadic_probe_fp(4.0, 3, small, real) != 1) return 5;
+    if (variadic_probe(4, small) != 1) return 6;
+    union Big big;
+    big.values[0] = 10;
+    big.values[1] = 20;
+    big.values[2] = 30;
+    if (variadic_probe(5, big, 7) != 1) return 7;
+    unsigned char uc = 255;
+    unsigned short us = 65535;
+    _Bool boolean = 1;
+    char plain = 255;
+    unsigned int wide = 0xffffffffU;
+    if (variadic_probe(6, uc, us, boolean, plain, wide) != 1) return 8;
+    pair = variadic_return(7, 42L, 1.5);
+    if (pair.values.integer != 42 || pair.values.real != 1.5) return 9;
+    big = variadic_return_big(8, 77);
+    if (big.values[0] != 77 || big.values[1] != 20 || big.values[2] != 30) return 10;
+    return 0;
+}

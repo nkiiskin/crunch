@@ -1,0 +1,17 @@
+.TH MSGRCV 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+msgrcv \- receive a System V message
+.SH SYNOPSIS
+.nf
+.B #include <sys/msg.h>
+.B ssize_t msgrcv(int id, void* message, size_t size, long type, int flags);
+.fi
+.SH DESCRIPTION
+Receives a message selected by type into a buffer beginning with a long.
+Size is the maximum text length, excluding the type.  Linux flags include
+IPC_NOWAIT, MSG_NOERROR, MSG_EXCEPT and MSG_COPY.
+.SH RETURN VALUE
+Returns the number of text bytes received, or \-1 with errno set.
+.SH SEE ALSO
+.BR msgsnd (3crunch),
+.BR msgrcv (2)

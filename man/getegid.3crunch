@@ -1,0 +1,14 @@
+.TH GETEGID 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+getegid \- returns the calling process's effective group id
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B gid_t getegid(void);
+.fi
+.SH DESCRIPTION
+Returns the calling process's effective group ID.
+.SH RETURN VALUE
+Returns the value described above; errno is not modified.
+.SH SEE ALSO
+.BR getegid (2)

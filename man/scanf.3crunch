@@ -1,0 +1,20 @@
+.TH SCANF 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+scanf \- read formatted input from standard input
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.B int scanf(const char *format);
+.fi
+.SH DESCRIPTION
+Reads from
+.BR stdin .
+The compiler accepts additional destination pointer arguments.
+Conversion specifications and stream behavior are described in
+.BR fscanf (3crunch).
+.SH RETURN VALUE
+Returns the number of assignments, possibly zero. Returns EOF when input
+fails before any conversion completes.
+.SH SEE ALSO
+.BR fscanf (3crunch),
+.BR fgetc (3crunch)

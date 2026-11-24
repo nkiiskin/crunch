@@ -1,0 +1,29 @@
+static const {
+    int capacity = 20 * 4, extra = 3 + 4 * 2;
+    char letter = (char)(100 + 20);
+    long wide = (long)100000 * 100000;
+};
+
+int quotient = -17 / 5;
+int remainder = -17 % 5;
+int bits = (5 << 3) | 2;
+int negative = ~0;
+int sign = 1 << 31;
+long wrapped = 2147483647 + 1;
+int choice = 1 ? 42 : 1 / 0;
+int logical = (0 && 1 / 0) || (1 && 2);
+long struct_bytes = sizeof(int) + sizeof(long);
+
+int main() {
+    int one = 1;
+    int five = 5;
+    int seventeen = 17;
+    int maximum = 2147483647;
+    if (capacity != 80 || extra != 11 || letter != 'x' ||
+        wide != 10000000000 || struct_bytes != 12) return 1;
+    if (quotient != -seventeen / five || remainder != -seventeen % five ||
+        bits != ((five << 3) | 2) || negative != ~0 ||
+        sign != (one << 31) || wrapped != (long)(maximum + one)) return 2;
+    if (choice != 42 || logical != 1) return 3;
+    return 42;
+}

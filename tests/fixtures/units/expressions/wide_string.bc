@@ -1,0 +1,35 @@
+typedef int wchar_t;
+_Static_assert(sizeof(L"abc") == 16, "wide string size");
+
+const char *narrow_first = "x";
+const wchar_t *global = L"A\u03a9" "B";
+wchar_t global_array[] = L"x\0y";
+wchar_t exact[2] = L"ab";
+struct Record { int tag; wchar_t text[4]; };
+struct Record record = { 7, L"Ω!" };
+struct Record designated = { .text = L"ok", .tag = 3 };
+
+int main(void)
+{
+    wchar_t local[] = { L"Hi" };
+    wchar_t nested[2][4] = { L"one", L"two" };
+    static wchar_t saved[] = L"s";
+    const wchar_t *p = "a" L"\x1234" "5";
+    const wchar_t *q = L"\xFFFFFFFF\0Ω";
+    if (sizeof(L"") != 4 || sizeof(L"Ω😀") != 12 ||
+        sizeof(global_array) != 16 || sizeof(local) != 12)
+        return 1;
+    if (narrow_first[0] != 'x' || global[0] != 'A' || global[1] != 937 || global[2] != 'B' ||
+        global[3] != 0 || global_array[1] != 0 || global_array[2] != 'y' ||
+        exact[1] != 'b' || record.text[0] != 937 || record.text[1] != '!' ||
+        record.text[2] != 0 || designated.text[1] != 'k')
+        return 2;
+    if (local[0] != 'H' || nested[1][2] != 'o' || saved[0] != 's' ||
+        p[0] != 'a' || p[1] != 0x1234 || p[2] != '5' || p[3] != 0 ||
+        q[0] != -1 || q[1] != 0 || q[2] != 937 || q[3] != 0 ||
+        ((unsigned long)p & 3) || ((unsigned long)q & 3))
+        return 3;
+    local[0] = 'h';
+    global_array[0] = 'X';
+    return local[0] != 'h' || global_array[0] != 'X';
+}

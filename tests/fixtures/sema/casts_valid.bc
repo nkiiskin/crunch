@@ -1,0 +1,10 @@
+int main() {
+    char b = (char)12;
+    int i = (int)b;
+    long l = (long)i;
+    double r = (double)l;
+    int i2 = (int)r;
+    long l2 = (long)r;
+    char b2 = (char)i2;
+    return i + (int)b2 + (int)l2;
+}

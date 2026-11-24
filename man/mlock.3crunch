@@ -1,0 +1,14 @@
+.TH MLOCK 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mlock \- locks pages containing the specified range in memory, subject to resource limits
+.SH SYNOPSIS
+.nf
+.B #include <sys/mman.h>
+.B int mlock(const void* address, size_t byte_count);
+.fi
+.SH DESCRIPTION
+Locks pages containing the specified range in memory, subject to resource limits.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR mlock (2)

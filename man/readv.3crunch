@@ -1,0 +1,18 @@
+.TH READV 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+readv \- read bytes into multiple buffers
+.SH SYNOPSIS
+.nf
+.B #include <sys/uio.h>
+.B ssize_t readv(int descriptor, const struct iovec* vectors, int count);
+.fi
+.SH DESCRIPTION
+Reads sequentially into the writable buffers described by the iovec array.
+Each entry contains a void* iov_base and size_t iov_len. Reads may be short;
+Linux validates the count and buffer addresses.
+.SH RETURN VALUE
+Returns bytes read, zero at EOF, or \-1 with errno set.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR read (3crunch),
+.BR readv (2)

@@ -1,0 +1,47 @@
+void *malloc(unsigned long);
+void free(void *);
+
+struct Element { long value; };
+enum { ZERO = 0 };
+struct Record { int count; long data[ZERO]; };
+struct Nested { struct Record record; int other; };
+struct Elements { int count; struct Element data[0]; };
+struct Matrix { int count; long rows[0][2]; };
+struct Record global_record = { 10 };
+long *global_data = global_record.data;
+_Static_assert(sizeof(global_record.data) == 0, "zero-sized member");
+__signed__ int gnu_signed = -1;
+__signed char gnu_signed_char = -1;
+
+struct Record make(long n) {
+    struct Record result = { n };
+    return result;
+}
+
+long take(struct Record value, long n) { return value.count + n; }
+
+int main(void) {
+    struct Record *p = malloc(sizeof(struct Record) + sizeof(long));
+    struct Elements *q = malloc(sizeof(struct Elements) + sizeof(struct Element));
+    struct Matrix *m = malloc(sizeof(struct Matrix) + sizeof(long[2]));
+    struct Nested nested[2];
+    struct Record copy = make(10);
+    if (!p || !q || !m) return 1;
+    p->count = 10;
+    p->data[0] = 32;
+    q->data[0].value = 42;
+    m->rows[0][1] = 42;
+    nested[1].record = copy;
+    if (sizeof(p->data) != 0 || _Alignof(struct Record) != 8 ||
+        sizeof(struct Record) != 8 || (char *)p->data - (char *)p != 8 ||
+        sizeof(q->data) != 0 || q->data[0].value != 42 ||
+        sizeof(m->rows) != 0 || m->rows[0][1] != 42 ||
+        nested[1].record.count != 10 || global_record.count != 10 ||
+        global_data != global_record.data ||
+        gnu_signed != -1 || gnu_signed_char != -1 ||
+        take(copy, p->data[0]) != 42) return 2;
+    free(p);
+    free(q);
+    free(m);
+    return 42;
+}

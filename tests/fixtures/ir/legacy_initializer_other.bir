@@ -1,0 +1,15 @@
+CRUNCH-IR 4
+internal crunch_module_init_0
+initializer crunch_module_init_0
+func crunch_module_init_0 0 int
+gload module_values ptr
+gload module_values$length int
+push 2
+array_resize int
+gstore module_values ptr
+gstore module_values$length int
+push 0
+ret int
+end
+global module_values ptr 0
+global module_values$length int 0

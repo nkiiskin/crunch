@@ -1,0 +1,39 @@
+.TH FGETS 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+fgets \- read a line from a Crunch stream
+.SH SYNOPSIS
+.nf
+.B #include <stdio.h>
+.PP
+.BI "char* fgets(char* " buffer ", int " size ", struct FILE* " stream ");"
+.fi
+.SH DESCRIPTION
+Reads at most
+.I size
+minus one bytes, stopping after a newline or end-of-file, and appends a NUL
+byte. A newline that is read is retained. The buffer must have room for
+.I size
+bytes.
+If
+.I size
+is one, an empty string is returned without reading from the stream.
+.SH RETURN VALUE
+Returns
+.I buffer
+on success. Returns null on end-of-file before any bytes are read, leaving the
+buffer unchanged, or on a read error. On a read error the buffer's contents
+are unspecified, the stream error indicator is set and
+.B errno
+is set.
+A null buffer or stream or a nonpositive size fails with
+.BR EINVAL ;
+when the stream is valid its error indicator is set.
+.SH NOTES
+I/O is unbuffered. Only Crunch streams are supported; they are not C library
+.B FILE
+objects.
+.SH SEE ALSO
+.BR fputs (3crunch),
+.BR fgetc (3crunch),
+.BR feof (3crunch),
+.BR ferror (3crunch)

@@ -1,0 +1,2 @@
+int choose(int value, ...);
+int main() { return choose(); }

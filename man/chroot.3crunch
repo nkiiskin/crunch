@@ -1,0 +1,14 @@
+.TH CHROOT 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+chroot \- changes the calling process root directory, normally requiring cap_sys_chroot
+.SH SYNOPSIS
+.nf
+.B #include <unistd.h>
+.B int chroot(const char* path);
+.fi
+.SH DESCRIPTION
+Changes the calling process root directory, normally requiring CAP_SYS_CHROOT. It is not a complete security sandbox.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR chroot (2)

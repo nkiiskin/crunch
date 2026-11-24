@@ -1,0 +1,43 @@
+.TH MKDIR 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+mkdir \- create a directory
+.SH SYNOPSIS
+.nf
+.B #include <sys/stat.h>
+.PP
+.BI "int mkdir(const char* " path ", mode_t " mode ");"
+.fi
+.SH DESCRIPTION
+.BR mkdir ()
+creates the directory named by
+.IR path .
+.I mode
+specifies Linux creation permission bits, modified by the process umask
+and possibly the parent directory's default ACL.
+For example, 493 is the decimal value of Unix permissions 0755.
+Parent directories must already exist.
+.SH RETURN VALUE
+Zero on success, leaving
+.B errno
+unchanged; \-1 on failure with
+.B errno
+set to the positive Linux error number.
+.SH ERRORS
+Possible errors include
+.BR EEXIST ,
+.BR ENOENT ,
+.BR EACCES ,
+and
+.BR ENOSPC .
+Other Linux
+.BR mkdir (2)
+errors are possible.
+.SH NOTES
+Include
+.B <errno.h>
+for error constants. Crunch
+.B errno
+is process\-wide, not thread\-local.
+.SH SEE ALSO
+.BR rmdir (3crunch),
+.BR mkdir (2)

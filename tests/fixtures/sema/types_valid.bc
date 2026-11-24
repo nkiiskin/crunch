@@ -1,0 +1,13 @@
+struct Point { int x; long y; };
+long widen(int value) { return value; }
+int sum(int a, int b) { return a + b; }
+int main() {
+    struct Point p;
+    p.x = 2;
+    p.y = widen(p.x);
+    long widened = p.y + 3;
+    int values[] = {1, 2, 3};
+    values[0] = p.x + 4;
+    if (sizeof(values) > 0) { values[1] = 10; }
+    return sum(p.x, values[0]);
+}

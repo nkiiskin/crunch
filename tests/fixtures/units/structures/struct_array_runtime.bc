@@ -1,0 +1,35 @@
+struct item {
+    char marker;
+    int value;
+    long wide;
+    char tail;
+};
+
+struct item global_items[2];
+
+int get_value(struct item items[], int index) {
+    return items[index].value;
+}
+
+int main() {
+    struct item items[3];
+    items[0].marker = (char)1;
+    items[0].value = 10;
+    items[0].wide = (long)12;
+    items[0].tail = (char)2;
+    items[1].value = 20;
+    items[1].wide = (long)22;
+
+    if (items[0].marker != (char)1 || items[0].value != 10 ||
+        items[0].wide != (long)12 || items[0].tail != (char)2) return 1;
+    items[2].value = 30;
+
+    global_items[0].value = 40;
+    global_items[1].value = 50;
+
+    if (get_value(items, 1) != 20) return 2;
+    if (get_value(global_items, 1) != 50) return 3;
+
+    if (items[0].value != 10) return 4;
+    return 42;
+}

@@ -1,0 +1,29 @@
+double global_power = 2**8;
+double global_nested = -2**3**2;
+double global_fraction = 9**0.5;
+double global_integer = (-(-2147483648))**1;
+double global_minimum = (-9223372036854775807 - 1)**1;
+int order = 0;
+
+double identity(double x) { return x; }
+double next() { order = order + 1; return (double)order; }
+
+int main() {
+    char small = (char)2;
+    int number = 3;
+    int *ptr = &number;
+    double a = 2**8;
+    if (global_power != 256.0 || global_nested != -512.0 || global_fraction != 3.0) return 1;
+    if (a != 256.0 || 2**3**2 != 512.0 || -2**2 != -4.0) return 2;
+    if ((-2)**2 != 4.0 || (-2)**3 != -8.0 || 2**-2 != 0.25) return 3;
+    if (9**0.5 != 3.0 || small**number != 8.0 || 2 * *ptr != 6) return 4;
+    if (1.0 + identity(2.0)**identity(3.0) != 9.0) return 5;
+    if ((int)(2**3) != 8 || 2**3 * 2 != 16.0) return 6;
+    if (1.0 + (2**3 + 3**2) != 18.0) return 7;
+    double invalid = (-2)**0.5;
+    if (invalid == invalid) return 8;
+    if (global_integer != (-(-2147483648))**1) return 9;
+    if (next()**next() != 1.0 || order != 2) return 10;
+    if (global_minimum != (-9223372036854775807 - 1)**1) return 11;
+    return 42;
+}

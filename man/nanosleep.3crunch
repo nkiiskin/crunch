@@ -1,0 +1,18 @@
+.TH NANOSLEEP 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+nanosleep \- suspend execution for a relative interval
+.SH SYNOPSIS
+.nf
+.B #include <time.h>
+.B int nanosleep(const struct timespec* requested, struct timespec* remaining);
+.fi
+.SH DESCRIPTION
+Suspends execution for the relative interval in requested. The Linux timespec
+contains long tv_sec and tv_nsec fields. If interrupted, a non\-NULL
+remaining receives the unslept interval.
+.SH RETURN VALUE
+Returns zero, or \-1 with errno set, including EINTR on interruption.
+Success leaves errno unchanged.
+.SH SEE ALSO
+.BR sleep (3crunch),
+.BR nanosleep (2)

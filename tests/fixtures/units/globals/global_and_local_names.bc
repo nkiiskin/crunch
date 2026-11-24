@@ -1,0 +1,6 @@
+int shared_value;
+int read_shared() { return shared_value; }
+int main() {
+    int shared_value = 42;
+    return shared_value;
+}

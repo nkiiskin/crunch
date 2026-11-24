@@ -1,0 +1,14 @@
+.TH CRUNCH_NFSSERVCTL 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+crunch_nfsservctl \- invokes obsolete syscall slot 180, unimplemented on linux x86-64
+.SH SYNOPSIS
+.nf
+.B #include <sys/legacy_syscalls.h>
+.B long crunch_nfsservctl(void);
+.fi
+.SH DESCRIPTION
+Invokes obsolete syscall slot 180, unimplemented on Linux x86-64. Seccomp or other policy may instead return a different error.
+.SH RETURN VALUE
+Returns the syscall result, or \-1 with errno set.
+.SH SEE ALSO
+.BR nfsservctl (2)

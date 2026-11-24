@@ -1,0 +1,16 @@
+.TH PTRACE 3crunch "" "Crunch" "Crunch Library Manual"
+.SH NAME
+ptrace \- invokes linux ptrace with four fixed arguments
+.SH SYNOPSIS
+.nf
+.B #include <sys/ptrace.h>
+.B long ptrace(long request, pid_t process, void* address, void* data);
+.fi
+.SH DESCRIPTION
+Invokes Linux ptrace with four fixed arguments. Unlike libc ptrace, PEEK requests write the word through data and return zero; data must be a writable long pointer.
+For requests requiring integer data, use
+.BR ptrace_value (3crunch).
+.SH RETURN VALUE
+Returns the syscall result on success, or \-1 with errno set.
+.SH SEE ALSO
+.BR ptrace (2)
