@@ -43,6 +43,12 @@ Warnings are based on selected inputs before section garbage collection.
 `crunch-ld` is an independent ELF linker designed for x86-64 Linux. It is
 available as an opt-in alternative to GNU ld for Crunch links.
 
+For dynamic executables and shared objects, a canonical GNU x86 CET property
+note containing only IBT and SHSTK feature bits is accepted but not retained.
+The linker warns when those bits are present: the output does not advertise
+these protections and must not be assumed to have CET enforcement. Other GNU
+property notes are rejected. Relocatable linking preserves the input notes.
+
 ## Shared objects
 
 `crunch-ld -shared -o library.so input.o ...` produces a loadable ELF64 shared

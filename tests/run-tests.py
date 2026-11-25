@@ -22753,6 +22753,82 @@ def native_dynamic_fini_case(pie=False):
                    f"invalid executable finalizer accepted: {result.stderr}")
 
 
+def native_cet_property_case():
+    """Check CET property handling and explicit protection downgrade diagnostics.
+
+    Returns:
+        None; raises AssertionError for incorrect linking or rejection.
+    """
+    with tempfile.TemporaryDirectory(prefix="crunch-cet-note-") as directory:
+        td = pathlib.Path(directory)
+        obj, shared, executable = td / "input.o", td / "output.so", td / "program"
+        linker, assembler = BUILD / "crunch-ld", BUILD / "crunch-as"
+        code = ('.text\n.globl _start\n_start: mov $60,%rax\nxor %rdi,%rdi\nsyscall\n'
+                '.globl answer\nanswer: mov $42,%eax\nret\n'
+                '.section .note.gnu.property,"a",@note\n.p2align 3\n'
+                '.long 4,16,5\n.asciz "GNU"\n.long 0xc0000002,4,3,0\n')
+        command([assembler, "-o", obj], input=code)
+        for mode, output in (("-shared", shared), ("-dynamic", executable)):
+            result = command([linker, "-nostdlib", mode, "-o", output, obj])
+            expect("discarding GNU CET properties" in result.stderr and
+                   "does not retain IBT or SHSTK" in result.stderr,
+                   f"CET protection downgrade was not reported: {result.stderr}")
+            expect(b".note.gnu.property\0" not in output.read_bytes(),
+                   "output incorrectly advertises CET protection")
+        loader = 'import ctypes,sys; assert ctypes.CDLL(sys.argv[1]).answer() == 42'
+        command([PYTHON, "-c", loader, shared])
+        expect(command([executable], check=False).returncode == 0,
+               "dynamic executable containing CET-marked code failed")
+
+        combined = td / "combined.o"
+        command([linker, "-nostdlib", "-r", "-o", combined, obj])
+        expect(b".note.gnu.property\0" in combined.read_bytes(),
+               "relocatable link lost GNU property note")
+        result = command([linker, "-nostdlib", "-shared", "-o", shared, combined])
+        expect("discarding GNU CET properties" in result.stderr,
+               "relocatable output did not retain CET properties")
+
+        original = obj.read_bytes()
+        note = struct.pack("<IIIIIIII", 4, 16, 5, 0x00554e47,
+                           0xc0000002, 4, 3, 0)
+        offset = original.find(note)
+        expect(offset >= 0, "test object lacks the expected property note")
+        for name, word, value in (("unknown-property", 4, 0xc0008002),
+                                  ("unknown-feature", 6, 4),
+                                  ("bad-size", 5, 8),
+                                  ("bad-padding", 7, 1)):
+            bad = bytearray(original)
+            struct.pack_into("<I", bad, offset + word * 4, value)
+            obj.write_bytes(bad)
+            shared.write_text("preserved")
+            result = command([linker, "-nostdlib", "-shared", "-o", shared, obj],
+                             check=False)
+            expect(result.returncode != 0 and "unsupported GNU property note" in result.stderr
+                   and shared.read_text() == "preserved",
+                   f"linker failed to reject {name}: {result.stderr}")
+        for name, bad_code in (
+                ("exported", code + ".globl note_export\nnote_export:\n"),
+                ("reference", code + ".text\n.quad 1f\n"
+                 '.section .note.gnu.property,"a",@note\n1:\n'),
+                ("relocation", code + ".quad answer\n")):
+            command([assembler, "-o", obj], input=bad_code)
+            shared.write_text("preserved")
+            result = command([linker, "-nostdlib", "-shared", "-o", shared, obj],
+                             check=False)
+            expect(result.returncode != 0 and "GNU property note" in result.stderr
+                   and shared.read_text() == "preserved",
+                   f"linker accepted {name} property note: {result.stderr}")
+        if os.environ.get("CRUNCH_TEST_NATIVE_ONLY") != "1":
+            source = td / "gcc.c"
+            source.write_text("int answer(void) { return 42; }\n")
+            command(["gcc", "-c", "-fPIC", "-fcf-protection=full",
+                     "-fno-asynchronous-unwind-tables", source, "-o", obj])
+            result = command([linker, "-nostdlib", "-shared", "-o", shared, obj])
+            expect("discarding GNU CET properties" in result.stderr,
+                   "GCC CET note was not handled")
+            command([PYTHON, "-c", loader, shared])
+
+
 def native_shared_linker_case():
     """Load native shared objects and reject unsupported dynamic requirements.
 
@@ -28605,6 +28681,7 @@ report("driver", "assembler selection option", assembler_selection_option_case)
 report("linker", "input classification", linker_input_classification_case)
 report("linker", "help and SONAME option", linker_help_case)
 report("linker", "automatic runtime selection", linker_automatic_runtime_case)
+report("linker", "GNU CET property handling", native_cet_property_case)
 report("install", "native toolchain program corpus", installed_toolchain_corpus_case)
 report("headers", "ELF64 native-tool definitions", elf_header_case)
 report("runtime", "vfprintf argument lists", vfprintf_source_case)

@@ -11,6 +11,9 @@ It accepts ELF64 x86-64 relocatable objects and regular static archives.
 Static executable output is the default. Dynamic and shared output also
 accept supported ELF shared objects. Input and archive order is significant.
 This experimental linker is not a complete replacement for GNU ld.
+For dynamic and shared links, canonical x86 IBT/SHSTK GNU property notes
+are discarded with a warning; the output does not retain those CET protections.
+Other GNU property notes are rejected. Relocatable links preserve input notes.
 .SH OPTIONS
 .TP
 .B \-shared, \-\-shared

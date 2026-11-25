@@ -1271,6 +1271,7 @@ static void directive(char *line){
    if(*trim(q+1)){err("invalid text after .section flags");return;}*q=0;
    uint64_t flags=0;for(char *f=v[1]+1;*f;f++){if(*f=='a')flags|=SHF_ALLOC;else if(*f=='w')flags|=SHF_WRITE;else if(*f=='x')flags|=SHF_EXECINSTR;else if(*f=='M')flags|=SHF_MERGE;else if(*f=='S')flags|=SHF_STRINGS;else if(*f=='T')flags|=SHF_TLS;else if(*f=='G')flags|=SHF_GROUP;else if(*f=='R')flags|=SHF_GNU_RETAIN;else {err("unsupported section flag");return;}}
    uint32_t type=base?section_type(base):SHT_PROGBITS;
+   if(n<3&&!strcmp(name,".note.gnu.property"))type=SHT_NOTE;
    if(n<3&&!strncmp(name,".init_array",11)&&(!name[11]||name[11]=='.'))type=SHT_INIT_ARRAY;
    if(n<3&&!strncmp(name,".fini_array",11)&&(!name[11]||name[11]=='.'))type=SHT_FINI_ARRAY;
    if(n>=3){char *t=trim(v[2]);if(!strcmp(t,"@progbits")||!strcmp(t,"%progbits"))type=SHT_PROGBITS;else if(!strcmp(t,"@nobits")||!strcmp(t,"%nobits"))type=SHT_NOBITS;else if(!strcmp(t,"@note")||!strcmp(t,"%note"))type=SHT_NOTE;else if(!strcmp(t,"@init_array")||!strcmp(t,"%init_array"))type=SHT_INIT_ARRAY;else if(!strcmp(t,"@fini_array")||!strcmp(t,"%fini_array"))type=SHT_FINI_ARRAY;else {err("unsupported custom section type");return;}}
@@ -1628,6 +1629,7 @@ static void assemble(char *line){if(!lock_prefix_active)instruction_start=sectio
    rex(0,7,a.index,a.rip?-1:a.base,0);emit(0x0f,1);emit(0x01,1);modrm(7,&a);return;
  }
  if(!strcmp(mn,"nop")){if(*args)err("nop takes no operands");else emit(0x90,1);return;}
+ if(!strcmp(mn,"endbr64")){if(*args)err("endbr64 takes no operands");else {emit(0xf3,1);emit(0x0f,1);emit(0x1e,1);emit(0xfa,1);}return;}
  if(!strcmp(mn,"syscall")){if(*args)err("syscall takes no operands");else {emit(0x0f,1);emit(0x05,1);}return;}
  if(!strcmp(mn,"sysret")||!strcmp(mn,"sysretq")){if(*args)err("sysret takes no operands");else {emit(0x48,1);emit(0x0f,1);emit(0x07,1);}return;}
  if(!strcmp(mn,"iretq")){if(*args)err("iretq takes no operands");else {emit(0x48,1);emit(0xcf,1);}return;}

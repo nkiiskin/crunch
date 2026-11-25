@@ -1055,6 +1055,48 @@ static void discard_comdat_frames(Obj *o) {
 }
 
 /*
+ * Validate and discard a GNU x86 CET feature note for dynamic output.
+ * Inputs: o - input object, index - property section index.
+ * Outputs: Marks the section non-live; rejects unsupported properties or references.
+ */
+static void discard_cet_property(Obj *o, int index) {
+    InSec *s = &o->secs[index];
+    Elf64_Shdr *sh = s->sh;
+    uint32_t words[8];
+    if (sh->sh_type != SHT_NOTE || sh->sh_flags != SHF_ALLOC ||
+        sh->sh_addralign != 8 || sh->sh_size != sizeof words ||
+        sh->sh_link || sh->sh_info || s->rela || s->group)
+        die("%s: unsupported GNU property note", o->name);
+    memcpy(words, at(o, sh->sh_offset, sizeof words), sizeof words);
+    if (words[0] != 4 || words[1] != 16 || words[2] != 5 ||
+        memcmp((const uint8_t *)words + 12, "GNU\0", 4) ||
+        words[4] != 0xc0000002U || words[5] != 4 ||
+        (words[6] & ~3U) || words[7])
+        die("%s: unsupported GNU property note", o->name);
+    for (int i = 1; i < o->nsyms; ++i) {
+        Elf64_Sym *sym = &o->syms[i];
+        if (sym->st_shndx == (unsigned)index && i >= o->first_global)
+            die("%s: symbols in GNU property notes are unsupported", o->name);
+    }
+    for (int i = 0; i < o->nsh; ++i) {
+        Elf64_Shdr *r = &o->sh[i];
+        if (r->sh_type != SHT_RELA) continue;
+        Elf64_Rela *rel = at(o, r->sh_offset, r->sh_size);
+        for (size_t j = 0; j < r->sh_size / sizeof *rel; ++j) {
+            uint32_t symbol = ELF64_R_SYM(rel[j].r_info);
+            if (symbol >= (unsigned)o->nsyms)
+                die("%s: bad symbol index in relocation", o->name);
+            if (symbol && o->syms[symbol].st_shndx == (unsigned)index)
+                die("%s: references to GNU property notes are unsupported", o->name);
+        }
+    }
+    if (words[6])
+        warn("%s: discarding GNU CET properties; output does not retain IBT or SHSTK protection",
+             o->name);
+    s->live = 0;
+}
+
+/*
  * Parse and load a relocatable ELF object file, symbols, and sections.
  * Inputs: name - object name/path, buf - file buffer, size - file size in bytes
  * Outputs: None
@@ -1222,6 +1264,16 @@ static void add_object(const char *name, uint8_t *buf, size_t size) {
         if ((o->sh[i].sh_flags & SHF_GROUP) && !o->secs[i].group)
             die("%s: section has no group", name);
     discard_comdat_frames(o);
+
+    if (dynamic_output()) {
+        for (int i = 1; i < o->nsh; ++i) {
+            Elf64_Shdr *sh = &o->sh[i];
+            const char *nm = o->shstr + sh->sh_name;
+            if (o->secs[i].live &&
+                !strcmp(nm, ".note.gnu.property"))
+                discard_cet_property(o, i);
+        }
+    }
 
     for (int i = o->first_global; i < o->nsyms; i++) {
         Elf64_Sym *s = &o->syms[i];

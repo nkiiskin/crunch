@@ -70,6 +70,9 @@ uses the instruction's sign-extended 32-bit immediate. Unsuffixed `mov`
 defaults to 32 bits when its destination is memory.
 Shift and rotate instructions accept an omitted count as an implicit count
 of one; `cqto` is accepted as an alias for `cqo`.
+`endbr64` is accepted for assembly generated with x86 control-flow protection.
+An untyped `.note.gnu.property` section is emitted as `SHT_NOTE`, as with GNU
+`as`.
 
 Memory operands support 64-bit and 32-bit base/index/scale addressing,
 including index-only and RIP- or EIP-relative forms. The 32-bit forms emit

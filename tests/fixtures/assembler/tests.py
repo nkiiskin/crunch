@@ -152,6 +152,22 @@ class AssemblerTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         return result.stderr
 
+    def test_endbr64_encoding(self):
+        source = ".text\nendbr64\nret\n"
+        ours = self.assemble(source, "endbr64-ours")
+        gnu = self.assemble(source, "endbr64-gnu", "as")
+        native, reference = named_section(ours, ".text"), named_section(gnu, ".text")
+        self.assertEqual(ours.read_bytes()[native[4]:native[4] + native[5]],
+                         gnu.read_bytes()[reference[4]:reference[4] + reference[5]])
+        self.diagnostic(".text\nendbr64 %rax\n")
+
+    def test_gnu_property_note_type(self):
+        source = '.section .note.gnu.property,"a"\n.p2align 3\n.long 4,16,5\n'
+        ours = self.assemble(source, "property-ours")
+        gnu = self.assemble(source, "property-gnu", "as")
+        self.assertEqual(named_section(ours, ".note.gnu.property")[1],
+                         named_section(gnu, ".note.gnu.property")[1])
+
     def test_movups_register_and_memory_encodings(self):
         source = (".text\nmovups %xmm0, %xmm15\nmovups %xmm14, %xmm1\n"
                   "movups -32(%r12,%r9,4), %xmm14\n"
