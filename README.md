@@ -28,7 +28,7 @@ compiler. `make check` runs the test suite. `sudo make install` installs it,
 by ddefault to prefix /usr/local. Crunch also insstalls it's own man pages.
 You can uninstall it by: `sudo make uninstall`
 
-## Build the first bootstrap generation
+## OPTIONAL: Build the first bootstrap generation
 
 After the initial build, run:
 
