@@ -5,6 +5,11 @@ individually as `UNIT / filename: passed` or `failed`; ANSI green/red colors can
 be controlled with `CRUNCH_COLOR=always`, `CRUNCH_COLOR=never`, or
 `CRUNCH_COLOR=auto`.
 
+The GitHub Actions workflow runs `./configure`, `make`, and `make check` on
+Ubuntu x86-64 for pushes and pull requests. It can also be started manually
+from the repository's Actions tab. Results and the full test output are
+available in each workflow run.
+
 The longest tests are excluded by default. To include the two-generation
 bootstraps and exhaustive binary80 formatting tests, run:
 
