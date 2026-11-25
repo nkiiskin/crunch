@@ -7592,6 +7592,14 @@ def preprocessor_allocation_failure_case():
                           '#define ONCE_NAME once\n#define ONCE_HEADER <ONCE_NAME.h>\n'
                           '#include ONCE_HEADER\n'
                           '#define SUM_ALIAS ADD\nint alias_value = SUM_ALIAS(20, 22);\n'
+                          '#define ID(x) x\nint identity_value = ID(ADD)(20, 22);\n'
+                          '#define GET_ADD() ADD\n'
+                          'int replacement_value = GET_ADD()(20, 22);\n'
+                          '#define OPEN_ADD ADD(20,\n'
+                          'int split_value = OPEN_ADD\n22);\n'
+                          '#define RECUR(x) x\n#define PASTE(a,b) a##b\n'
+                          '#define PRESERVE(x) PASTE(x,)\n'
+                          'PRESERVE(RECUR(RECUR))(1)\n'
                           '#define JOINED past ## ed\n#define NUMBER() 4 ## 2\n'
                           'int JOINED = NUMBER();\n'
                           '#macro LONG ' + 'x' * 300 + '\n'
@@ -15768,6 +15776,193 @@ def preprocessor_function_alias_case():
         command([DRIVER, "--static", "-o", executable, main, asm], env=env)
         expect(command([executable], check=False).returncode == 42,
                "function macro alias did not work in assembly")
+
+
+def preprocessor_identity_rescan_case():
+    """Check function macro names returned by identity macro invocations.
+
+    Returns:
+        None; raises AssertionError for incorrect expansion or diagnostics.
+    """
+    source = (
+        "#define ID(x) x\n#define WRAP ID\n#define F(x) ((x)+1)\n#define ALIAS F\n"
+        "#define STRING(x) #x\n#define EXPAND_STRING(x) STRING(x)\n"
+        "#define EMPTY\n"
+        "#if ID(F)(41) != 42\n#error identity in condition failed\n#endif\n"
+        "ID(F)(1) ID(ALIAS)(2) ID(F)(ID(ALIAS)(1)) WRAP(F)(3)\n"
+        "ID(ID)(5) ID(F) EMPTY (3) ID(F) /* comment */ (3)\n"
+        "#define SELF(x) ID(SELF)(x)\nSELF(6) ID(SELF)(7)\n"
+        "#define SECOND(x) x\n#define PASS(x) ID(x)(1)\nPASS(SECOND(SECOND))\n"
+        "EXPAND_STRING(ID(F)(4))\n"
+        "ID(F)\n(5)\n"
+        '#line 100 "identity.bc"\n'
+        "ID(F)(\n__LINE__\n) __LINE__\n"
+        "WRAP(F)(\n__LINE__\n) __LINE__\n")
+    expanded = command([PP, "-"], input=source).stdout
+    pattern = r'"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z_0-9]*|[0-9]+|[^\s]'
+    actual = re.sub(r"/\*CRUNCH-PP-MAP:[^*]*\*/", "", expanded)
+    actual = re.sub(r"/\*.*?\*/", " ", actual, flags=re.S)
+    expected_prefix = "((1)+1) ((2)+1) ((((1)+1))+1) ((3)+1)"
+    expected_tokens = re.findall(pattern, expected_prefix)
+    expect(re.findall(pattern, actual)[:len(expected_tokens)] == expected_tokens,
+           f"identity macro calls were not expanded: {actual}")
+    gcc = shutil.which("gcc")
+    if gcc:
+        reference = command([gcc, "-E", "-P", "-x", "c", "-"], input=source).stdout
+        expect(re.findall(pattern, actual) == re.findall(pattern, reference),
+               f"identity rescanning differs from GCC:\nCrunch: {actual}\nGCC: {reference}")
+    expect("ID(5)" in actual and "SECOND(1)" in actual and
+           "SELF(6)" in actual and '"((4)+1)"' in actual and
+           re.search(r"\(\(\s*101\s*\)\s*\+\s*1\)\s*102", actual) and
+           re.search(r"\(\(\s*103\s*\)\s*\+\s*1\)\s*105", actual),
+           f"identity rescanning lost suppression or source locations: {actual}")
+    invalid = command([PP, "-"], input="#define ID(x) x\n#define F(x) x\n"
+                      "ID(F)(1,2)\n", check=False)
+    expect(invalid.returncode != 0 and "expects 1 argument" in invalid.stderr,
+           "wrong argument count through an identity macro was not rejected")
+    with tempfile.TemporaryDirectory(prefix="crunch-identity-rescan-") as td:
+        directory = pathlib.Path(td)
+        executable = directory / "program"
+        (directory / "identity_header.h").write_text("int header_value = 41;\n")
+        env = dict(os.environ, CRUNCH_CONF_FILE=str(directory / "absent.conf"))
+        program = (
+            "#define ID(x) x\n#define HEADER(x) <x.h>\n"
+            "#include ID(HEADER)(identity_header)\n"
+            "#define INC(x) ((x)+1)\n"
+            "int main(void) { return ID(INC)(header_value); }\n")
+        command([DRIVER, "--static", "-I", directory, "-o", executable, "-"],
+                input=program, env=env)
+        expect(command([executable], check=False).returncode == 42,
+               "identity-expanded header or program did not execute")
+
+
+def preprocessor_replacement_rescan_case():
+    """Compare replacement-tail rescanning and suppression with GCC.
+
+    Returns:
+        None; raises AssertionError for incorrect expansion or diagnostics.
+    """
+    source = (
+        "#define F(x) x\n#define GET() F\n#define PREFIX 1 + F\n"
+        "#define ID(x) x\n#define LATER() ID(F)\n#define EMPTY\n"
+        "#define EARLY F EMPTY\n#define PASS(x) ID(x)(1)\n"
+        "#define CAT(a,b) a##b\n#define LEFT(x) CAT(x,)\n"
+        "#define RIGHT(x) CAT(,x)\n#define JOIN(x) CAT(x,oo)\n"
+        "#define f(x) x\n#define foo(x) 7\n"
+        "#define S(x) #x\n#define STR(x) S(x)\n"
+        "#if GET()(41) != 41 || PREFIX(1) != 2\n#error rescan failed\n#endif\n"
+        "GET()(42) PREFIX(41) GET()(GET())(3)\n"
+        "GET()\n(5) PREFIX\n(6) ID(GET())\n(7) LATER()\n(8)\n"
+        "GET() /* comment\ncontinued */\n(10)\n"
+        "EARLY(9) PASS(F(F)) LEFT(F(F))(2) RIGHT(F(F))(3) JOIN(f(f))(4)\n"
+        "STR(PASS(F(F)))\n"
+        '#line 100 "rescan.bc"\n'
+        "GET()(\n__LINE__\n) __LINE__\n"
+        "PREFIX(\n__LINE__\n) __LINE__\n")
+    expanded = command([PP, "-"], input=source).stdout
+    pattern = r'"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z_0-9]*|[0-9]+|[^\s]'
+    actual = re.sub(r"/\*CRUNCH-PP-MAP:[^*]*\*/", "", expanded)
+    actual = re.sub(r"/\*.*?\*/", " ", actual, flags=re.S)
+    tokens = re.findall(pattern, actual)
+    expected = re.findall(pattern, '42 1 + 41 F(3) 5 1 + 6 7 8 10 '
+                          'F(9) F(1) F(2) F(3) 7 "F(1)" 101 102 1 + 103 105')
+    expect(tokens == expected, f"incorrect replacement rescanning: {actual}")
+    gcc = shutil.which("gcc")
+    if gcc:
+        reference = command([gcc, "-E", "-P", "-x", "c", "-"], input=source).stdout
+        expect(tokens == re.findall(pattern, reference),
+               f"replacement rescanning differs from GCC:\nCrunch: {actual}\nGCC: {reference}")
+    invalid = command([PP, "-"], input="#define F(x) x\n#define GET() F\n"
+                      "GET()(1,2)\n", check=False)
+    expect(invalid.returncode != 0 and "expects 1 argument" in invalid.stderr,
+           "wrong argument count through a replacement was not rejected")
+    repeated = command([PP, "-"], input="#define ID(x) x\n" + "ID(1)\n" * 4000,
+                       timeout=5).stdout
+    expect(len(re.findall(r"(?m)^1$", repeated)) == 4000,
+           "repeated identity macros were not expanded")
+    repeated = command([PP, "-"], input="#define F(x) x\n#define ID(x) x\n" +
+                       "ID(F)\n" * 4000, timeout=5).stdout
+    expect(len(re.findall(r"(?m)^F$", repeated)) == 4000,
+           "repeated uncalled macro names were not preserved")
+    with tempfile.TemporaryDirectory(prefix="crunch-replacement-rescan-") as td:
+        directory = pathlib.Path(td)
+        executable = directory / "program"
+        (directory / "rescan_header.h").write_text("int header_value = 41;\n")
+        env = dict(os.environ, CRUNCH_CONF_FILE=str(directory / "absent.conf"))
+        program = (
+            "#define HEADER(x) <x.h>\n#define GET_HEADER() HEADER\n"
+            "#include GET_HEADER()(rescan_header)\n"
+            "#define INC(x) ((x)+1)\n#define GET_INC() INC\n"
+            "int main(void) { return GET_INC()(header_value); }\n")
+        command([DRIVER, "--static", "-I", directory, "-o", executable, "-"],
+                input=program, env=env)
+        expect(command([executable], check=False).returncode == 42,
+               "replacement-expanded header or program did not execute")
+
+
+def preprocessor_split_rescan_case():
+    """Compare calls split between macro replacements and source with GCC.
+
+    Returns:
+        None; raises AssertionError for incorrect expansion or diagnostics.
+    """
+    source = (
+        "#define F(x) x\n#define START F(\n#define CALL() F(\n"
+        "#define PAIR(x,y) x + y\n#define ADD PAIR(1,\n"
+        "#define ID(x) x\n#define INDIRECT ID(F)(\n#define ALIAS F\n"
+        "#define ALIAS_OPEN ALIAS(\n#define ARG_OPEN(x) x(\n"
+        "#define S(x) #x\n#define TEXT S(hello\n"
+        "#define CAT(a,b) a##b\n#define JOIN CAT(he,\n#define hello 7\n"
+        "#define FORWARD START\n#define COMPLETE START 4)\n"
+        "#define RECUR(x) RECUR(x)\n#define OPEN_RECUR RECUR(\n"
+        "#if START 42) != 42 || ADD 41) != 42\n#error split failed\n#endif\n"
+        "START 1) CALL() 2) ADD 3) INDIRECT 5)\n"
+        "FORWARD 6) COMPLETE + START 7)\n"
+        "START\n8) CALL()\n9) INDIRECT\n10) ALIAS_OPEN\n12) ARG_OPEN(F)\n13)\n"
+        "TEXT world) JOIN llo) OPEN_RECUR 11)\n"
+        '#line 100 "split.bc"\n'
+        "START\n__LINE__) __LINE__\n"
+        "CALL(\\\n)\n__LINE__) __LINE__\n"
+        "#define LOC(a,b) a b\n#define OBJ LOC(__LINE__,\n"
+        "#define FUN() LOC(__LINE__,\n"
+        "OBJ\n__LINE__) FUN()\n__LINE__)\n")
+    expanded = command([PP, "-"], input=source).stdout
+    pattern = r'"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z_0-9]*|[0-9]+|[^\s]'
+    actual = re.sub(r"/\*CRUNCH-PP-MAP:[^*]*\*/", "", expanded)
+    actual = re.sub(r"/\*.*?\*/", " ", actual, flags=re.S)
+    tokens = re.findall(pattern, actual)
+    gcc = shutil.which("gcc")
+    if gcc:
+        reference = command([gcc, "-E", "-P", "-x", "c", "-"], input=source).stdout
+        expect(tokens == re.findall(pattern, reference),
+               f"split macro calls differ from GCC:\nCrunch: {actual}\nGCC: {reference}")
+    expected = re.findall(pattern, '1 2 1 + 3 5 6 4 + 7 8 9 10 12 13 '
+                          '"hello world" 7 RECUR(11) 100 101 104 104 '
+                          '108 108 109 110')
+    expect(tokens == expected, f"incorrect split macro expansion: {actual}")
+    for suffix in ("1,2)", "1"):
+        invalid = command([PP, "-"], input="#define F(x) x\n#define START F(\n"
+                          f"START {suffix}\n", check=False)
+        expect(invalid.returncode != 0,
+               f"malformed split invocation was accepted: {suffix}")
+    repeated = command([PP, "-"], input="#define F(x) x\n#define START F(\n" +
+                       "START 1)\n" * 4000, timeout=5).stdout
+    expect(len(re.findall(r"(?m)^\s*1$", repeated)) == 4000,
+           "repeated split invocations were not expanded")
+    with tempfile.TemporaryDirectory(prefix="crunch-split-rescan-") as td:
+        directory = pathlib.Path(td)
+        executable = directory / "program"
+        (directory / "split_header.h").write_text("int header_value = 41;\n")
+        env = dict(os.environ, CRUNCH_CONF_FILE=str(directory / "absent.conf"))
+        program = (
+            "#define HEADER(x) <x.h>\n#define OPEN_HEADER HEADER(split_header\n"
+            "#include OPEN_HEADER)\n"
+            "#define INC(x) ((x)+1)\n#define OPEN_INC() INC(\n"
+            "int main(void) { return OPEN_INC() header_value); }\n")
+        command([DRIVER, "--static", "-I", directory, "-o", executable, "-"],
+                input=program, env=env)
+        expect(command([executable], check=False).returncode == 42,
+               "split macro header or program did not execute")
 
 
 def preprocessor_token_boundary_case():
@@ -28892,6 +29087,9 @@ if os.environ.get("CRUNCH_TEST_NATIVE_ONLY") == "1":
         report("preprocessor", "variadic macros and token pasting", preprocessor_variadic_case)
         report("preprocessor", "macro token boundaries", preprocessor_token_boundary_case)
         report("preprocessor", "function macro aliases", preprocessor_function_alias_case)
+        report("preprocessor", "identity macro rescanning", preprocessor_identity_rescan_case)
+        report("preprocessor", "replacement macro rescanning", preprocessor_replacement_rescan_case)
+        report("preprocessor", "split macro rescanning", preprocessor_split_rescan_case)
         report("preprocessor", "GCC stddef header", gcc_stddef_preprocessor_case)
         report("preprocessor", "glibc header discovery", glibc_header_discovery_case)
         report("preprocessor", "predefined compiler and target macros", preprocessor_builtin_macro_case)
@@ -29228,6 +29426,9 @@ report("preprocessor", "empty macro expansion", preprocessor_empty_macro_case)
 report("preprocessor", "variadic macros and token pasting", preprocessor_variadic_case)
 report("preprocessor", "macro token boundaries", preprocessor_token_boundary_case)
 report("preprocessor", "function macro aliases", preprocessor_function_alias_case)
+report("preprocessor", "identity macro rescanning", preprocessor_identity_rescan_case)
+report("preprocessor", "replacement macro rescanning", preprocessor_replacement_rescan_case)
+report("preprocessor", "split macro rescanning", preprocessor_split_rescan_case)
 report("preprocessor", "multiline macro definitions", preprocessor_continuation_case)
 report("preprocessor", "GCC stddef header", gcc_stddef_preprocessor_case)
 report("preprocessor", "glibc header discovery", glibc_header_discovery_case)

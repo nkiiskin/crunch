@@ -149,6 +149,13 @@ typedef struct {
     size_t length;
 } MacroArgument;
 
+typedef struct {
+    MacroDefinition *macro;
+    size_t offset;
+    size_t name_length;
+    int incomplete;
+} MacroTail;
+
 enum { PP_MAX_MACRO_EXPANSION_DEPTH = 64 };
 
 /**
@@ -854,6 +861,26 @@ static size_t skip_macro_space(const char *text, size_t length, size_t cursor);
 
 /* Source NUL bytes are rejected, so NUL can represent an internal boundary. */
 #define PP_TOKEN_BOUNDARY '\0'
+#define PP_NO_EXPAND '\1'
+
+/**
+ * @brief Removes internal suppression markers while preserving token boundaries.
+ * @param text Expanded preprocessing text to compact in place.
+ * @return No value.
+ */
+static void strip_no_expand(TextBuffer *text)
+{
+    size_t read = 0, written = 0;
+    while (read < text->length) {
+        char ch = text->data[read++];
+        text->data[written++] = ch;
+        if (ch == PP_TOKEN_BOUNDARY && read < text->length &&
+            text->data[read] == PP_NO_EXPAND)
+            ++read;
+    }
+    text->length = written;
+    if (text->data) text->data[written] = '\0';
+}
 
 /**
  * @brief Recognizes GCC diagnostic controls for the unsupported pedantic warning category.
@@ -1352,7 +1379,8 @@ static size_t skip_macro_space(const char *text, size_t length, size_t cursor)
 {
     for (;;) {
         while (cursor < length && (isspace((unsigned char)text[cursor]) ||
-                                   text[cursor] == PP_TOKEN_BOUNDARY))
+               (text[cursor] == PP_TOKEN_BOUNDARY &&
+                !(cursor + 1 < length && text[cursor + 1] == PP_NO_EXPAND))))
             ++cursor;
         if (cursor + 1 < length && text[cursor] == '/' && text[cursor + 1] == '/') {
             cursor += 2;
@@ -1418,6 +1446,8 @@ static int stringify_argument(TextBuffer *output, MacroArgument argument)
     if (!buffer_append_char(output, '"')) return 0;
     while (cursor < length) {
         if (text[cursor] == PP_TOKEN_BOUNDARY) {
+            if (cursor + 1 < length && text[cursor + 1] == PP_NO_EXPAND)
+                ++cursor;
             ++cursor;
             continue;
         }
@@ -1464,6 +1494,24 @@ static int stringify_argument(TextBuffer *output, MacroArgument argument)
 }
 
 /**
+ * @brief Makes a suppressed identifier eligible when it is pasted with another token.
+ * @param text Buffer ending with the left operand of a token paste.
+ * @return No value.
+ */
+static void release_pasted_identifier(TextBuffer *text)
+{
+    size_t start = text->length;
+    while (start && crunch_identifier_continue((unsigned char)text->data[start - 1]))
+        --start;
+    if (start >= 2 && text->data[start - 2] == PP_TOKEN_BOUNDARY &&
+        text->data[start - 1] == PP_NO_EXPAND) {
+        memmove(text->data + start - 1, text->data + start, text->length - start);
+        --text->length;
+        text->data[text->length] = '\0';
+    }
+}
+
+/**
  * @brief Substitutes parameters and processes token pastes in a macro body.
  * @param macro Definition supplying parameter names and replacement text.
  * @param arguments Expanded argument texts, in parameter order.
@@ -1482,7 +1530,7 @@ static int substitute_macro_parameters(const MacroDefinition *macro,
 {
     const char *text = macro->replacement;
     size_t length = strlen(text);
-    int paste_pending = 0;
+    int paste_pending = 0, last_operand_empty = 0, paste_left_empty = 0;
     for (size_t cursor = 0; cursor < length;) {
         if (paste_pending) {
             cursor = skip_macro_space(text, length, cursor);
@@ -1490,16 +1538,20 @@ static int substitute_macro_parameters(const MacroDefinition *macro,
         }
         if (text[cursor] == 'L' && cursor + 1 < length &&
             (text[cursor + 1] == '\'' || text[cursor + 1] == '"')) {
+            if (paste_pending && !paste_left_empty) release_pasted_identifier(substituted);
             if (!buffer_append_char(substituted, text[cursor++]) ||
                 !append_quoted_text(substituted, text, length, &cursor))
                 return 0;
             paste_pending = 0;
+            last_operand_empty = 0;
             continue;
         }
         if (text[cursor] == '"' || text[cursor] == '\'') {
+            if (paste_pending && !paste_left_empty) release_pasted_identifier(substituted);
             if (!append_quoted_text(substituted, text, length, &cursor))
                 return 0;
             paste_pending = 0;
+            last_operand_empty = 0;
             continue;
         }
         if (cursor + 1 < length && text[cursor] == '/' &&
@@ -1542,6 +1594,7 @@ static int substitute_macro_parameters(const MacroDefinition *macro,
                 continue;
             }
             cursor += 2;
+            paste_left_empty = last_operand_empty;
             paste_pending = 1;
             continue;
         }
@@ -1561,9 +1614,11 @@ static int substitute_macro_parameters(const MacroDefinition *macro,
         }
         size_t number_length = pp_number_length(text, length, cursor);
         if (number_length) {
+            if (paste_pending && !paste_left_empty) release_pasted_identifier(substituted);
             if (!buffer_append(substituted, text + cursor, number_length)) return 0;
             cursor += number_length;
             paste_pending = 0;
+            last_operand_empty = 0;
             continue;
         }
         size_t identifier_length = 0;
@@ -1587,22 +1642,37 @@ static int substitute_macro_parameters(const MacroDefinition *macro,
                     value += begin;
                     value_length = end - begin;
                 }
+                if (paste_pending && !paste_left_empty && value_length) {
+                    release_pasted_identifier(substituted);
+                    if (value_length >= 2 && value[0] == PP_TOKEN_BOUNDARY &&
+                        value[1] == PP_NO_EXPAND) {
+                        value += 2;
+                        value_length -= 2;
+                    }
+                }
                 if (!paste_pending && !buffer_append_char(substituted, PP_TOKEN_BOUNDARY))
                     return 0;
                 if (!buffer_append(substituted, value, value_length)) return 0;
                 if (!paste_after && !buffer_append_char(substituted, PP_TOKEN_BOUNDARY))
                     return 0;
+                last_operand_empty = !value_length && (!paste_pending || paste_left_empty);
             } else {
+                if (paste_pending && !paste_left_empty) release_pasted_identifier(substituted);
                 if (!buffer_append(substituted, text + cursor, identifier_length))
                     return 0;
+                last_operand_empty = 0;
             }
             cursor += identifier_length;
             paste_pending = 0;
             continue;
         }
+        if (paste_pending && !paste_left_empty && !isspace((unsigned char)text[cursor]))
+            release_pasted_identifier(substituted);
         if (!buffer_append_char(substituted, text[cursor++])) return 0;
-        if (!isspace((unsigned char)text[cursor - 1]))
+        if (!isspace((unsigned char)text[cursor - 1])) {
             paste_pending = 0;
+            last_operand_empty = 0;
+        }
     }
     if (paste_pending) return 0;
     return 1;
@@ -1831,6 +1901,50 @@ static MacroDefinition *function_macro_alias(Preprocessor *pp, MacroDefinition *
 }
 
 /**
+ * @brief Identifies a callable result of a single-argument identity macro.
+ * @param pp Preprocessor containing the macro namespace.
+ * @param macro Candidate identity definition.
+ * @param text Text containing its invocation.
+ * @param length Number of text bytes.
+ * @param identifier_end Offset after the identity macro name.
+ * @param active Definitions already being expanded.
+ * @param depth Number of active definitions.
+ * @param after Output offset after the identity invocation.
+ * @return Callable result, or NULL if the invocation is not eligible.
+ */
+static MacroDefinition *identity_function_result(
+    Preprocessor *pp, MacroDefinition *macro, const char *text, size_t length,
+    size_t identifier_end, const MacroDefinition *const *active, size_t depth,
+    size_t *after)
+{
+    if (!macro->function_like || macro->variadic || macro->parameter_count != 1)
+        return NULL;
+    const char *replacement = macro->replacement;
+    size_t replacement_length = strlen(replacement), name_length = 0;
+    size_t start = skip_macro_space(replacement, replacement_length, 0);
+    if (!identifier_at(replacement, replacement_length, start, &name_length) ||
+        strlen(macro->parameters[0]) != name_length ||
+        memcmp(replacement + start, macro->parameters[0], name_length) ||
+        skip_macro_space(replacement, replacement_length, start + name_length) !=
+            replacement_length)
+        return NULL;
+    size_t open = skip_macro_space(text, length, identifier_end);
+    if (open == length || text[open] != '(') return NULL;
+    start = skip_macro_space(text, length, open + 1);
+    if (!identifier_at(text, length, start, &name_length)) return NULL;
+    size_t close = skip_macro_space(text, length, start + name_length);
+    if (close == length || text[close] != ')') return NULL;
+    MacroDefinition *result = find_macro_definition(pp, text + start, name_length);
+    if (result && !result->function_like)
+        result = function_macro_alias(pp, result, active, depth);
+    if (!result || !result->function_like || result == macro ||
+        macro_is_active(result, active, depth))
+        return NULL;
+    *after = close + 1;
+    return result;
+}
+
+/**
  * @brief Locates the operand and closing parenthesis of a header query.
  * @param text Expression bytes.
  * @param length Number of expression bytes.
@@ -1884,7 +1998,7 @@ static int has_include_bounds(const char *text, size_t length, size_t identifier
 
 static int expand_text(Preprocessor *pp, const char *text, size_t length,
                        const MacroDefinition *const *active, size_t depth,
-                       int *in_block_comment, TextBuffer *output);
+                       int *in_block_comment, TextBuffer *output, MacroTail *tail);
 
 /**
  * @brief Counts line endings in a source byte range.
@@ -2040,12 +2154,13 @@ static int expand_feature_query(Preprocessor *pp, const char *text, size_t lengt
                                          (size_t)(arguments[0].text - text));
     pp->emit_source_markers = 0;
     int expanded_ok = expand_text(pp, arguments[0].text, arguments[0].length,
-                                  active, depth, &comment, &expanded);
+                                  active, depth, &comment, &expanded, NULL);
     pp->source_line = saved_line;
     pp->emit_source_markers = saved_markers;
     --pp->if_argument_depth;
     --pp->feature_query_depth;
     if (!expanded_ok || comment) goto done;
+    strip_no_expand(&expanded);
     const char *value = expanded.data ? expanded.data : "";
     size_t cursor = skip_macro_space(value, expanded.length, 0), name_length = 0;
     size_t name_start = cursor;
@@ -2107,13 +2222,15 @@ static int expand_defined(Preprocessor *pp, const char *text, size_t length,
  * @param depth Number of active definitions.
  * @param output Buffer receiving expanded text; may be partially appended on failure.
  * @param after Output cursor past the invocation when expansion succeeds.
- * @return One on expansion, two for a function-like macro without '(', or -1 on failure.
+ * @param tail Output eligible function macro at the end of the replacement.
+ * @return One on expansion, two without '(', three for a deferred incomplete call,
+ * or -1 on failure.
  */
 static int expand_macro(Preprocessor *pp, MacroDefinition *macro,
                         const char *text, size_t length, size_t identifier_start,
                         size_t identifier_end,
                         const MacroDefinition *const *active, size_t depth,
-                        TextBuffer *output, size_t *after)
+                        TextBuffer *output, size_t *after, MacroTail *tail)
 {
     size_t open = skip_macro_space(text, length, identifier_end);
     MacroArgument *arguments = NULL;
@@ -2132,6 +2249,8 @@ static int expand_macro(Preprocessor *pp, MacroDefinition *macro,
             if (parse_status < 0)
                 fprintf(stderr, "crunch-pp: out of memory or too many arguments for macro '%s'\n",
                         macro->name);
+            else if (tail)
+                return 3;
             else
                 fprintf(stderr, "crunch-pp: unterminated argument list for macro '%s'\n",
                         macro->name);
@@ -2180,7 +2299,7 @@ static int expand_macro(Preprocessor *pp, MacroDefinition *macro,
                     pp->emit_source_markers = 0;
                     int expanded = expand_text(pp, arguments[i].text, arguments[i].length,
                                                active, depth, &argument_comment,
-                                               &expanded_arguments[i]);
+                                               &expanded_arguments[i], NULL);
                     pp->source_line = saved_line;
                     pp->emit_source_markers = saved_markers;
                     --pp->if_argument_depth;
@@ -2228,7 +2347,7 @@ static int expand_macro(Preprocessor *pp, MacroDefinition *macro,
         pp->emit_source_markers = 0;
         ok = expand_text(pp, substituted.data ? substituted.data : "",
                          substituted.length, next_active, depth + 1,
-                         &replacement_comment, output) ? 1 : -1;
+                         &replacement_comment, output, tail) ? 1 : -1;
         pp->track_source_lines = saved_tracking;
         pp->emit_source_markers = saved_markers;
     }
@@ -2244,6 +2363,88 @@ done:
 }
 
 /**
+ * @brief Completes a replacement-generated invocation using following text.
+ * @param pp Preprocessor containing the source map.
+ * @param text Enclosing expansion text.
+ * @param length Number of enclosing text bytes.
+ * @param start Offset of the enclosing macro invocation.
+ * @param after Input/output cursor after consumed enclosing text.
+ * @param active Definitions active in the enclosing text.
+ * @param depth Number of active definitions.
+ * @param output Buffer containing the incomplete invocation.
+ * @param pending Input/output deferred invocation and resulting tail.
+ * @return One on success, three if still incomplete, or -1 on failure.
+ */
+static int finish_split_invocation(Preprocessor *pp, const char *text, size_t length,
+                                   size_t start, size_t *after,
+                                   const MacroDefinition *const *active, size_t depth,
+                                   TextBuffer *output, MacroTail *pending)
+{
+    TextBuffer joined = {0};
+    SpliceOffsets splices = {0};
+    size_t prefix = output->length - pending->offset;
+    int result = -1;
+    if (!buffer_append(&joined, output->data + pending->offset, prefix) ||
+        !buffer_append_char(&joined, PP_TOKEN_BOUNDARY) ||
+        !buffer_append(&joined, text + *after, length - *after))
+        goto done;
+    size_t identifier_end = 1 + pending->name_length;
+    size_t open = skip_macro_space(joined.data, joined.length, identifier_end);
+    MacroArgument *arguments = NULL;
+    size_t count = 0, close = 0;
+    int status = open < joined.length && joined.data[open] == '('
+        ? parse_macro_arguments(joined.data, joined.length, open, &close,
+                                &arguments, &count) : 0;
+    free(arguments);
+    if (status < 0) goto done;
+    if (!status) {
+        if (!buffer_append_char(output, PP_TOKEN_BOUNDARY) ||
+            !buffer_append(output, text + *after, length - *after))
+            goto done;
+        *after = length;
+        result = 3;
+        goto done;
+    }
+
+    const char *saved_text = pp->mapped_text;
+    size_t saved_length = pp->mapped_length;
+    const SpliceOffsets *saved_splices = pp->mapped_splices;
+    int saved_markers = pp->emit_source_markers;
+    if (pp->track_source_lines) {
+        size_t breaks = source_breaks(pp, text, start, *after);
+        for (size_t i = 0; i < breaks; ++i)
+            if (!add_splice_offset(&splices, prefix + 1)) goto done;
+        size_t origin = (size_t)(text - saved_text);
+        for (size_t i = 0; i < saved_splices->count; ++i) {
+            size_t offset = saved_splices->offsets[i];
+            if (offset > origin + *after && offset <= origin + length &&
+                !add_splice_offset(&splices, prefix + 1 + offset - origin - *after))
+                goto done;
+        }
+        pp->mapped_text = joined.data;
+        pp->mapped_length = joined.length;
+        pp->mapped_splices = &splices;
+    }
+    pp->emit_source_markers = 0;
+    output->length = pending->offset;
+    output->data[output->length] = '\0';
+    MacroDefinition *macro = pending->macro;
+    *pending = (MacroTail){0};
+    size_t joined_after = 0;
+    result = expand_macro(pp, macro, joined.data, joined.length, 1, identifier_end,
+                          active, depth, output, &joined_after, pending);
+    pp->mapped_text = saved_text;
+    pp->mapped_length = saved_length;
+    pp->mapped_splices = saved_splices;
+    pp->emit_source_markers = saved_markers;
+    if (result == 1) *after += joined_after - prefix - 1;
+done:
+    free(splices.offsets);
+    free(joined.data);
+    return result;
+}
+
+/**
  * @brief Expands macros in source text while preserving quoted text and comments.
  * @param pp Preprocessor supplying macro definitions.
  * @param text Source bytes to expand.
@@ -2252,13 +2453,15 @@ done:
  * @param depth Number of active definitions.
  * @param in_block_comment Input/output comment state carried across source lines.
  * @param output Buffer receiving the expanded bytes.
+ * @param tail Optional output eligible function macro at the end of the text.
  * @return One on success; zero on malformed expansion/allocation failure, possibly after appending.
  */
 static int expand_text(Preprocessor *pp, const char *text, size_t length,
                        const MacroDefinition *const *active, size_t depth,
-                       int *in_block_comment, TextBuffer *output)
+                       int *in_block_comment, TextBuffer *output, MacroTail *tail)
 {
     size_t source_line = pp->source_line, line_cursor = 0;
+    if (tail) *tail = (MacroTail){0};
     for (size_t cursor = 0; cursor < length;) {
         if (pp->track_source_lines) {
             source_line += source_breaks(pp, text, line_cursor, cursor);
@@ -2273,6 +2476,15 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
             } else if (!buffer_append_char(output, text[cursor++])) {
                 return 0;
             }
+            continue;
+        }
+        if (text[cursor] == PP_TOKEN_BOUNDARY && cursor + 1 < length &&
+            text[cursor + 1] == PP_NO_EXPAND) {
+            size_t name_length = 0;
+            if (!identifier_at(text, length, cursor + 2, &name_length) ||
+                !buffer_append(output, text + cursor, name_length + 2))
+                return 0;
+            cursor += name_length + 2;
             continue;
         }
         if (text[cursor] == 'L' && cursor + 1 < length &&
@@ -2414,6 +2626,10 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
             continue;
         }
         if (!macro || macro_is_active(macro, active, depth)) {
+            if (macro &&
+                (!buffer_append_char(output, PP_TOKEN_BOUNDARY) ||
+                 !buffer_append_char(output, PP_NO_EXPAND)))
+                return 0;
             if (!buffer_append(output, text + cursor, identifier_length))
                 return 0;
             cursor = identifier_end;
@@ -2421,6 +2637,7 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
         }
         size_t after = identifier_end;
         size_t output_start = output->length;
+        int object_invocation = !macro->function_like;
         if (!buffer_append_char(output, PP_TOKEN_BOUNDARY)) return 0;
         size_t saved_line = pp->source_line;
         pp->source_line = source_line;
@@ -2433,8 +2650,81 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
                 pp->track_source_lines = 0;
             }
         }
+        size_t identity_after = 0;
+        /* Substituted arguments can contain identifiers suppressed in an earlier scan. */
+        MacroDefinition *identity = depth ? NULL : identity_function_result(
+            pp, macro, text, length, identifier_end, active, depth, &identity_after);
+        if (identity) {
+            size_t open = skip_macro_space(text, length, identity_after);
+            if (open < length && text[open] == '(') {
+                macro = identity;
+                identifier_end = identity_after;
+            }
+        }
+        MacroTail replacement_tail = {0};
         int expansion = expand_macro(pp, macro, text, length, cursor, identifier_end,
-                                     active, depth, output, &after);
+                                     active, depth, output, &after, &replacement_tail);
+        if (expansion == 3) {
+            pp->track_source_lines = saved_tracking;
+            pp->source_line = saved_line;
+            if (!tail) {
+                fprintf(stderr, "crunch-pp: unterminated argument list for macro '%s'\n",
+                        macro->name);
+                return 0;
+            }
+            if (!buffer_append(output, text + cursor, length - cursor)) return 0;
+            *tail = (MacroTail){macro, output_start, identifier_length, 1};
+            return 1;
+        }
+        if (expansion == 1) {
+            while (replacement_tail.macro) {
+                if (replacement_tail.incomplete) {
+                    if (object_invocation) pp->track_source_lines = 0;
+                    expansion = finish_split_invocation(pp, text, length, cursor, &after,
+                                                        active, depth, output,
+                                                        &replacement_tail);
+                    if (expansion == 3) {
+                        pp->track_source_lines = saved_tracking;
+                        pp->source_line = saved_line;
+                        if (!tail) {
+                            fprintf(stderr, "crunch-pp: unterminated argument list for macro '%s'\n",
+                                    replacement_tail.macro->name);
+                            return 0;
+                        }
+                        *tail = replacement_tail;
+                        return 1;
+                    }
+                    if (expansion != 1) break;
+                    continue;
+                }
+                size_t open = skip_macro_space(text, length, after);
+                if (open >= length || text[open] != '(') break;
+                output->length = replacement_tail.offset;
+                output->data[output->length] = '\0';
+                MacroDefinition *next = replacement_tail.macro;
+                replacement_tail = (MacroTail){0};
+                if (object_invocation) pp->track_source_lines = 0;
+                expansion = expand_macro(pp, next, text, length, cursor, after,
+                                         active, depth, output, &after, &replacement_tail);
+                if (expansion == 3) {
+                    size_t offset = output->length, name_length = strlen(next->name);
+                    if (!buffer_append_char(output, PP_TOKEN_BOUNDARY) ||
+                        !buffer_append(output, next->name, name_length) ||
+                        !buffer_append(output, text + after, length - after))
+                        return 0;
+                    pp->track_source_lines = saved_tracking;
+                    pp->source_line = saved_line;
+                    if (!tail) {
+                        fprintf(stderr, "crunch-pp: unterminated argument list for macro '%s'\n",
+                                next->name);
+                        return 0;
+                    }
+                    *tail = (MacroTail){next, offset, name_length, 1};
+                    return 1;
+                }
+                if (expansion != 1) break;
+            }
+        }
         pp->track_source_lines = saved_tracking;
         pp->source_line = saved_line;
         if (expansion < 0) return 0;
@@ -2443,6 +2733,9 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
             output->data[output_start] = '\0';
             if (!buffer_append(output, text + cursor, identifier_length))
                 return 0;
+            if (tail && macro->function_like &&
+                skip_macro_space(text, length, identifier_end) == length)
+                *tail = (MacroTail){macro, output_start, identifier_length, 0};
             cursor = identifier_end;
             continue;
         }
@@ -2453,6 +2746,9 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
         }
         if (!buffer_append_char(output, PP_TOKEN_BOUNDARY))
             return 0;
+        if (tail && replacement_tail.macro &&
+            skip_macro_space(text, length, after) == length)
+            *tail = replacement_tail;
         size_t lines = source_breaks(pp, text, cursor, after);
         if (lines)
             normalize_multiline_macro(output, output_start);
@@ -2465,12 +2761,203 @@ static int expand_text(Preprocessor *pp, const char *text, size_t length,
 }
 
 /**
+ * @brief Checks whether a replacement can end in a callable macro name.
+ * @param pp Preprocessor containing the macro namespace.
+ * @param macro Definition to inspect.
+ * @param seen Definitions already visited.
+ * @param depth Number of visited definitions.
+ * @return Nonzero if the replacement may produce a callable trailing token.
+ */
+static int macro_may_end_callable(Preprocessor *pp, MacroDefinition *macro,
+                                  const MacroDefinition *const *seen, size_t depth)
+{
+    if (depth == PP_MAX_MACRO_EXPANSION_DEPTH || macro_is_active(macro, seen, depth))
+        return 0;
+    const MacroDefinition *next_seen[PP_MAX_MACRO_EXPANSION_DEPTH];
+    if (depth) memcpy(next_seen, seen, depth * sizeof(*next_seen));
+    next_seen[depth++] = macro;
+    const char *replacement = macro->replacement;
+    size_t length = strlen(replacement);
+    size_t end = macro_argument_end(replacement, length, 0);
+    if (end && replacement[end - 1] == ')') {
+        size_t nesting = 1;
+        --end;
+        while (end && nesting) {
+            --end;
+            if (replacement[end] == ')') ++nesting;
+            else if (replacement[end] == '(') --nesting;
+        }
+        if (nesting) return 0;
+        while (end && isspace((unsigned char)replacement[end - 1])) --end;
+    }
+    size_t start = end;
+    while (start && crunch_identifier_continue((unsigned char)replacement[start - 1]))
+        --start;
+    size_t name_length = 0;
+    if (!identifier_at(replacement, end, start, &name_length) ||
+        start + name_length != end)
+        return 0;
+    for (size_t i = 0; i < macro->parameter_count; ++i)
+        if (strlen(macro->parameters[i]) == name_length &&
+            !memcmp(macro->parameters[i], replacement + start, name_length))
+            return 1;
+    MacroDefinition *next = find_macro_definition(pp, replacement + start, name_length);
+    if (!next || macro_is_active(next, next_seen, depth)) return 0;
+    if (next->function_like && end == macro_argument_end(replacement, length, 0))
+        return 1;
+    return macro_may_end_callable(pp, next, next_seen, depth);
+}
+
+/**
+ * @brief Filters parameter-ending replacements whose arguments cannot name macros.
+ * @param pp Preprocessor containing the macro namespace.
+ * @param macro Invoked definition to inspect.
+ * @param text Text containing the invocation.
+ * @param length Number of text bytes.
+ * @param identifier_end Offset after the macro name.
+ * @return One if it may yield a callable macro, zero if not, or -1 on allocation failure.
+ */
+static int macro_argument_may_be_callable(Preprocessor *pp, MacroDefinition *macro,
+                                          const char *text, size_t length,
+                                          size_t identifier_end)
+{
+    if (!macro->function_like) return 1;
+    const char *replacement = macro->replacement;
+    size_t end = macro_argument_end(replacement, strlen(replacement), 0);
+    size_t start = end;
+    while (start && crunch_identifier_continue((unsigned char)replacement[start - 1]))
+        --start;
+    size_t name_length = 0, parameter = 0;
+    if (!identifier_at(replacement, end, start, &name_length) ||
+        start + name_length != end)
+        return 1;
+    for (; parameter < macro->parameter_count; ++parameter)
+        if (strlen(macro->parameters[parameter]) == name_length &&
+            !memcmp(macro->parameters[parameter], replacement + start, name_length))
+            break;
+    if (parameter == macro->parameter_count || macro->variadic) return 1;
+    size_t preceding = start;
+    while (preceding && isspace((unsigned char)replacement[preceding - 1])) --preceding;
+    if (preceding && replacement[preceding - 1] == '#') return 1;
+    size_t open = skip_macro_space(text, length, identifier_end);
+    if (open == length || text[open] != '(') return 1;
+    MacroArgument *arguments = NULL;
+    size_t count = 0, after = 0;
+    int status = parse_macro_arguments(text, length, open, &after, &arguments, &count);
+    if (status <= 0 || count != macro->parameter_count) {
+        free(arguments);
+        return status < 0 ? -1 : 1;
+    }
+    const char *value = arguments[parameter].text;
+    size_t value_length = arguments[parameter].length;
+    int found = 0;
+    for (size_t cursor = 0; cursor < value_length;) {
+        size_t identifier_length = 0;
+        if (identifier_at(value, value_length, cursor, &identifier_length)) {
+            MacroDefinition *candidate = find_macro_definition(pp, value + cursor,
+                                                               identifier_length);
+            if (candidate && (candidate->function_like ||
+                macro_may_end_callable(pp, candidate, NULL, 0))) {
+                found = 1;
+                break;
+            }
+            cursor += identifier_length;
+        } else {
+            ++cursor;
+        }
+    }
+    free(arguments);
+    return found;
+}
+
+/**
+ * @brief Identifies definitions that may create an incomplete macro invocation.
+ * @param pp Preprocessor containing the macro namespace.
+ * @param macro Definition to inspect.
+ * @param active Definitions already inspected.
+ * @param depth Number of inspected definitions.
+ * @return One if a split invocation is possible, zero if not, or -1 on allocation failure.
+ */
+static int macro_may_split_invocation(Preprocessor *pp, MacroDefinition *macro,
+                                      const MacroDefinition *const *active, size_t depth)
+{
+    if (depth == PP_MAX_MACRO_EXPANSION_DEPTH || macro_is_active(macro, active, depth))
+        return 0;
+    const MacroDefinition *next_active[PP_MAX_MACRO_EXPANSION_DEPTH];
+    if (depth) memcpy(next_active, active, depth * sizeof(*next_active));
+    next_active[depth++] = macro;
+    const char *text = macro->replacement;
+    size_t length = strlen(text);
+    for (size_t cursor = 0; cursor < length;) {
+        if (text[cursor] == '"' || text[cursor] == '\'') {
+            char quote = text[cursor++];
+            while (cursor < length) {
+                if (text[cursor] == '\\' && cursor + 1 < length) cursor += 2;
+                else if (text[cursor++] == quote) break;
+            }
+            continue;
+        }
+        if (cursor + 1 < length && text[cursor] == '/' &&
+            (text[cursor + 1] == '*' || text[cursor + 1] == '/')) {
+            cursor = skip_macro_space(text, length, cursor);
+            continue;
+        }
+        size_t number_length = pp_number_length(text, length, cursor);
+        if (number_length) {
+            cursor += number_length;
+            continue;
+        }
+        size_t name_length = 0;
+        if (!identifier_at(text, length, cursor, &name_length)) {
+            ++cursor;
+            continue;
+        }
+        MacroDefinition *next = find_macro_definition(pp, text + cursor, name_length);
+        size_t end = cursor + name_length;
+        size_t open = skip_macro_space(text, length, end);
+        if (open < length && text[open] == '(') {
+            MacroDefinition *callable = next;
+            if (callable && !callable->function_like)
+                callable = function_macro_alias(pp, callable, next_active, depth);
+            int parameter = 0;
+            for (size_t i = 0; i < macro->parameter_count; ++i)
+                if (strlen(macro->parameters[i]) == name_length &&
+                    !memcmp(macro->parameters[i], text + cursor, name_length))
+                    parameter = 1;
+            if (parameter || (callable && callable->function_like)) {
+                MacroArgument *arguments = NULL;
+                size_t count = 0, after = 0;
+                int status = parse_macro_arguments(text, length, open, &after,
+                                                   &arguments, &count);
+                free(arguments);
+                if (status <= 0) return status < 0 ? -1 : 1;
+                size_t following = skip_macro_space(text, length, after);
+                if (following < length && text[following] == '(') {
+                    arguments = NULL;
+                    status = parse_macro_arguments(text, length, following, &after,
+                                                   &arguments, &count);
+                    free(arguments);
+                    if (status <= 0) return status < 0 ? -1 : 1;
+                }
+            }
+        }
+        if (next && (!next->function_like || open == length || text[open] == '(')) {
+            int status = macro_may_split_invocation(pp, next, next_active, depth);
+            if (status) return status;
+        }
+        cursor = end;
+    }
+    return 0;
+}
+
+/**
  * @brief Determines whether ordinary source needs another line before expansion.
  * @param pp Preprocessor containing the macro namespace.
  * @param text Buffered source bytes.
  * @param length Number of source bytes.
  * @param in_block_comment Comment state at the beginning of the buffer.
- * @return One if a macro invocation may continue, zero if complete, or -1 on allocation failure.
+ * @return One for an open invocation, two for a possible following '(', zero if complete,
+ * or -1 on allocation failure.
  */
 static int macro_text_needs_line(Preprocessor *pp, const char *text, size_t length,
                                  int in_block_comment)
@@ -2520,9 +3007,11 @@ static int macro_text_needs_line(Preprocessor *pp, const char *text, size_t leng
         }
         int kind = builtin_query_kind(pp, text + cursor, name_length);
         size_t end = cursor + name_length;
+        size_t invocation_end = end;
+        int invoked = macro && !macro->function_like;
         if ((macro && macro->function_like) || kind >= 3) {
             size_t open = skip_macro_space(text, length, end);
-            if (open == length) return 1;
+            if (open == length) return 2;
             if (text[open] == '(') {
                 MacroArgument *arguments = NULL;
                 size_t count = 0, after = 0;
@@ -2530,6 +3019,82 @@ static int macro_text_needs_line(Preprocessor *pp, const char *text, size_t leng
                                                    &arguments, &count);
                 free(arguments);
                 if (status <= 0) return status < 0 ? -1 : 1;
+                invocation_end = after;
+                invoked = macro != NULL;
+            }
+        }
+        int split = invoked ? macro_may_split_invocation(pp, macro, NULL, 0) : 0;
+        if (split < 0) return -1;
+        if (split) {
+            TextBuffer probe = {0};
+            MacroTail tail = {0};
+            size_t after = 0;
+            int tracking = pp->track_source_lines, markers = pp->emit_source_markers;
+            pp->track_source_lines = 0;
+            pp->emit_source_markers = 0;
+            int status = expand_macro(pp, macro, text, length, cursor, end,
+                                      NULL, 0, &probe, &after, &tail);
+            pp->track_source_lines = tracking;
+            pp->emit_source_markers = markers;
+            if (status < 0) {
+                free(probe.data);
+                return -1;
+            }
+            if (tail.incomplete) {
+                TextBuffer joined = {0};
+                size_t prefix = probe.length - tail.offset;
+                int ok = buffer_append(&joined, probe.data + tail.offset, prefix) &&
+                         buffer_append_char(&joined, PP_TOKEN_BOUNDARY) &&
+                         buffer_append(&joined, text + after, length - after);
+                free(probe.data);
+                if (!ok) {
+                    free(joined.data);
+                    return -1;
+                }
+                size_t open = skip_macro_space(joined.data, joined.length,
+                                               1 + tail.name_length);
+                MacroArgument *arguments = NULL;
+                size_t count = 0, close = 0;
+                status = open < joined.length && joined.data[open] == '('
+                    ? parse_macro_arguments(joined.data, joined.length, open, &close,
+                                            &arguments, &count) : 0;
+                free(arguments);
+                free(joined.data);
+                if (status <= 0) return status < 0 ? -1 : 1;
+            } else {
+                free(probe.data);
+                if (status == 3) return 1;
+            }
+        }
+        int callable = invoked && macro_may_end_callable(pp, macro, NULL, 0)
+            ? macro_argument_may_be_callable(pp, macro, text, length, end) : 0;
+        if (callable < 0) return -1;
+        if (callable) {
+            size_t open = skip_macro_space(text, length, invocation_end);
+            if (open == length) return 2;
+            if (text[open] == '(') {
+                MacroArgument *arguments = NULL;
+                size_t count = 0, after = 0;
+                int status = parse_macro_arguments(text, length, open, &after,
+                                                   &arguments, &count);
+                free(arguments);
+                if (status <= 0) return status < 0 ? -1 : 1;
+            }
+        }
+        if (macro && macro->function_like) {
+            size_t after = 0;
+            if (identity_function_result(pp, macro, text, length, end, NULL, 0,
+                                         &after)) {
+                size_t open = skip_macro_space(text, length, after);
+                if (open == length) return 2;
+                if (text[open] == '(') {
+                    MacroArgument *arguments = NULL;
+                    size_t count = 0, close = 0;
+                    int status = parse_macro_arguments(text, length, open, &close,
+                                                       &arguments, &count);
+                    free(arguments);
+                    if (status <= 0) return status < 0 ? -1 : 1;
+                }
             }
         }
         cursor = end;
@@ -2885,8 +3450,9 @@ static int evaluate_if(Preprocessor *pp, const char *text, size_t length, int *r
     const MacroDefinition *active_macros[PP_MAX_MACRO_EXPANSION_DEPTH] = {0};
     int comment = 0, ok = 0, previous_if_expression = pp->if_expression;
     pp->if_expression = 1;
-    if (!expand_text(pp, text, length, active_macros, 0, &comment, &expanded))
+    if (!expand_text(pp, text, length, active_macros, 0, &comment, &expanded, NULL))
         goto done;
+    strip_no_expand(&expanded);
     for (size_t i = 0; i < expanded.length; ++i)
         if (expanded.data[i] == PP_TOKEN_BOUNDARY) expanded.data[i] = ' ';
     IfParser parser = {expanded.data ? expanded.data : "", 1, 0};
@@ -3154,9 +3720,10 @@ static int parse_header_operand(Preprocessor *pp, const char *text, size_t lengt
         const MacroDefinition *active_macros[PP_MAX_MACRO_EXPANSION_DEPTH] = {0};
         int comment = 0;
         ++pp->if_argument_depth;
-        int ok = expand_text(pp, text, length, active_macros, 0, &comment, expanded);
+        int ok = expand_text(pp, text, length, active_macros, 0, &comment, expanded, NULL);
         --pp->if_argument_depth;
         if (!ok) return 0;
+        strip_no_expand(expanded);
         text = expanded->data ? expanded->data : "";
         length = expanded->length;
         cursor = skip_macro_space(text, length, 0);
@@ -3614,6 +4181,7 @@ static int token_boundary_needs_space(const char *text, size_t length, unsigned 
  */
 static void serialize_token_boundaries(TextBuffer *text, int assembly, int in_block_comment)
 {
+    strip_no_expand(text);
     size_t read = 0, written = 0;
     while (read < text->length) {
         char ch = text->data[read++];
@@ -3688,7 +4256,7 @@ static int flush_macro_text(Preprocessor *pp, TextBuffer *pending, SpliceOffsets
     pp->emit_source_markers = !pp->assembly;
     int saved_comment = *in_block_comment;
     int ok = expand_text(pp, pending->data, pending->length, active, 0,
-                         in_block_comment, &expanded);
+                         in_block_comment, &expanded, NULL);
     pp->source_line = saved_line;
     pp->track_source_lines = saved_tracking;
     pp->emit_source_markers = saved_markers;
@@ -3731,8 +4299,9 @@ static int process_pack_directive(Preprocessor *pp, const Directive *directive)
     unsigned int value = 0;
     size_t cursor, start, word_length;
     if (!expand_text(pp, directive->argument, directive->argument_length,
-                     active, 0, &comment, &expanded))
+                     active, 0, &comment, &expanded, NULL))
         goto done;
+    strip_no_expand(&expanded);
     const char *text = expanded.data ? expanded.data : "";
     size_t length = expanded.length;
     cursor = skip_macro_space(text, length, 0);
@@ -3822,6 +4391,7 @@ static int process_file(Preprocessor *pp, const char *path, FILE *input,
     TextBuffer pending = {0};
     SpliceOffsets pending_splices = {0};
     size_t pending_line = 0, pending_next_line = 0;
+    int pending_needs_line = 0;
     const char *saved_mapped_text = pp->mapped_text;
     size_t saved_mapped_length = pp->mapped_length;
     const SpliceOffsets *saved_mapped_splices = pp->mapped_splices;
@@ -3887,6 +4457,16 @@ static int process_file(Preprocessor *pp, const char *path, FILE *input,
             !flush_macro_text(pp, &pending, &pending_splices, logical_path, pending_line,
                               pending_next_line, &macro_expansion_block_comment))
             ok = 0;
+        if (directive.kind == DIRECTIVE_NONE && active && pending.length &&
+            pending_needs_line == 2 && !previous_block_comment) {
+            size_t first = skip_macro_space(line, length, 0);
+            if (first < length && line[first] != '(' &&
+                !(pp->assembly && line[first] == '#') &&
+                !flush_macro_text(pp, &pending, &pending_splices, logical_path,
+                                  pending_line, pending_next_line,
+                                  &macro_expansion_block_comment))
+                ok = 0;
+        }
         pp->mapped_text = line;
         pp->mapped_length = length;
         pp->mapped_splices = &line_splices;
@@ -3954,14 +4534,14 @@ static int process_file(Preprocessor *pp, const char *path, FILE *input,
                     continuations_buffered = 1;
                     pending_next_line = logical_line + 1 + continuations;
                     if (ok) {
-                        int needs_line = macro_text_needs_line(
+                        pending_needs_line = macro_text_needs_line(
                             pp, pending.data, pending.length, macro_expansion_block_comment);
-                        if (needs_line < 0) {
+                        if (pending_needs_line < 0) {
                             fprintf(stderr, "crunch-pp: out of memory inspecting macros in '%s' line %zu\n",
                                     logical_path, pending_line);
                             ok = 0;
                         }
-                        else if (!needs_line)
+                        else if (!pending_needs_line)
                             ok = flush_macro_text(pp, &pending, &pending_splices, logical_path, pending_line,
                                                   pending_next_line, &macro_expansion_block_comment);
                     }
@@ -4182,8 +4762,10 @@ static int process_file(Preprocessor *pp, const char *path, FILE *input,
                 const MacroDefinition *active_macros[PP_MAX_MACRO_EXPANSION_DEPTH];
                 int comment = 0;
                 char *new_filename = NULL;
-                if (!expand_text(pp, directive.argument, directive.argument_length,
-                                 active_macros, 0, &comment, &expanded) ||
+                int expanded_ok = expand_text(pp, directive.argument, directive.argument_length,
+                                              active_macros, 0, &comment, &expanded, NULL);
+                if (expanded_ok) strip_no_expand(&expanded);
+                if (!expanded_ok ||
                     !parse_line_operand(expanded.data ? expanded.data : "", expanded.length,
                                         &next_logical_line, &new_filename)) {
                     fprintf(stderr, "crunch-pp: %s:%zu: invalid #line directive\n",

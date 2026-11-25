@@ -539,10 +539,12 @@ GNU `, ##` elision for omitted arguments and empty token-paste operands.
 Macro expansion preserves token boundaries unless tokens are explicitly pasted;
 synthetic boundaries do not introduce whitespace when an expanded argument is
 later stringified.
-Chains of object-like macros whose replacements are single identifiers can
-invoke a function-like macro using following source tokens, including across
-ordinary newlines. More complex replacements and function-macro results are
-not generally rescanned together with following source tokens.
+Macro replacements ending in a function-like macro name can invoke it using
+following tokens, including common cases across ordinary newlines. Identifiers
+suppressed by recursive expansion remain suppressed during subsequent scans.
+Calls can also begin within a replacement and finish in following source tokens,
+including common multiline cases. This does not establish full C preprocessor
+conformance.
 GNU libc headers are not yet generally supported: some GCC predefined macros
 are not implemented. Successful
 preprocessing alone does not establish that the parser accepts GCC-specific declarations.
