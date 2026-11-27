@@ -14474,9 +14474,15 @@ def install_case():
         expect(linker_manual.read_bytes() == (root / "src/linker/crunch-ld.1").read_bytes() and
                staged_linker_manual.read_bytes() == linker_manual.read_bytes(),
                "linker man page was not installed correctly")
+        assembler_manual = prefix / "share/man/man1/crunch-as.1"
+        staged_assembler_manual = destdir / str(assembler_manual).lstrip("/")
+        expect(assembler_manual.read_bytes() == (root / "src/assembler/crunch-as.1").read_bytes() and
+               staged_assembler_manual.read_bytes() == assembler_manual.read_bytes(),
+               "assembler man page was not installed correctly")
         command(make + [f"DESTDIR={destdir}", "uninstall"], env=clean_env)
         expect(not staged_conf.exists(), "staged uninstall left the default configuration")
         expect(not staged_linker_manual.exists(), "staged uninstall left the linker man page")
+        expect(not staged_assembler_manual.exists(), "staged uninstall left the assembler man page")
         expect((prefix / "lib/crunch/libcrunch.a").is_file(),
                "libcrunch.a was not installed")
         expect((prefix / "lib/crunch/libcrunch-support.a").is_file(),
@@ -14767,6 +14773,7 @@ def install_case():
         expect(not (prefix / "share/man/man1/crunch.1").exists(), "uninstall left the man page")
         expect(not (prefix / "share/man/man1/crunch-ar.1").exists(),
                "uninstall left the archiver man page")
+        expect(not assembler_manual.exists(), "uninstall left the assembler man page")
         expect(not linker_manual.exists(), "uninstall left the linker man page")
         expect(not any((manual_dir / f"{name}.3crunch").exists() for name in manual_names),
                "uninstall left a Crunch library man page")

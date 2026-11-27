@@ -87,6 +87,7 @@ install-data-local: crunch-build doc build/out/crunch.conf
 	$(MKDIR_P) '$(DESTDIR)$(mandir)/man1'
 	$(INSTALL_DATA) build/out/crunch.1 '$(DESTDIR)$(mandir)/man1'/crunch.1
 	$(INSTALL_DATA) '$(srcdir)/src/archiver/crunch-ar.1' '$(DESTDIR)$(mandir)/man1'/crunch-ar.1
+	$(INSTALL_DATA) '$(srcdir)/src/assembler/crunch-as.1' '$(DESTDIR)$(mandir)/man1'/crunch-as.1
 	$(INSTALL_DATA) '$(srcdir)/src/linker/crunch-ld.1' '$(DESTDIR)$(mandir)/man1'/crunch-ld.1
 	$(MKDIR_P) '$(DESTDIR)$(mandir)/man3'
 	for page in $(crunch_library_manpages); do \
@@ -118,6 +119,7 @@ uninstall-local: build/out/crunch.conf
 	for tool in $(crunch_tools) crunch crunch-pp; do rm -f '$(DESTDIR)$(bindir)'/$$tool; done
 	rm -f '$(DESTDIR)$(mandir)/man1'/crunch.1
 	rm -f '$(DESTDIR)$(mandir)/man1'/crunch-ar.1
+	rm -f '$(DESTDIR)$(mandir)/man1'/crunch-as.1
 	rm -f '$(DESTDIR)$(mandir)/man1'/crunch-ld.1
 	for page in $(crunch_library_manpages); do rm -f '$(DESTDIR)$(mandir)/man3'/$$page.3crunch; done
 	rm -f '$(DESTDIR)$(CRUNCH_INSTALL_LIBDIR)'/libcrunch.a
@@ -269,6 +271,7 @@ EXTRA_DIST = \
   docs/assembler-todo.md \
   include/assembler/assembler.h \
   src/assembler/assembler.c \
+  src/assembler/crunch-as.1 \
   src/driver/crunch_as_main.c \
   tests/fixtures/assembler/tests.py \
   tests/fixtures/units/assembly_driver/start.s \
