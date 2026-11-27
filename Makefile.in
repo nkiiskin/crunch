@@ -460,6 +460,10 @@ EXTRA_DIST = \
   src/linker/Makefile \
   src/linker/crunch-ld.1 \
   src/linker/crt0.s \
+  vendor/crunch-assembler.rev \
+  vendor/crunch-assembler.sha256 \
+  tools/update-crunch-assembler \
+  tests/integration/test_update_crunch_assembler.py \
   docs/assembler.md \
   docs/assembler-todo.md \
   include/assembler/assembler.h \

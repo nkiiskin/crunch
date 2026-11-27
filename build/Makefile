@@ -58,9 +58,11 @@ SHARED_RUNTIME_OBJECTS := $(filter-out %/errno.o %/print.o %/pow.o %/end.o %/run
 	$(BUILD_DIR)/lib-shared/standard_streams.o
 SHARED_AS := $(AS)
 SHARED_AS_DEP :=
+SHARED_AS_FLAGS :=
 ifeq ($(CRUNCH_RUNTIME_ASSEMBLER),crunch)
 SHARED_AS := $(BUILD_DIR)/crunch-as
 SHARED_AS_DEP := $(BUILD_DIR)/crunch-as
+SHARED_AS_FLAGS := -c
 endif
 
 ARCHIVE_TOOL := $(CRUNCH_AR)
@@ -96,7 +98,7 @@ $(BUILD_DIR)/lib/parse_real.o: $(BUILD_DIR)/generated/parse_real.s | $(BUILD_DIR
 $(BUILD_DIR)/lib-native/parse_real.o: $(BUILD_DIR)/generated/parse_real.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-native
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
-	  $(BUILD_DIR)/crunch-as -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
+	  $(BUILD_DIR)/crunch-as -c -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
 
 $(BUILD_DIR)/generated/format_extended.s: ../lib/format_extended.bc $(BUILD_DIR)/crunch-pp $(BUILD_DIR)/crunch-ir $(BUILD_DIR)/crunch-opt $(BUILD_DIR)/crunch-asm | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/generated
@@ -115,7 +117,7 @@ $(BUILD_DIR)/lib/format_extended.o: $(BUILD_DIR)/generated/format_extended.s | $
 $(BUILD_DIR)/lib-native/format_extended.o: $(BUILD_DIR)/generated/format_extended.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-native
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
-	  $(BUILD_DIR)/crunch-as -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
+	  $(BUILD_DIR)/crunch-as -c -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
 
 $(BUILD_DIR)/generated/scan.s: ../lib/scan.bc ../include/stdio.h ../include/stdlib.h $(BUILD_DIR)/crunch-pp $(BUILD_DIR)/crunch-ir $(BUILD_DIR)/crunch-opt $(BUILD_DIR)/crunch-asm | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/generated
@@ -134,7 +136,7 @@ $(BUILD_DIR)/lib/scan.o: $(BUILD_DIR)/generated/scan.s | $(BUILD_DIR)
 $(BUILD_DIR)/lib-native/scan.o: $(BUILD_DIR)/generated/scan.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-native
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
-	  $(BUILD_DIR)/crunch-as -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
+	  $(BUILD_DIR)/crunch-as -c -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
 
 # The Crunch standard library: one object per source so the linker pulls in only
 # the members a program uses.
@@ -156,7 +158,7 @@ $(BUILD_DIR)/lib-fallback/fallback_%.o: $(BUILD_DIR)/generated/runtime-fallback/
 
 $(BUILD_DIR)/lib-fallback-native/fallback_%.o: $(BUILD_DIR)/generated/runtime-fallback/%.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-fallback-native
-	$(BUILD_DIR)/crunch-as -o $@ $<
+	$(BUILD_DIR)/crunch-as -c -o $@ $<
 
 $(BUILD_DIR)/libcrunch.a: $(RUNTIME_OBJECTS) $(FALLBACK_OBJECTS) $(CONFIG_MK) $(ARCHIVE_DEP)
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
@@ -175,12 +177,12 @@ $(BUILD_DIR)/libcrunch-support.a: $(SUPPORT_OBJECTS) $(CONFIG_MK) $(ARCHIVE_DEP)
 $(BUILD_DIR)/lib-native/%.o: ../lib/%.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-native
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
-	  $(BUILD_DIR)/crunch-as -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
+	  $(BUILD_DIR)/crunch-as -c -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
 
 $(BUILD_DIR)/lib-native/%.o: ../lib/syscalls/%.s $(BUILD_DIR)/crunch-as | $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/lib-native
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
-	  $(BUILD_DIR)/crunch-as -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
+	  $(BUILD_DIR)/crunch-as -c -o "$@.tmp" "$<" && mv -f "$@.tmp" "$@"
 
 $(BUILD_DIR)/libcrunch-native.a: $(NATIVE_LIB_OBJECTS) $(NATIVE_SYSCALL_OBJECTS) $(NATIVE_FALLBACK_OBJECTS) $(CONFIG_MK) $(ARCHIVE_DEP)
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \
@@ -190,7 +192,7 @@ $(BUILD_DIR)/lib-shared/%.o: ../lib/%.s $(CONFIG_MK) $(SHARED_AS_DEP) | $(BUILD_
 	mkdir -p $(BUILD_DIR)/lib-shared
 	@trap 'rm -f "$@.tmp" "$@.s.tmp"' 0 1 2 15; \
 	  { printf '.set CRUNCH_SHARED,1\n' && cat "$<"; } > "$@.s.tmp" && \
-	  $(SHARED_AS) -o "$@.tmp" "$@.s.tmp" && mv -f "$@.tmp" "$@"
+	  $(SHARED_AS) $(SHARED_AS_FLAGS) -o "$@.tmp" "$@.s.tmp" && mv -f "$@.tmp" "$@"
 
 $(BUILD_DIR)/libcrunch.so.1: $(SHARED_RUNTIME_OBJECTS) $(BUILD_DIR)/crunch-ld
 	@trap 'rm -f "$@.tmp"' 0 1 2 15; \

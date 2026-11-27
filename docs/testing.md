@@ -10,6 +10,37 @@ Ubuntu x86-64 for pushes and pull requests. It can also be started manually
 from the repository's Actions tab. Results and the full test output are
 available in each workflow run.
 
+The suite vendors the assembler and linker in their existing source locations
+from [Crunch assembler](https://github.com/nkiiskin/crunch-assembler).
+`vendor/crunch-assembler.rev` pins the upstream commit and
+`vendor/crunch-assembler.sha256` records the vendored files. CI checks the
+hashes, compares those files with the pinned upstream commit, and separately
+builds and tests that standalone project. The compiler's `make check` exercises
+the vendored tools together with the compiler and runtime.
+
+Develop and test tool changes in the standalone project first, then publish
+the commit. From the compiler checkout, update to its full commit ID:
+
+```sh
+tools/update-crunch-assembler <commit>
+sha256sum -c vendor/crunch-assembler.sha256
+./configure && make && make check
+CRUNCH_TEST_TOOLCHAIN=crunch make check
+```
+
+The updater fetches that exact commit, verifies the existing hashes, refuses
+uncommitted changes to vendored files or tracked pin metadata, and reads all
+listed files before updating them and the pin. The checksum manifest is also
+the list of upstream-owned files; review changes to it separately. A local
+repository can be supplied with `--source /path/to/checkout`, but CI requires
+the pin to be published in the upstream repository. Normal builds do not need
+Git or network access; the updater regression tests in `make check` require Git.
+
+Review compiler driver and runtime build calls for interface changes on each
+update. The compiler's shared `include/common/compiler.h` and
+`include/version.h` are maintained separately and checked through the suite
+build, tests and self-bootstrap.
+
 The longest tests are excluded by default. To include the two-generation
 bootstraps and exhaustive binary80 formatting tests, run:
 

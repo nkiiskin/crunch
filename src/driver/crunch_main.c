@@ -1311,6 +1311,7 @@ static int compile_source(const Options *options, const char *input, const char 
     }
     if (object) {
         stage_add(&stages[count], assembler_path);
+        stage_add(&stages[count], "-c");
         stage_add(&stages[count], "-o");
         stage_add(&stages[count++], object);
     }
@@ -1339,6 +1340,7 @@ static int assemble_source(const Options *options, const char *input, const char
     if (is_preprocessed_assembly(input))
         prepare_preprocessor(&stages[count++], options, input, pp_path);
     stage_add(&stages[count], assembler_path);
+    stage_add(&stages[count], "-c");
     for (size_t i = 0; i < options->include_dir_count; ++i) {
         stage_add(&stages[count], "-I");
         stage_add(&stages[count], options->include_dirs[i]);

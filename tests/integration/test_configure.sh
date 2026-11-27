@@ -102,7 +102,7 @@ done
 CRUNCH_CONF_FILE="$TMP_DIR/no.conf" "$TMP_DIR/assembler-tools/crunch" -v -c \
     "$ROOT/tests/fixtures/ir/main42.bc" -o "$TMP_DIR/program.o" >"$TMP_OUT" 2>"$TMP_ERR" ||
     { cat "$TMP_ERR" >&2; echo 'configured native assembler failed' >&2; exit 1; }
-grep -q "$TMP_DIR/assembler-tools/crunch-as -o" "$TMP_ERR" ||
+grep -q "$TMP_DIR/assembler-tools/crunch-as -c -o" "$TMP_ERR" ||
     { echo 'configured driver did not select crunch-as' >&2; exit 1; }
 
 configure_with --with-default-linker=crunch ||
@@ -187,9 +187,9 @@ for missing in as ld ar all; do
         "$TMP_DIR/answer.s" -o "$TMP_DIR/answer.o" >"$TMP_OUT" 2>"$TMP_ERR" ||
         { cat "$TMP_ERR" >&2; echo "mixed assembler/linker failed for $missing" >&2; exit 1; }
     if [ "$missing" = as ] || [ "$missing" = all ]; then
-        grep -q "$TMP_DIR/selected/crunch-as -o" "$TMP_ERR"
+        grep -q "$TMP_DIR/selected/crunch-as -c -o" "$TMP_ERR"
     else
-        grep -q "$(command -v as) -o" "$TMP_ERR"
+        grep -q "$(command -v as) -c -o" "$TMP_ERR"
     fi
     if [ "$missing" = ld ] || [ "$missing" = all ]; then
         grep -q "$TMP_DIR/selected/crunch-ld -nostdlib -r" "$TMP_ERR"
@@ -227,7 +227,7 @@ grep -q '^#define CRUNCH_DYNAMIC_LINKER "/custom/ld-linux.so"$' "$TMP_DIR/build/
     CONFIG_MK="$TMP_DIR/build/config.mk" BUILD_DIR="$TMP_DIR/custom" "$TMP_DIR/custom/crunch-ld") ||
     { echo 'failed to build linker with configured interpreter' >&2; exit 1; }
 printf '.text\n.globl _start\n_start: mov $60,%%eax\nxor %%edi,%%edi\nsyscall\n' |
-    "$BUILD_DIR/crunch-as" -o "$TMP_DIR/start.o"
+    "$BUILD_DIR/crunch-as" -c -o "$TMP_DIR/start.o"
 CRUNCH_CONF_FILE="$TMP_DIR/no.conf" "$TMP_DIR/custom/crunch-ld" -nostdlib -dynamic \
     -o "$TMP_DIR/program" "$TMP_DIR/start.o"
 grep -aq '/custom/ld-linux.so' "$TMP_DIR/program" ||

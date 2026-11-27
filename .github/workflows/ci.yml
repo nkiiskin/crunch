@@ -17,9 +17,38 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Verify vendored assembler and linker
+        run: sha256sum -c vendor/crunch-assembler.sha256
       - name: Configure
         run: ./configure
       - name: Build
         run: make
       - name: Test
         run: make check
+
+  standalone:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out compiler suite
+        uses: actions/checkout@v4
+      - name: Read pinned revision
+        id: revision
+        run: |
+          revision="$(cat vendor/crunch-assembler.rev)"
+          printf '%s\n' "$revision" | grep -Eq '^[0-9a-f]{40}$'
+          echo "commit=$revision" >> "$GITHUB_OUTPUT"
+      - name: Check out standalone project
+        uses: actions/checkout@v4
+        with:
+          repository: nkiiskin/crunch-assembler
+          ref: ${{ steps.revision.outputs.commit }}
+          path: standalone-source
+      - name: Compare pinned sources
+        run: |
+          sha256sum -c vendor/crunch-assembler.sha256
+          while read -r hash file; do
+            cmp "$file" "standalone-source/$file"
+          done < vendor/crunch-assembler.sha256
+      - name: Build and test standalone project
+        run: make -C standalone-source CFLAGS="-O2 -Werror" check

@@ -910,7 +910,7 @@ def sanitized_native_mutation_case():
             """
             path = source if stage == "assembler" else obj
             path.write_bytes(data)
-            args = ([out / "crunch-as", "-o", output, source] if stage == "assembler"
+            args = ([out / "crunch-as", "-c", "-o", output, source] if stage == "assembler"
                     else [out / "crunch-ld", "-r" if mode == "relocatable" else "-nostdlib",
                           "-o", output, obj])
             try:
@@ -962,7 +962,7 @@ def sanitized_native_mutation_case():
         member.write_bytes(misaligned)
         archive, caller = directory / "members.a", directory / "caller.o"
         command(["ar", "qcS", archive, member])
-        command([out / "crunch-as", "-o", caller], input=
+        command([out / "crunch-as", "-c", "-o", caller], input=
                 ".text\n.globl caller\ncaller:\ncall _start\n", env=env)
         result = command([out / "crunch-ld", "-nostdlib", "-e", "caller",
                           "-o", output, caller, archive], env=env, check=False)
@@ -1232,8 +1232,8 @@ def resource_boundary_case():
         stub = directory / "external.s"
         stub.write_text(".text\n.globl external_1099\nexternal_1099: mov $42,%eax\nret\n")
         obj, stub_obj, exe = (directory / name for name in ("many.o", "external.o", "many"))
-        command([TEST_AS, "-o", obj, assembly])
-        command([TEST_AS, "-o", stub_obj, stub])
+        command([TEST_AS, "-c", "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", stub_obj, stub])
         command([*TEST_LINK, "-o", exe, obj, stub_obj])
         expect(command([exe], check=False).returncode == 42,
                "late external function did not link and execute")
@@ -1555,7 +1555,7 @@ def compile_run(source, expected, *, checks=(), args=(), ir_options=()):
             expect(needle in ir_text, f"IR missing expected text {needle!r}\n{ir_text}")
         assembly = command([ASM, irfile])
         asmfile.write_text(assembly.stdout)
-        command([TEST_AS, "-o", objfile, asmfile])
+        command([TEST_AS, "-c", "-o", objfile, asmfile])
         command([*TEST_LINK, "-o", exe, objfile, LIBCRUNCH])
         result = command([exe, *args], check=False)
         expect(result.returncode == expected,
@@ -1713,7 +1713,7 @@ end
         expect("__crunch_print:" not in assembly, "print helper must come from libcrunch.a")
         expect("__crunch_strlen:" not in assembly, "strlen is provided by libcrunch.a, not emitted per program")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 0, f"memory runtime test exited {result.returncode}")
@@ -1756,7 +1756,7 @@ end
             expect("__crunch_memcpy:" not in assembly and "__crunch_strcmp:" not in assembly,
                    "unused memory helpers were emitted")
             asm.write_text(assembly)
-            command([TEST_AS, "-o", obj, asm])
+            command([TEST_AS, "-c", "-o", obj, asm])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             result = command([exe], check=False)
             expect(result.returncode == 0, f"legacy print test exited {result.returncode}")
@@ -1824,7 +1824,7 @@ def string_literal_print_case():
         expect("stringlit __crunch_string_0 48656c6c6f0a776f726c6400" in bir.read_text(), "string literal was not decoded into static bytes")
         expect("__crunch_string_0:" in assembly, "string literal storage was not emitted")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 0, f"escaped string literal print exited {result.returncode}")
@@ -1911,7 +1911,7 @@ int main() {
         asm.write_text(direct)
         for index, assembler in enumerate(assemblers):
             obj = td / f"raw-{index}.o"
-            command([assembler, "-o", obj, asm])
+            command([assembler, "-c", "-o", obj, asm])
             sections, filenames = sections_and_symbols(obj)
             expect(sections[".rodata"] == raw + b"\0" + bytes((255, 0, 65)) and
                    filenames == ['manual "file\\name.bc'],
@@ -2730,7 +2730,7 @@ int printf(const char* format); int main() {
                "strlen should be called from libcrunch.a, not emitted")
         expect("__crunch_memcpy:" not in assembly, "unused memcpy helper was emitted")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 0, f"string built-ins program exited {result.returncode}")
@@ -2832,7 +2832,7 @@ int main() {
         expect("__crunch_write_stdout:" not in assembly,
                "printf internals were emitted instead of linked from libcrunch.a")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 0, f"numeric output program exited {result.returncode}")
@@ -2938,7 +2938,7 @@ int printf(const char* format); int main() {
                "__crunch_printf_real:" not in assembly,
                "unused printf formatting helper was emitted")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 0, f"memory built-ins program exited {result.returncode}: {result.stderr}")
@@ -3001,7 +3001,7 @@ def source_level_end_case():
         expect("call __crunch_exit" in assembly, "exit library helper was not called")
         expect("__crunch_end:" not in assembly, "end was emitted instead of linked from libcrunch.a")
         asm.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm])
+        command([TEST_AS, "-c", "-o", obj, asm])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 7, f"exit(7) exited with status {result.returncode}")
@@ -3086,7 +3086,7 @@ def end_header_programs_case():
             ir_file.write_text(ir_text)
             assembly = command([ASM, ir_file]).stdout
             asm_file.write_text(assembly)
-            command([TEST_AS, "-o", obj_file, asm_file])
+            command([TEST_AS, "-c", "-o", obj_file, asm_file])
             command([*TEST_LINK, "-o", executable, obj_file, LIBCRUNCH])
             result = command([executable], check=False)
             expect(result.returncode == expected_status,
@@ -3147,7 +3147,7 @@ def standard_runtime_headers_case():
         obj_file, executable = directory / "program.o", directory / "program"
         ir_file.write_text(ir_text)
         asm_file.write_text(command([ASM, ir_file]).stdout)
-        command([TEST_AS, "-o", obj_file, asm_file])
+        command([TEST_AS, "-c", "-o", obj_file, asm_file])
         command([*TEST_LINK, "-o", executable, obj_file, LIBCRUNCH])
         result = command([executable], check=False)
         expect(result.returncode == 9,
@@ -3423,7 +3423,7 @@ def variadic_call_case():
         td = pathlib.Path(directory)
         obj, callee, exe = td / "caller.o", td / "callee.o", td / "program"
         command([DRIVER, "-c", fixture, "-o", obj])
-        command([TEST_AS, "-o", callee, helper])
+        command([TEST_AS, "-c", "-o", callee, helper])
         command([DRIVER, obj, callee, "-o", exe])
         result = command([exe], check=False)
         expect(result.returncode == 0,
@@ -3664,7 +3664,7 @@ def binary80_ir_case():
         td = pathlib.Path(directory)
         assembly, obj, helper, exe = td / "ir.s", td / "ir.o", td / "native.s", td / "program"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         helper.write_text(r'''
 .data
 one: .quad 0x8000000000000000
@@ -3781,7 +3781,7 @@ done:
     syscall
 ''')
         native_obj = td / "native.o"
-        command([TEST_AS, "-o", native_obj, helper])
+        command([TEST_AS, "-c", "-o", native_obj, helper])
         command([*TEST_LINK, "-o", exe, obj, native_obj])
         expect(command([exe], check=False).returncode == 0,
                "native binary80 arithmetic or comparison failed")
@@ -3952,7 +3952,7 @@ def binary80_abi_case():
         assembly, obj = td / "abi.s", td / "abi.o"
         helper, helper_obj, exe = td / "native.s", td / "native.o", td / "program"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         helper.write_text(r'''
 .data
 first: .quad 0x8000000000000001
@@ -4014,7 +4014,7 @@ done:
     mov $60, %eax
     syscall
 ''')
-        command([TEST_AS, "-o", helper_obj, helper])
+        command([TEST_AS, "-c", "-o", helper_obj, helper])
         command([*TEST_LINK, "-o", exe, obj, helper_obj])
         result = command([exe], check=False)
         expect(result.returncode == 0,
@@ -4106,7 +4106,7 @@ done:
     mov $60, %eax
     syscall
 ''')
-        command([TEST_AS, "-o", helper_obj, helper])
+        command([TEST_AS, "-c", "-o", helper_obj, helper])
         command([*TEST_LINK, "-o", exe, obj, helper_obj])
         result = command([exe], check=False)
         expect(result.returncode == 0,
@@ -4580,7 +4580,7 @@ end
 """
         assembly.write_text(command([ASM, "-"], input=executable).stdout)
         obj = td / "ir.o"
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "v54 executable small aggregate round trip failed")
@@ -4625,8 +4625,8 @@ def variadic_frame_case():
         td = pathlib.Path(directory)
         assembly, obj, helper, exe = td / "frame.s", td / "frame.o", td / "helper.o", td / "program"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
-        command([TEST_AS, "-o", helper,
+        command([TEST_AS, "-c", "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", helper,
                  FIXTURES / "units/function_calls/variadic_frame.s"])
         command([*TEST_LINK, "-o", exe, obj, helper])
         result = command([exe], check=False)
@@ -5529,8 +5529,8 @@ def native_assembler_bootstrap_case(assembler=None):
         )
         for index, source in enumerate(sources):
             actual, expected = td / "actual.o", td / "expected.o"
-            command([assembler, "-o", actual], input=source, timeout=120)
-            command([BUILD / "crunch-as", "-o", expected], input=source, timeout=120)
+            command([assembler, "-c", "-o", actual], input=source, timeout=120)
+            command([BUILD / "crunch-as", "-c", "-o", expected], input=source, timeout=120)
             expect(actual.read_bytes() == expected.read_bytes(),
                    f"self-built assembler emitted a different object for case {index}")
             if index == 0:
@@ -5541,7 +5541,7 @@ def native_assembler_bootstrap_case(assembler=None):
         for expression in ("9223372036854775807+1", "-9223372036854775808-1",
                            "9223372036854775807*2", "-9223372036854775808*-1"):
             source = f".set invalid,{expression}\n.byte invalid\n"
-            result = command([assembler, "-o", td / "invalid.o"], input=source,
+            result = command([assembler, "-c", "-o", td / "invalid.o"], input=source,
                              check=False, timeout=120)
             expect(result.returncode != 0 and result.stderr,
                    f"self-built assembler accepted overflow: {expression}")
@@ -5638,10 +5638,10 @@ def native_toolchain_bootstrap_case():
         linker_automatic_runtime_case(linker)
         native_shared_array_case(linker)
         main, value = td / "main.o", td / "value.o"
-        command([assembler, "-o", main], input=
+        command([assembler, "-c", "-o", main], input=
                 ".text\n.globl _start\n_start: call value@PLT\n"
                 "mov %eax,%edi\nmov $60,%eax\nsyscall\n")
-        command([assembler, "-o", value], input=
+        command([assembler, "-c", "-o", value], input=
                 ".text\n.globl value\n.type value,@function\nvalue: mov $42,%eax\nret\n")
         archive, shared, exe = td / "value.a", td / "libvalue.so", td / "program"
         command([archiver, "rcs", archive, value])
@@ -5674,7 +5674,7 @@ def object_assembler_case():
             output = obj if inputs[0] == "-c" else exe
             result = command([DRIVER, "--with-crunch-as", "-v",
                               *inputs, "-o", output])
-            expect(f"{assembler} -o " in result.stderr, "driver did not select crunch-as")
+            expect(f"{assembler} -c -o " in result.stderr, "driver did not select crunch-as")
             if output == obj:
                 command([DRIVER, obj, "-o", exe])
             expect(command([exe], check=False).returncode == 42,
@@ -5687,11 +5687,15 @@ def object_assembler_case():
             command([DRIVER, "--with-crunch-as", assembly, "-o", exe])
             expect(command([exe], check=False).returncode == 42,
                    f"experimental assembler failed for .{suffix} input")
-        command([assembler, "-o", obj], input=".text\n.globl value\nvalue:\nret\n")
+        command([assembler, "-nostdlib", "-o", exe], input=
+                ".text\n.globl _start\n_start:\nmov $42,%edi\nmov $60,%eax\nsyscall\n")
+        expect(command([exe], check=False).returncode == 42,
+               "assembler did not automatically link an executable")
+        command([assembler, "-c", "-o", obj], input=".text\n.globl value\nvalue:\nret\n")
         expect("value" in command(["nm", obj]).stdout, "assembler did not read standard input")
-        command([assembler, "-o", obj, "-"], input=".text\n.globl value\nvalue:\nret\n")
+        command([assembler, "-c", "-o", obj, "-"], input=".text\n.globl value\nvalue:\nret\n")
         expect("value" in command(["nm", obj]).stdout, "assembler did not accept '-' input")
-        result = command([assembler, "-o", "/dev/full"], input=".text\nret\n", check=False)
+        result = command([assembler, "-c", "-o", "/dev/full"], input=".text\nret\n", check=False)
         expect(result.returncode != 0 and result.stderr,
                "assembler did not report object output failure")
         harness = td / "api-test"
@@ -5811,7 +5815,7 @@ def object_assembler_case():
         default_conf.write_text("assembler = gnu\n")
         result = command([DRIVER, "-v", FIXTURES / "ir/main42.bc", "-o", exe],
                          env=dict(os.environ, CRUNCH_CONF_FILE=str(default_conf)))
-        expect(f"{assembler} -o " not in result.stderr, "GNU assembler is not the default")
+        expect(f"{assembler} -c -o " not in result.stderr, "GNU assembler is not the default")
 
 def native_linker_case():
     """Exercise native tool selection, native linking, and unsupported modes.
@@ -5831,7 +5835,7 @@ def native_linker_case():
                 expect(f"{linker} -nostdlib " in result.stderr,
                        "native test mode did not select crunch-ld for the driver")
                 if test_toolchain == "crunch":
-                    expect(f"{assembler} -o " in result.stderr,
+                    expect(f"{assembler} -c -o " in result.stderr,
                            "full-native test mode did not select crunch-as for the driver")
                     if not flags:
                         expect(str(LIBCRUNCH) in result.stderr,
@@ -5846,11 +5850,11 @@ def native_linker_case():
         command(["ar", "rcs", archive, helper_obj])
         conf.write_text("assembler = crunch\nlinker = crunch\n")
         result = command([DRIVER, "-v", main, helper_obj, "-o", exe], env=env)
-        expect(f"{assembler} -o " in result.stderr and f"{linker} -nostdlib " in result.stderr,
+        expect(f"{assembler} -c -o " in result.stderr and f"{linker} -nostdlib " in result.stderr,
                "configured native tools were not selected")
         expect(command([exe], check=False).returncode == 42,
                "native cross-object executable did not run")
-        command([assembler, "-o", obj, main])
+        command([assembler, "-c", "-o", obj, main])
         command([linker, "-nostdlib", "--require-defined=_start", "-o", exe, obj, archive])
         expect(command([exe], check=False).returncode == 42,
                "native linker did not extract a needed archive member")
@@ -5889,11 +5893,11 @@ def native_linker_case():
 
         conf.write_text("assembler = crunch\nassembler = gnu\nlinker = crunch\nlinker = gnu\n")
         result = command([DRIVER, "--static", "-v", main, helper_obj, "-o", exe], env=env)
-        expect(f"{assembler} -o " not in result.stderr and f"{linker} " not in result.stderr,
+        expect(f"{assembler} -c -o " not in result.stderr and f"{linker} " not in result.stderr,
                "last GNU configuration settings did not override native tools")
         result = command([DRIVER, "--with-crunch-as", "-v", main, helper_obj,
                           "-o", exe], env=env)
-        expect(f"{assembler} -o " in result.stderr, "CLI did not override assembler configuration")
+        expect(f"{assembler} -c -o " in result.stderr, "CLI did not override assembler configuration")
         conf.write_text("assembler = invalid\n")
         for tool, args in ((DRIVER, [main, "-o", exe]), (PP, [FIXTURES / "ir/main42.bc"])):
             result = command([tool, *args], env=env, check=False)
@@ -6049,8 +6053,8 @@ def driver_tool_paths_case():
                    f"invalid archive request was accepted: {args}")
         result = command([DRIVER, "--with-crunch-as", "-v", main, archive,
                           "-o", exe], env=env)
-        expect(f"{BUILD / 'crunch-as'} -o " in result.stderr and
-               f"{assembler} -o " not in result.stderr,
+        expect(f"{BUILD / 'crunch-as'} -c -o " in result.stderr and
+               f"{assembler} -c -o " not in result.stderr,
                "experimental assembler did not override the configured path")
         conf.write_text("archiver_path = /does/not/exist\n")
         result = command([DRIVER, "--archive", "-o", archive, obj], env=env, check=False)
@@ -6957,12 +6961,12 @@ def native_comdat_assembler_case():
             sources.append(source)
             for tool, label in ((assembler, "native"), ("as", "gnu")):
                 obj = td / f"{label}{value}.o"
-                command([tool, "-o", obj, source])
+                command([tool, "-c", "-o", obj, source])
                 objects[label, value] = obj
         start, start_obj = td / "start.s", td / "start.o"
         start.write_text(".text\n.globl _start\n_start: call pick\nmov %eax,%edi\n"
                          "mov $60,%eax\nsyscall\n.data\n.globl ext\next: .quad 1\n")
-        command([assembler, "-o", start_obj, start])
+        command([assembler, "-c", "-o", start_obj, start])
         partial, exe = td / "partial.o", td / "program"
         for first, second in ((11, 22), (22, 11)):
             for left, right in (("native", "native"), ("native", "gnu"), ("gnu", "native")):
@@ -6992,7 +6996,7 @@ def native_comdat_assembler_case():
             source, obj = td / f"plain{value}.s", td / f"plain{value}.o"
             source.write_text('.section .plain.group,"aG",@progbits,plain_sig\n'
                               f".byte {value}\n")
-            command([assembler, "-o", obj, source])
+            command([assembler, "-c", "-o", obj, source])
             plain_objects.append(obj)
         for partial_linker in ([linker, "-r"], ["ld", "-r"]):
             command([*partial_linker, "-o", partial, *plain_objects])
@@ -7259,7 +7263,7 @@ def dim_expression_case():
             obj = directory / f"p{number}.o"
             program = directory / f"p{number}"
             assembly.write_text(command([ASM, source]).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", program, obj, LIBCRUNCH])
             result = command([program], check=False)
             expect(result.returncode == status and result.stdout == output,
@@ -7387,7 +7391,7 @@ def pointer_arrays_case():
             ir_file.write_text((FIXTURES / "ir" /
                                 f"legacy_pointer_array_failure{'_module' if module else ''}.bir").read_text())
             asm_file.write_text(command([ASM, ir_file]).stdout)
-            command([TEST_AS, "-o", obj, asm_file])
+            command([TEST_AS, "-c", "-o", obj, asm_file])
             command([*TEST_LINK, "-o", exe, obj, allocator, LIBCRUNCH])
             expect(command([exe], check=False).returncode == 42,
                    f"pointer array allocation failure in {'module' if module else 'v2'}")
@@ -7435,7 +7439,7 @@ def indirect_array_fields_case():
             ir_file.write_text((FIXTURES / "ir" /
                                 f"legacy_indirect_array_field_failure{'_module' if module else ''}.bir").read_text())
             asm_file.write_text(command([ASM, ir_file]).stdout)
-            command([TEST_AS, "-o", obj, asm_file])
+            command([TEST_AS, "-c", "-o", obj, asm_file])
             command([*TEST_LINK, "-o", exe, obj, allocator, LIBCRUNCH])
             result = command([exe], check=False)
             expect(result.returncode == 42,
@@ -7497,7 +7501,7 @@ def array_initializer_allocation_failure_case():
             ir_file.write_text((FIXTURES / "ir" /
                                 f"legacy_{name}{'_module' if module else ''}.bir").read_text())
             asm_file.write_text(command([ASM, ir_file]).stdout)
-            command([TEST_AS, "-o", obj_file, asm_file])
+            command([TEST_AS, "-c", "-o", obj_file, asm_file])
             command([*TEST_LINK, "-o", executable, obj_file, helper, LIBCRUNCH])
             result = command([executable], check=False)
             expect(result.returncode == 42,
@@ -8133,7 +8137,7 @@ __crunch_free:
                 command([DRIVER, "-c", source, "-o", obj])
             else:
                 command([DRIVER, "-S", source, "-o", assembly])
-                command([TEST_AS, "-o", obj, assembly])
+                command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, stub, LIBCRUNCH])
             result = command([exe], check=False)
             expect(result.returncode == 42,
@@ -8936,7 +8940,7 @@ def native_bootstrap_corpus_case(stages, directory, env):
             ("crunch-ir", ["--module", "-"], "int main() { return missing_variable; }\n"),
             ("crunch-asm", ["--validate", "-"],
              "CRUNCH-IR 35\nfunc f 0 int\nlocalblock b 16777217 8\npush 0\nret int\nend\n"),
-            ("crunch-as", ["-o", directory / "invalid.o"],
+            ("crunch-as", ["-c", "-o", directory / "invalid.o"],
              ".set invalid,9223372036854775807+1\n.byte invalid\n")):
         results = []
         for stage in stages:
@@ -8950,7 +8954,7 @@ def native_bootstrap_corpus_case(stages, directory, env):
                f"{tool} diagnostics differ between generations: {results!r}")
 
     unresolved = directory / "unresolved.o"
-    command([stages[0] / "crunch-as", "-o", unresolved],
+    command([stages[0] / "crunch-as", "-c", "-o", unresolved],
             input=".text\n.globl _start\n_start: call missing_symbol\n", env=env)
     results = []
     for stage in stages:
@@ -9070,10 +9074,10 @@ def glibc_integrated_bootstrap_case():
             expect(outcomes[-1] == (42, "glibc:42\n", ""),
                    f"{stage.name} glibc program failed: {outcomes[-1]!r}")
             start_obj, value_obj = td / "start.o", td / "value.o"
-            command([stage / "crunch-as", "-o", start_obj], input=
+            command([stage / "crunch-as", "-c", "-o", start_obj], input=
                     ".text\n.globl _start\n_start: call answer\n"
                     "mov %eax,%edi\nmov $60,%eax\nsyscall\n")
-            command([stage / "crunch-as", "-o", value_obj], input=
+            command([stage / "crunch-as", "-c", "-o", value_obj], input=
                     ".text\n.globl answer\nanswer: mov $42,%eax\nret\n")
             archive = td / (stage.name + ".a")
             command([stage / "crunch-ar", "rcs", archive, value_obj])
@@ -9084,7 +9088,7 @@ def glibc_integrated_bootstrap_case():
 
         for tool, args, text in (
                 ("crunch-ir", ["--module", "-"], "int main(void) { return missing; }\n"),
-                ("crunch-as", ["-o", td / "invalid.o"], ".text\ninvalid_instruction\n")):
+                ("crunch-as", ["-c", "-o", td / "invalid.o"], ".text\ninvalid_instruction\n")):
             results = []
             for stage in (first, second):
                 result = command([stage / tool, *args], input=text, env=clean_env, check=False)
@@ -9301,7 +9305,7 @@ int main() {
                         ' movb $1, seen(%rip)\n mov %rdx, %rax\n ret\n'
                         '1: movl $28, errno(%rip)\n mov $-1, %rax\n ret\n'
                         '.bss\nseen: .byte 0\n.section .note.GNU-stack,"",@progbits\n')
-        command([TEST_AS, "-o", stub_obj, stub])
+        command([TEST_AS, "-c", "-o", stub_obj, stub])
         command([DRIVER, "-c", source, "-o", obj])
         command([DRIVER, "--static", obj, stub_obj, "-o", exe])
         expect(command([exe], check=False).returncode == 0,
@@ -9378,7 +9382,7 @@ def c_keyword_names_case():
                 expect(f"call __crunch_{name}" in assembly, f"IR {name} call was not preserved")
                 asm = td / "legacy.s"
                 asm.write_text(assembly)
-                command([TEST_AS, "-o", obj, asm])
+                command([TEST_AS, "-c", "-o", obj, asm])
                 command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
                 expect(command([exe], check=False).returncode == 37,
                        f"IR {name} call did not terminate with the expected status")
@@ -9861,7 +9865,7 @@ done:
     syscall
 .section .note.GNU-stack,"",@progbits
 ''')
-        command([TEST_AS, "-o", obj, source])
+        command([TEST_AS, "-c", "-o", obj, source])
         command([*TEST_LINK, "-o", program, obj, LIBCRUNCH])
         result = command([program], check=False)
         expect(result.returncode == 42,
@@ -10372,7 +10376,7 @@ def external_arrays_case():
         assembly = td / "legacy.s"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
         legacy_obj = td / "legacy.o"
-        command([TEST_AS, "-o", legacy_obj, assembly])
+        command([TEST_AS, "-c", "-o", legacy_obj, assembly])
         command([*TEST_LINK, "-o", exe, legacy_obj, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "external array did not link to a separately compiled definition")
@@ -10950,7 +10954,7 @@ mapped:
         irfile.write_text((FIXTURES / "ir/legacy_const_array_release.bir").read_text())
         asmfile.write_text(command([ASM, irfile]).stdout)
         command(["as", "-o", objfile, asmfile])
-        command([TEST_AS, "-o", helper_obj, helper])
+        command([TEST_AS, "-c", "-o", helper_obj, helper])
         command([*TEST_LINK, "-o", executable, objfile, helper_obj, LIBCRUNCH])
         result = command([executable], check=False)
         expect(result.returncode == 42,
@@ -11298,7 +11302,7 @@ int main() {
                             f"straddr fmt\npush -1\npush {tag}\n"
                             f"{op} {name} {argc}\nret int\nend\n")
                     assembly.write_text(command([ASM, "-"], input=text).stdout)
-                    command([TEST_AS, "-o", obj, assembly])
+                    command([TEST_AS, "-c", "-o", obj, assembly])
                     command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
                     result = command([exe], check=False)
                     expected_count = len(value) if version in (6, 7) else 255
@@ -11467,7 +11471,7 @@ int main() {
                   f"{push}\neq {kind}\nret int\nend\n")
             assembly.write_text(command([ASM, "-"], input=ir).stdout)
             for assembler, linker, archive in toolchains:
-                command([assembler, "-o", obj, assembly])
+                command([assembler, "-c", "-o", obj, assembly])
                 command([*linker, "-o", exe, obj, archive])
                 expect(command([exe], check=False).returncode == 1,
                        f"{routine} return ABI failed with {assembler}")
@@ -11846,7 +11850,7 @@ def precise_format_case():
     with tempfile.TemporaryDirectory(prefix="crunch-format-g17-") as td:
         directory = pathlib.Path(td)
         helper = directory / "helper.o"
-        command([TEST_AS, "-o", helper, ROOT / "lib/printf_g17.s"])
+        command([TEST_AS, "-c", "-o", helper, ROOT / "lib/printf_g17.s"])
         oracle = directory / "oracle.c"
         oracle.write_text(r'''
 #include <stdint.h>
@@ -11931,7 +11935,7 @@ int main() {
                   "func main 0 int\nstraddr fmt\npushr 0x3ff0000000000000\npush 3\n"
                   f"{op} printf 3\nret int\nend\n")
             assembly.write_text(command([ASM, "-"], input=ir).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             result = command([exe], check=False)
             expect((result.returncode, result.stdout) ==
@@ -11988,7 +11992,7 @@ int main() {
                       f"func main 0 int\nstraddr fmt\npush {value}\npush {tag}\n"
                       f"{op} printf 3\nret int\nend\n")
                 assembly.write_text(command([ASM, "-"], input=ir).stdout)
-                command([TEST_AS, "-o", obj, assembly])
+                command([TEST_AS, "-c", "-o", obj, assembly])
                 command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
                 result = command([exe], check=False)
                 expect((result.returncode, result.stdout) ==
@@ -14102,7 +14106,7 @@ def assembler_selection_option_case():
         obj = directory / "program.o"
         result = command([DRIVER, "--with-crunch-as", "-v", "-c",
                           FIXTURES / "ir/main42.bc", "-o", obj], env=env)
-        expect(obj.is_file() and f"{BUILD / 'crunch-as'} -o " in result.stderr,
+        expect(obj.is_file() and f"{BUILD / 'crunch-as'} -c -o " in result.stderr,
                "assembler option did not override the configured assembler path")
         help_text = command([DRIVER, "--help"], env=env).stdout
         expect("--with-crunch-as" in help_text and "--experimental-crunch-as" not in help_text,
@@ -14122,7 +14126,7 @@ def linker_input_classification_case():
     with tempfile.TemporaryDirectory(prefix="crunch-linker-input-") as td:
         directory = pathlib.Path(td)
         obj, inp, output = (directory / name for name in ("start.o", "input", "output"))
-        command([BUILD / "crunch-as", "-o", obj], input=
+        command([BUILD / "crunch-as", "-c", "-o", obj], input=
                 ".text\n.globl _start\n_start:\n"
                 "mov $60, %rax\nmov $17, %rdi\nsyscall\n"
                 ".globl other\nother:\n"
@@ -14167,7 +14171,7 @@ def linker_help_case():
         expect(missing.returncode != 0 and "missing argument" in missing.stderr,
                "-h no longer requires a SONAME")
         obj, shared = directory / "input.o", directory / "libtest.so"
-        command([BUILD / "crunch-as", "-o", obj], input=".text\n")
+        command([BUILD / "crunch-as", "-c", "-o", obj], input=".text\n")
         command([linker, "-nostdlib", "-shared", "-h", "libtest-soname.so", "-o", shared, obj])
         expect(b"libtest-soname.so\0" in shared.read_bytes(),
                "-h did not set the shared-object SONAME")
@@ -14196,7 +14200,7 @@ def linker_automatic_runtime_case(linker=None):
                if k not in ("LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT")}
         env["CRUNCH_CONF_FILE"] = str(conf)
         obj, exe = directory / "start.o", directory / "program"
-        command([assembler, "-o", obj], input=
+        command([assembler, "-c", "-o", obj], input=
                 ".text\n.globl _start\n_start:\n"
                 "lea message(%rip), %rdi\ncall __crunch_strlen@PLT\n"
                 "mov %rax, %rdi\nmov $60, %rax\nsyscall\n"
@@ -14245,7 +14249,7 @@ def linker_automatic_runtime_case(linker=None):
         alternate = directory / "alternate"
         alternate.mkdir()
         custom_obj = alternate / "custom.o"
-        command([assembler, "-o", custom_obj], input=
+        command([assembler, "-c", "-o", custom_obj], input=
                 ".text\n.globl __crunch_strlen\n.type __crunch_strlen,@function\n"
                 "__crunch_strlen: mov $17, %rax\nret\n")
         command([BUILD / "crunch-ar", "rcs", alternate / "libcrunch.a", custom_obj])
@@ -14358,7 +14362,7 @@ def installed_toolchain_corpus_case(gnu_matrix=False):
         for assembler_name, assembler in dict((a, tool) for a, tool, _, _ in combinations).items():
             for name, assembly in assemblies.items():
                 obj = directory / f"{name}-{assembler_name}.o"
-                command([assembler, "-o", obj, assembly], env=env)
+                command([assembler, "-c", "-o", obj, assembly], env=env)
                 objects[name, assembler_name] = obj
 
         for name, args, stdin, expected in cases:
@@ -14489,7 +14493,7 @@ def install_case():
                "native archiver or its man page was not installed correctly")
         installed_obj = directory / "standalone.o"
         installed_program = directory / "standalone"
-        command([prefix / "bin/crunch-as", "-o", installed_obj], input=
+        command([prefix / "bin/crunch-as", "-c", "-o", installed_obj], input=
                 ".text\n.globl _start\n_start:\n"
                 "lea message(%rip), %rdi\ncall __crunch_strlen@PLT\n"
                 "mov %rax, %rdi\nmov $60, %rax\nsyscall\n"
@@ -14506,7 +14510,7 @@ def install_case():
         installed_asm = directory / "standalone.s"
         command([prefix / "bin/crunch", "-S", installed_source, "-o", installed_asm],
                 env=installed_env)
-        command([prefix / "bin/crunch-as", "-o", installed_obj, installed_asm], env=installed_env)
+        command([prefix / "bin/crunch-as", "-c", "-o", installed_obj, installed_asm], env=installed_env)
         command([prefix / "bin/crunch-ld", "-dynamic", "-o", installed_program, installed_obj],
                 env=installed_env)
         expect(command([installed_program], cwd="/", env=installed_env, check=False).returncode == 3,
@@ -16157,7 +16161,7 @@ def thread_local_case():
                "TLS assembly did not use ELF local-exec storage")
         asm_path, object_path = directory / "tls.s", directory / "tls-native.o"
         asm_path.write_text(assembly + "\n.globl _start\n_start:\n ret\n")
-        command([BUILD / "crunch-as", "-o", object_path, asm_path])
+        command([BUILD / "crunch-as", "-c", "-o", object_path, asm_path])
         rejected = command([BUILD / "crunch-ld", "-nostdlib", "-o",
                             directory / "native-executable", object_path], check=False)
         expect(rejected.returncode != 0 and "unsupported relocation" in rejected.stderr,
@@ -16646,7 +16650,7 @@ def gcc_stddef_preprocessor_case():
                     "func main 0 int\ngload initialized uint\ncast uint int\nret int\nend\n")
                 initializer_asm = command([ASM, "--no-entry", "-"], input=initializer_ir).stdout
                 init_obj = pathlib.Path(td) / "glibc-initializer.o"
-                command([BUILD / "crunch-as", "-o", init_obj], input=initializer_asm)
+                command([BUILD / "crunch-as", "-c", "-o", init_obj], input=initializer_asm)
                 command([DRIVER, "--glibc", init_obj, "-o", executable], env=driver_env)
                 expect(command([executable], check=False).returncode == 42,
                        "system startup did not run the Crunch IR initializer")
@@ -16773,10 +16777,10 @@ def gcc_stddef_preprocessor_case():
                 native_assembler_bootstrap_case(assembler)
                 for source in (".text\ninvalid_instruction\n",
                                ".set invalid,9223372036854775807+1\n.byte invalid\n"):
-                    baseline = command([BUILD / "crunch-as", "-o",
+                    baseline = command([BUILD / "crunch-as", "-c", "-o",
                                         pathlib.Path(td) / "baseline-invalid.o"],
                                        input=source, check=False)
-                    actual = command([assembler, "-o", pathlib.Path(td) / "self-invalid.o"],
+                    actual = command([assembler, "-c", "-o", pathlib.Path(td) / "self-invalid.o"],
                                      input=source, check=False)
                     expect(baseline.returncode != 0 and
                            (actual.returncode, actual.stdout, actual.stderr) ==
@@ -16792,7 +16796,7 @@ def gcc_stddef_preprocessor_case():
                 result = command([stage / "crunch", "--glibc", "--with-crunch-as", "-v",
                                   "-c", stage_source, "-o", stage_obj],
                                  env=stage_env, timeout=240)
-                expect(f"{assembler} -o " in result.stderr,
+                expect(f"{assembler} -c -o " in result.stderr,
                        "glibc self-built driver did not use the self-built assembler")
                 command([stage / "crunch", "--glibc", stage_obj, "-o", stage_executable],
                         env=stage_env, timeout=120)
@@ -16857,7 +16861,7 @@ def gcc_stddef_preprocessor_case():
                 command([stage / "crunch", "--glibc", ld_obj, "-o", ld_binary],
                         env=driver_env, timeout=120)
                 start_obj = pathlib.Path(td) / "link-start.o"
-                command([assembler, "-o", start_obj], input=
+                command([assembler, "-c", "-o", start_obj], input=
                         ".text\n.globl _start\n_start: call archive_value@PLT\n"
                         "mov %eax,%edi\nmov $60,%eax\nsyscall\n")
                 command([ld_binary, "-nostdlib", "--require-defined=_start",
@@ -17353,7 +17357,7 @@ def preprocessor_macro_case():
         expanded_source.write_text(expanded)
         ir_file.write_text(command([IR, expanded_source]).stdout)
         asm_file.write_text(command([ASM, ir_file]).stdout)
-        command([TEST_AS, "-o", obj_file, asm_file])
+        command([TEST_AS, "-c", "-o", obj_file, asm_file])
         command([*TEST_LINK, "-o", executable, obj_file, LIBCRUNCH])
         result = command([executable])
         expect(result.stdout == "COLOR_RED TWICE(3)",
@@ -18542,7 +18546,7 @@ end
         directory = pathlib.Path(td)
         assembly, obj, exe = directory / "program.s", directory / "program.o", directory / "program"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False, stack_size=1048576).returncode == 42,
                "dynamic stack allocation or restoration failed")
@@ -18550,7 +18554,7 @@ end
             overflow = (f"CRUNCH-IR 50\nfunc main 0 int\npushu {size} ulong\n"
                         "stackalloc\ndrop\npush 0\nret int\nend\n")
             assembly.write_text(command([ASM, "-"], input=overflow).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             result = subprocess.run([str(exe)], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     preexec_fn=lambda: resource.setrlimit(resource.RLIMIT_CORE, (0, 0)))
@@ -18584,7 +18588,7 @@ def alignas_case():
     with tempfile.TemporaryDirectory(prefix="crunch-alignas-") as td:
         directory = pathlib.Path(td)
         obj, helper_obj, exe = directory / "program.o", directory / "helper.o", directory / "program"
-        command([TEST_AS, helper, "-o", helper_obj])
+        command([TEST_AS, "-c", helper, "-o", helper_obj])
         command([DRIVER, "-c", source, "-o", obj])
         command([DRIVER, obj, helper_obj, "-o", exe])
         expect(command([exe], check=False).returncode == 42,
@@ -18869,7 +18873,7 @@ def preprocessor_directives_end_to_end_case():
         expanded_source.write_text(expanded)
         ir_file.write_text(command([IR, expanded_source]).stdout)
         asm_file.write_text(command([ASM, ir_file]).stdout)
-        command([TEST_AS, "-o", obj_file, asm_file])
+        command([TEST_AS, "-c", "-o", obj_file, asm_file])
         command([*TEST_LINK, "-o", executable, obj_file, LIBCRUNCH])
         result = command([executable], check=False)
         expect(result.returncode == 8,
@@ -19925,7 +19929,7 @@ def unsigned_source_case():
         assembly = td / "module.s"
         obj, exe = td / "module.o", td / "module"
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42, "unsigned module execution failed")
 
@@ -19971,7 +19975,7 @@ def unsigned_arrays_case():
         assembly, obj, exe = td / "module.s", td / "module.o", td / "module"
         ir = command([IR, "--module", source]).stdout
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "unsigned array module execution failed")
@@ -20254,11 +20258,11 @@ end
         for version in (6, 7):
             ir.write_text(f"CRUNCH-IR {version}\n" + template)
             assembly.write_text(command([ASM, ir]).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             expect(command([exe], check=False).returncode == 42,
                    f"unsigned IR execution failed for version {version}")
-            command([BUILD / "crunch-as", "-o", obj, assembly])
+            command([BUILD / "crunch-as", "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             expect(command([exe], check=False).returncode == 42,
                    f"native-assembled unsigned IR execution failed for version {version}")
@@ -20279,7 +20283,7 @@ ret int
 end
 """
             assembly.write_text(command([ASM, "-"], input=initializer).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             expect(command([exe], check=False).returncode == 42,
                    f"unsigned IR v{version} did not run its initializer")
@@ -20388,7 +20392,7 @@ def module_initialization_case():
             text = (FIXTURES / "ir" / f"legacy_initializer_{name}.bir").read_text()
             assembly = td / f"{name}.s"
             assembly.write_text(command([ASM, "-"], input=text).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
         expect((FIXTURES / "ir/legacy_initializer_first.bir").read_text().startswith("CRUNCH-IR 4\n"),
                "initialized module did not use the versioned initializer contract")
         command([DRIVER, "-o", exe, obj1, obj2, obj3])
@@ -20402,7 +20406,7 @@ def module_initialization_case():
         library_obj = td / "library.o"
         assembly = td / "library.s"
         assembly.write_text(command([ASM, FIXTURES / "ir/legacy_initializer_library.bir"]).stdout)
-        command([TEST_AS, "-o", library_obj, assembly])
+        command([TEST_AS, "-c", "-o", library_obj, assembly])
         host = td / "host.c"
         host.write_text("extern int read_module(void);"
                         "extern void __crunch_run_initializers(void);"
@@ -20455,16 +20459,16 @@ def executable_initialization_case():
         for name in ("executable", "executable_module"):
             fixture = FIXTURES / "ir" / f"legacy_initializer_{name}.bir"
             assembly.write_text(command([ASM, fixture]).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([DRIVER, "-o", exe, obj])
             expect(command([exe, "x"], env=env, check=False).returncode == 42,
                    f"{name} reinitialized globals when main recurred")
 
         other_obj = td / "other.o"
         assembly.write_text(command([ASM, FIXTURES / "ir/legacy_initializer_mixed.bir"]).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         assembly.write_text(command([ASM, FIXTURES / "ir/legacy_initializer_other.bir"]).stdout)
-        command([TEST_AS, "-o", other_obj, assembly])
+        command([TEST_AS, "-c", "-o", other_obj, assembly])
         command([DRIVER, "-o", exe, obj, other_obj])
         expect(command([exe, "x"], env=env, check=False).returncode == 42,
                "executable and module initializers did not both run")
@@ -20505,7 +20509,7 @@ def executable_initialization_case():
             assembly = td / "program.s"
             fixture = FIXTURES / "ir" / f"legacy_initializer_failure{'_module' if module else ''}.bir"
             assembly.write_text(command([ASM, fixture]).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, allocator, LIBCRUNCH])
             expect(command([exe], check=False).returncode == 42,
                    f"failed initializer was retried (module={module})")
@@ -20548,7 +20552,7 @@ def static_linkage_case():
                             "hidden:\n .long 1\nother:\n .long 0\n"
                             "text:\n .quad 0\ntext$length:\n .long 0\nbox:\n .long 0\n"
                             ".section .note.GNU-stack,\"\",@progbits\n")
-        command([TEST_AS, "-o", other, assembly])
+        command([TEST_AS, "-c", "-o", other, assembly])
         command([*TEST_LINK, "-o", exe, obj, other, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "static symbols collided or the compiled program misbehaved")
@@ -20585,7 +20589,7 @@ def global_static_string_case():
                "global string storage was not emitted in writable data")
         asm_file = td / "source.s"
         asm_file.write_text(assembly)
-        command([TEST_AS, "-o", obj, asm_file])
+        command([TEST_AS, "-c", "-o", obj, asm_file])
         stub.write_text(
             ".text\n.globl __crunch_free_bytes\n__crunch_free_bytes:\n"
             " test %rdi,%rdi\n jz 1f\n test %rsi,%rsi\n jz 1f\n"
@@ -21162,12 +21166,12 @@ def abi_mismatch_warning_case():
         hidden_ir = command([IR, "--module", wrong]).stdout
         hidden_assembly.write_text(command([ASM], input=hidden_ir).stdout + "\n.hidden target\n")
         hidden_obj = td / "hidden.o"
-        command([TEST_AS, "-o", hidden_obj, hidden_assembly])
+        command([TEST_AS, "-c", "-o", hidden_obj, hidden_assembly])
         protected_assembly = td / "protected.s"
         protected_ir = command([IR, "--module", right]).stdout
         protected_assembly.write_text(command([ASM], input=protected_ir).stdout + "\n.protected target\n")
         protected_obj = td / "protected.o"
-        command([TEST_AS, "-o", protected_obj, protected_assembly])
+        command([TEST_AS, "-c", "-o", protected_obj, protected_assembly])
         linkers = ((NATIVE_LINK,) if os.environ.get("CRUNCH_TEST_NATIVE_ONLY") == "1"
                    else (["ld"], NATIVE_LINK))
         for index, linker in enumerate(linkers):
@@ -21360,7 +21364,7 @@ def shared_runtime_link_guard_case():
                    and "strcmp" in result.stderr,
                    f"shared fixed-ABI fallback was not guarded: {result.stderr!r}")
             hidden = td / "hidden.o"
-            command([TEST_AS, "-o", hidden, "-"],
+            command([TEST_AS, "-c", "-o", hidden, "-"],
                     input=".hidden __crunch_dso_guard_printf\n")
             command([*linker, "-shared", "-o", shared, guarded_obj, hidden])
             result = command([DRIVER, "--dynamic", "--rpath", td, main_obj, shared,
@@ -21459,7 +21463,7 @@ def separate_module_case():
         runtime_asm = td / "runtime.s"
         runtime_asm.write_text(command([ASM, "-"], input=ir).stdout)
         runtime_obj, exe = td / "runtime.o", td / "runtime"
-        command([TEST_AS, "-o", runtime_obj, runtime_asm])
+        command([TEST_AS, "-c", "-o", runtime_obj, runtime_asm])
         command([*TEST_LINK, "-o", exe, runtime_obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 42 and result.stdout == "ok1",
@@ -21767,7 +21771,7 @@ def dynamic_driver_case():
         conf.write_text(f"assembler = crunch\nlinker = {selected_linker}\n")
 
         provider_obj, provider = td / "provider.o", td / "libdriverprobe.so.1"
-        command([BUILD / "crunch-as", "-o", provider_obj], input=
+        command([BUILD / "crunch-as", "-c", "-o", provider_obj], input=
                 ".text\n.globl external_answer\n.type external_answer,@function\n"
                 "external_answer: mov $42,%eax\nret\n"
                 ".globl read_external\n.type read_external,@function\n"
@@ -21843,7 +21847,7 @@ def dynamic_driver_case():
         first.mkdir()
         second.mkdir()
         answer_obj = first / "answer.o"
-        command([BUILD / "crunch-as", "-o", answer_obj], input=
+        command([BUILD / "crunch-as", "-c", "-o", answer_obj], input=
                 ".text\n.globl external_answer\n.type external_answer,@function\n"
                 "external_answer: mov $23,%eax\nret\n")
         command([BUILD / "crunch-ar", "rcs", first / "libdriverprobe.a", answer_obj])
@@ -22020,7 +22024,7 @@ def dynamic_driver_case():
         expect(result.returncode != 0 and "errno" in result.stderr and exe.read_text() == "preserved",
                "dynamic link accepted an executable definition of protected runtime errno")
         competing_obj, competing_so = td / "competing-errno.o", td / "competing-errno.so"
-        command([BUILD / "crunch-as", "-o", competing_obj], input=
+        command([BUILD / "crunch-as", "-c", "-o", competing_obj], input=
                 ".data\n.globl errno\n.type errno,@object\n.size errno,4\nerrno: .long 0\n")
         command([BUILD / "crunch-ld", "-nostdlib", "-shared", "-o", competing_so, competing_obj])
         result = command([DRIVER, source, competing_so, "-o", exe], env=env, check=False)
@@ -22099,12 +22103,12 @@ def native_relro_case():
             "fail: mov $1,%edi\nmov $60,%eax\nsyscall\n"
             '.section __crunch_init_array,"aw",@progbits\n.quad initialize\n'
         )
-        command([assembler, "-o", td / "provider.o"], input=
+        command([assembler, "-c", "-o", td / "provider.o"], input=
                 ".data\n.globl external_value\nexternal_value: .long 2\n"
                 ".globl finished\nfinished: .long 0\n")
         command([linker, "-nostdlib", "-shared", "-soname", provider.name, "-o", provider, td / "provider.o"])
-        command([assembler, "-o", td / "shared.o"], input=common)
-        command([assembler, "-o", td / "main.o"], input=common + start)
+        command([assembler, "-c", "-o", td / "shared.o"], input=common)
+        command([assembler, "-c", "-o", td / "main.o"], input=common + start)
 
         def image_layout(path):
             """Read named sections and program headers from a generated ELF.
@@ -22236,7 +22240,7 @@ assert ctypes.c_int.in_dll(provider, "finished").value == 1
             command([PYTHON, "-c", loader, library,
                      image_layout(library)[0][".dynamic"][3], provider], env=env)
 
-        command([assembler, "-o", td / "simple.o"], input=
+        command([assembler, "-c", "-o", td / "simple.o"], input=
                 ".text\n.globl _start\n_start: mov $60,%eax\nmov $42,%edi\nsyscall\n")
         for mode in ("-shared", "-dynamic"):
             command([linker, "-nostdlib", mode, "-z", "relro", "-o", exe, td / "simple.o"])
@@ -22253,7 +22257,7 @@ assert ctypes.c_int.in_dll(provider, "finished").value == 1
         command([DRIVER, "-c", source, "-o", td / "module.o"])
         asm = td / "legacy-init.s"
         asm.write_text(command([ASM, FIXTURES / "ir/legacy_init_first.bir"]).stdout)
-        command([assembler, "-o", td / "legacy-init.o", asm])
+        command([assembler, "-c", "-o", td / "legacy-init.o", asm])
         command([linker, "-nostdlib", "-dynamic", "-z", "relro", "-o", exe,
                  td / "module.o", td / "legacy-init.o",
                  BUILD / "libcrunch-fallback.a", BUILD / "libcrunch.so"])
@@ -22275,7 +22279,7 @@ assert ctypes.c_int.in_dll(provider, "finished").value == 1
             result = command([linker, "-nostdlib", "-o", output, td / "main.o", *flags], check=False)
             expect(result.returncode != 0 and result.stderr and output.read_text() == "preserved",
                    f"invalid RELRO option was not rejected safely: {flags}")
-        command([assembler, "-o", td / "bad.o"], input=
+        command([assembler, "-c", "-o", td / "bad.o"], input=
                 '.section .data.rel.ro.bad,"a",@progbits\n.quad 1\n')
         result = command([linker, "-nostdlib", "-shared", "-z", "relro", "-o", output, td / "bad.o"],
                          check=False)
@@ -22305,7 +22309,7 @@ def native_runpath_case():
                  "sub $8,%rsp\ncall value@PLT\nadd $8,%rsp\nadd $2,%eax\nret\n"),
                 ("main", ".text\n.globl _start\n_start:\nand $-16,%rsp\n"
                  "call answer@PLT\nmov %eax,%edi\nmov $60,%eax\nsyscall\n")):
-            command([assembler, "-o", td / f"{name}.o"], input=source)
+            command([assembler, "-c", "-o", td / f"{name}.o"], input=source)
         command([linker, "-nostdlib", "-shared", "-soname", leaf.name, "-o", leaf, td / "leaf.o"])
         command([linker, "-nostdlib", "-shared", "-soname", consumer.name, "-o", consumer,
                  td / "consumer.o", leaf])
@@ -22360,7 +22364,7 @@ def native_runpath_case():
         output = td / "preserved"
         for mode, obj in (("-shared", "leaf"), ("-dynamic", "main")):
             if mode == "-dynamic":
-                command([assembler, "-o", td / "standalone.o"], input=
+                command([assembler, "-c", "-o", td / "standalone.o"], input=
                         ".text\n.globl _start\n_start: mov $60,%eax\nxor %edi,%edi\nsyscall\n")
                 obj = "standalone"
             command([linker, "-nostdlib", mode, "--rpath=standalone", "-o", output, td / f"{obj}.o"])
@@ -22392,12 +22396,12 @@ def native_dynamic_strip_case():
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         provider, library = td / "provider.o", td / "libanswer.so"
         obj, exe = td / "start.o", td / "program"
-        command([assembler, "-o", provider], input=
+        command([assembler, "-c", "-o", provider], input=
                 ".text\n.globl answer\n.type answer,@function\nanswer: mov $42,%eax\nret\n")
         command([linker, "-nostdlib", "-shared", "-soname", "libanswer.so",
                  "-o", library, provider])
         command(["strip", library])
-        command([assembler, "-o", obj], input=
+        command([assembler, "-c", "-o", obj], input=
                 ".text\n.globl _start\n_start:\n"
                 "and $-16,%rsp\ncall answer@PLT\nmov %eax,%edi\nmov $60,%eax\nsyscall\n")
         env = {k: v for k, v in os.environ.items()
@@ -22426,7 +22430,7 @@ def native_dynamic_executable_case():
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         provider, main, exe = td / "provider.o", td / "main.o", td / "program"
         library = td / "libanswer.so"
-        command([assembler, "-o", provider], input=
+        command([assembler, "-c", "-o", provider], input=
                 ".data\n.globl value\n.type value,@object\nvalue: .long 40\n"
                 ".text\n.globl answer\n.type answer,@function\n"
                 "answer: mov value@GOTPCREL(%rip),%rax\nmov (%rax),%eax\n"
@@ -22451,7 +22455,7 @@ def native_dynamic_executable_case():
                   "lea executable_value(%rip),%rdx\ncmp local_pointer(%rip),%rdx\njne fail\n"
                   "and $-16,%rsp\ncall answer@PLT\nmov %eax,%edi\n"
                   "mov $60,%eax\nsyscall\nfail: mov $1,%edi\nmov $60,%eax\nsyscall\n")
-        command([assembler, "-o", main], input=source)
+        command([assembler, "-c", "-o", main], input=source)
         env = {key: value for key, value in os.environ.items()
                if key not in ("LD_PRELOAD", "LD_LIBRARY_PATH", "LD_AUDIT")}
         env["LD_LIBRARY_PATH"] = str(td)
@@ -22490,12 +22494,12 @@ def native_dynamic_executable_case():
             expect(image[strings + needed:image.index(b"\0", strings + needed)] == b"libanswer.so",
                    "incorrect dependency SONAME")
 
-        command([assembler, "-o", main],
+        command([assembler, "-c", "-o", main],
                 input=source.replace(".globl _start\n_start:", ".globl custom_entry\ncustom_entry:"))
         command([linker, "-nostdlib", "-dynamic", "-e", "custom_entry", "-o", exe, main, library])
         expect(command([exe], env=env, check=False).returncode == 42,
                "explicit dynamic executable entry was not used")
-        command([assembler, "-o", main], input=
+        command([assembler, "-c", "-o", main], input=
                 ".data\nvalue: .long 42\n.text\n.globl _start\n_start:\n"
                 "mov value@GOTPCREL(%rip),%rax\nmov (%rax),%edi\nmov $60,%eax\nsyscall\n")
         command([linker, "-nostdlib", "-dynamic", "-o", exe, main])
@@ -22511,7 +22515,7 @@ def native_dynamic_executable_case():
         expect(result.returncode == 7 and result.stdout == "before;",
                "Crunch-generated executable did not use the shared runtime")
 
-        command([assembler, "-o", main], input=
+        command([assembler, "-c", "-o", main], input=
                 ".data\ncount: .long 0\ndone: .byte 0\n"
                 ".text\ninitialize: cmpb $0,done(%rip)\njne return\n"
                 "movb $1,done(%rip)\naddl $1,count(%rip)\nreturn: ret\n"
@@ -22530,12 +22534,12 @@ def native_dynamic_executable_case():
              "read-only"),
         )
         for assembly, diagnostic in invalid:
-            command([assembler, "-o", main], input=assembly)
+            command([assembler, "-c", "-o", main], input=assembly)
             exe.write_text("preserved")
             result = command([linker, "-nostdlib", "-dynamic", "-o", exe, main, library], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and exe.read_text() == "preserved",
                    f"unsupported executable input was not rejected safely: {result.stderr}")
-        command([assembler, "-o", main], input=".text\n.globl other\nother: ret\n")
+        command([assembler, "-c", "-o", main], input=".text\n.globl other\nother: ret\n")
         result = command([linker, "-nostdlib", "-dynamic", "-o", exe, main], check=False)
         expect(result.returncode != 0 and "entry symbol" in result.stderr and exe.read_text() == "preserved",
                "missing entry point was not rejected safely")
@@ -22557,7 +22561,7 @@ def native_dynamic_pie_case():
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         obj, provider, library, exe = (td / name for name in
                                        ("main.o", "provider.o", "libpieprobe.so", "program"))
-        command([assembler, "-o", provider], input=
+        command([assembler, "-c", "-o", provider], input=
                 ".data\n.globl value\n.type value,@object\nvalue: .long 40\n"
                 ".text\n.globl answer\n.type answer,@function\n"
                 "answer: mov value@GOTPCREL(%rip),%rax\nmov (%rax),%eax\nadd $2,%eax\nret\n")
@@ -22580,7 +22584,7 @@ def native_dynamic_pie_case():
                if key not in ("LD_PRELOAD", "LD_LIBRARY_PATH", "LD_AUDIT")}
         for tool in ((assembler,) if os.environ.get("CRUNCH_TEST_NATIVE_ONLY") == "1"
                      else (assembler, "as")):
-            args = [tool, "-o", obj] + (["-"] if tool == "as" else [])
+            args = [tool, "-c", "-o", obj] + (["-"] if tool == "as" else [])
             command(args, input=assembly)
             command([linker, "-nostdlib", "-dynamic", "-pie", "-z", "relro",
                      "--rpath", str(td), "-o", exe, obj, library])
@@ -22647,27 +22651,27 @@ def native_dynamic_pie_case():
             (".text\nmov value(%rip),%eax\n", "undefined or preemptible"),
         )
         for text, diagnostic in invalid:
-            command([assembler, "-o", obj], input=".text\n.globl _start\n_start: ret\n" + text)
+            command([assembler, "-c", "-o", obj], input=".text\n.globl _start\n_start: ret\n" + text)
             exe.write_text("preserved")
             result = command([linker, "-nostdlib", "-dynamic", "-pie", "-o", exe, obj, library], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and exe.read_text() == "preserved",
                    f"unsafe PIE relocation accepted for {text!r}: {result.stderr}")
         absolute = td / "absolute.o"
-        command([assembler, "-o", absolute], input=".globl fixed\n.set fixed,42\n")
-        command([assembler, "-o", obj], input=
+        command([assembler, "-c", "-o", absolute], input=".globl fixed\n.set fixed,42\n")
+        command([assembler, "-c", "-o", obj], input=
                 ".data\nfixed_pointer: .quad fixed\n.text\n.globl _start\n_start:\n"
                 "cmpq $42,fixed_pointer(%rip)\njne fail\nmov $42,%edi\n"
                 "mov $60,%eax\nsyscall\nfail: mov $1,%edi\nmov $60,%eax\nsyscall\n")
         command([linker, "-nostdlib", "-dynamic", "-pie", "-o", exe, obj, absolute])
         expect(command([exe], env=env, check=False).returncode == 42,
                "absolute data symbol incorrectly received a PIE load bias")
-        command([assembler, "-o", obj], input=
+        command([assembler, "-c", "-o", obj], input=
                 ".text\n.globl _start\n_start: lea fixed(%rip),%rax\nret\n")
         exe.write_text("preserved")
         result = command([linker, "-nostdlib", "-dynamic", "-pie", "-o", exe, obj, absolute], check=False)
         expect(result.returncode != 0 and "absolute symbol" in result.stderr and
                exe.read_text() == "preserved", "absolute PC-relative PIE relocation accepted")
-        command([assembler, "-o", obj], input=
+        command([assembler, "-c", "-o", obj], input=
                 ".data\n.quad _end\n.text\n.globl _start\n_start: ret\n")
         result = command([linker, "-nostdlib", "-dynamic", "-pie", "-o", exe, obj], check=False)
         expect(result.returncode != 0 and "_end" in result.stderr and
@@ -22698,7 +22702,7 @@ def native_dynamic_init_case(pie=False):
         pie_flags = ["-pie"] if pie else []
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         provider, library = td / "provider.o", td / "provider.so"
-        command([assembler, "-o", provider], input=
+        command([assembler, "-c", "-o", provider], input=
                 ".text\ninitialize: mov order@GOTPCREL(%rip),%rax\nmovl $1,(%rax)\nret\n"
                 ".globl external_init\n.type external_init,@function\nexternal_init:\n"
                 "mov order@GOTPCREL(%rip),%rdx\nmov (%rdx),%eax\n"
@@ -22742,8 +22746,8 @@ def native_dynamic_init_case(pie=False):
             '.section .init_array.200,"aw",@init_array\n.quad init_nine\n'
             '.section .init_array.65535,"aw",@init_array\n.quad init_three\n'
         )
-        command([assembler, "-o", first], input=first_source)
-        command([assembler, "-o", second], input=second_source)
+        command([assembler, "-c", "-o", first], input=first_source)
+        command([assembler, "-c", "-o", second], input=second_source)
         command([linker, "-nostdlib", "-r", "-o", partial, first, second])
         env = {"CTOR_TEST": "ok", "LD_LIBRARY_PATH": str(td)}
         for objects, options in (([first, second], []), ([partial], ["-s"]),
@@ -22776,7 +22780,7 @@ def native_dynamic_init_case(pie=False):
         for index, fixture in enumerate(modules):
             asm, obj = td / f"module{index}.s", td / f"module{index}.o"
             asm.write_text(command([ASM, FIXTURES / "ir" / fixture]).stdout)
-            command([assembler, "-o", obj, asm])
+            command([assembler, "-c", "-o", obj, asm])
             objects.append(obj)
         command([linker, "-nostdlib", "-dynamic", *pie_flags, "-o", exe, *objects, BUILD / "libcrunch.so"])
         expect(command([exe], env={"LD_LIBRARY_PATH": str(BUILD)}, check=False).returncode == 42,
@@ -22796,7 +22800,7 @@ def native_dynamic_init_case(pie=False):
             ('.section .init_array,"aw",@progbits\n.quad target\n', "array section"),
         )
         for source, diagnostic in invalid:
-            command([assembler, "-o", first], input=".text\n.globl _start\n_start: ret\ntarget: ret\n" + source)
+            command([assembler, "-c", "-o", first], input=".text\n.globl _start\n_start: ret\ntarget: ret\n" + source)
             exe.write_text("preserved")
             result = command([linker, "-nostdlib", "-dynamic", "-o", exe, first], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and exe.read_text() == "preserved",
@@ -22816,7 +22820,7 @@ def native_dynamic_fini_case(pie=False):
         pie_flags = ["-pie"] if pie else []
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         provider, library = td / "provider.o", td / "provider.so"
-        command([assembler, "-o", provider], input=
+        command([assembler, "-c", "-o", provider], input=
                 ".text\n.globl external_fini\n.type external_fini,@function\n"
                 "external_fini: mov $1,%eax\nmov $1,%edi\nlea letter_g(%rip),%rsi\n"
                 "mov $1,%edx\nsyscall\nret\n"
@@ -22853,8 +22857,8 @@ def native_dynamic_fini_case(pie=False):
             '.section .fini_array.200,"aw",@fini_array\n.quad fini_c\n'
             '.section .fini_array.65535,"aw",@fini_array\n.quad fini_d\n'
         )
-        command([assembler, "-o", first], input=first_source)
-        command([assembler, "-o", second], input=second_source)
+        command([assembler, "-c", "-o", first], input=first_source)
+        command([assembler, "-c", "-o", second], input=second_source)
         command([linker, "-nostdlib", "-r", "-o", partial, first, second])
         main, main_obj = td / "main.bc", td / "main.o"
         main.write_text("int main() { return 42; }\n")
@@ -22891,7 +22895,7 @@ def native_dynamic_fini_case(pie=False):
         expect(command([exe], check=False).returncode == 37,
                "undefined finalizer hook broke existing native PIE exit")
         init_obj = td / "init.o"
-        command([assembler, "-o", init_obj], input=
+        command([assembler, "-c", "-o", init_obj], input=
                 ".text\ninitialize: mov $1,%eax\nmov $1,%edi\nlea letter(%rip),%rsi\n"
                 "mov $1,%edx\nsyscall\nret\n"
                 '.section .rodata\nletter: .byte 73\n'
@@ -22903,7 +22907,7 @@ def native_dynamic_fini_case(pie=False):
                "combined executable initialization and finalization failed")
 
         entry = td / "entry.o"
-        command([assembler, "-o", entry], input=
+        command([assembler, "-c", "-o", entry], input=
                 ".text\n.globl _start\n_start: and $-16,%rsp\n"
                 "call __crunch_run_finalizers\ncall __crunch_run_finalizers\n"
                 "mov $44,%edi\ncall __crunch_end@PLT\n")
@@ -22941,7 +22945,7 @@ def native_dynamic_fini_case(pie=False):
              "reserved executable symbol"),
         )
         for source, diagnostic in invalid:
-            command([assembler, "-o", first], input=".text\n.globl _start\n_start: ret\ntarget: ret\n" + source)
+            command([assembler, "-c", "-o", first], input=".text\n.globl _start\n_start: ret\ntarget: ret\n" + source)
             exe.write_text("preserved")
             result = command([linker, "-nostdlib", "-dynamic", "-o", exe, first], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and exe.read_text() == "preserved",
@@ -22962,7 +22966,7 @@ def native_cet_property_case():
                 '.globl answer\nanswer: mov $42,%eax\nret\n'
                 '.section .note.gnu.property,"a",@note\n.p2align 3\n'
                 '.long 4,16,5\n.asciz "GNU"\n.long 0xc0000002,4,3,0\n')
-        command([assembler, "-o", obj], input=code)
+        command([assembler, "-c", "-o", obj], input=code)
         for mode, output in (("-shared", shared), ("-dynamic", executable)):
             result = command([linker, "-nostdlib", mode, "-o", output, obj])
             expect("discarding GNU CET properties" in result.stderr and
@@ -23006,7 +23010,7 @@ def native_cet_property_case():
                 ("reference", code + ".text\n.quad 1f\n"
                  '.section .note.gnu.property,"a",@note\n1:\n'),
                 ("relocation", code + ".quad answer\n")):
-            command([assembler, "-o", obj], input=bad_code)
+            command([assembler, "-c", "-o", obj], input=bad_code)
             shared.write_text("preserved")
             result = command([linker, "-nostdlib", "-shared", "-o", shared, obj],
                              check=False)
@@ -23046,7 +23050,7 @@ def native_shared_linker_case():
                  ".weak weak_answer\n.type weak_answer,@function\n"
                  "weak_answer: movl $17,%eax\nret\n")):
             obj = td / f"{name}.o"
-            command([assembler, "-o", obj], input=source)
+            command([assembler, "-c", "-o", obj], input=source)
             objects.append(obj)
         library = td / "libanswer.so"
         loader = r"""
@@ -23078,7 +23082,7 @@ else:
                    "shared output is not ELF64 ET_DYN")
             command([PYTHON, "-c", loader, library], env=env)
         override_object, override_library = td / "override.o", td / "override.so"
-        command([assembler, "-o", override_object],
+        command([assembler, "-c", "-o", override_object],
                 input=".text\n.globl two\n.type two,@function\ntwo: movl $99,%eax\nret\n")
         command([linker, "-nostdlib", "-shared", "-o", override_library, override_object])
         command([PYTHON, "-c", loader, library],
@@ -23097,7 +23101,7 @@ else:
         )
         for name, source, diagnostic in bad_cases:
             obj = td / f"{name}.o"
-            command([assembler, "-o", obj], input=source)
+            command([assembler, "-c", "-o", obj], input=source)
             library.write_text("preserved")
             result = command([linker, "-nostdlib", "-shared", "-o", library, obj], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and
@@ -23159,7 +23163,7 @@ def native_shared_dynamic_case():
         )
         for name, source in (("consumer", consumer), ("provider", provider), ("override", override)):
             obj, so = td / f"{name}.o", td / f"{name}.so"
-            command([assembler, "-o", obj], input=source)
+            command([assembler, "-c", "-o", obj], input=source)
             command([linker, "-nostdlib", "-shared", "-o", so, obj])
         image = (td / "consumer.so").read_bytes()
         shoff = struct.unpack_from("<Q", image, 40)[0]
@@ -23246,7 +23250,7 @@ def native_shared_data_relocation_case():
             ),
         }
         for name, source in sources.items():
-            command([assembler, "-o", td / f"{name}.o"], input=source)
+            command([assembler, "-c", "-o", td / f"{name}.o"], input=source)
         command([linker, "-nostdlib", "-shared", "-soname", "provider.so", "-o", td / "provider.so",
                  td / "provider.o"])
         command([linker, "-nostdlib", "-shared", "-o", td / "override.so", td / "override.o"])
@@ -23286,7 +23290,7 @@ assert pointer("weak_addend_ptr") == (weak or 0) + 4
         command([PYTHON, "-c", loader, output, 15, 22, 0], env=env)
         command([PYTHON, "-c", loader, output, 35, 32, 77],
                 env=dict(env, LD_PRELOAD=str(td / "override.so")))
-        command([assembler, "-o", td / "mixed.o"], input=sources["consumer"] +
+        command([assembler, "-c", "-o", td / "mixed.o"], input=sources["consumer"] +
                 ".text\n.globl read_external\nread_external:\n"
                 "movq external_array@GOTPCREL(%rip),%rax\nmovl 4(%rax),%eax\nret\n")
         command([linker, "-nostdlib", "-shared", "-o", output, td / "mixed.o", td / "provider.so"])
@@ -23308,7 +23312,7 @@ assert pointer("weak_addend_ptr") == (weak or 0) + 4
                 ("hidden", ".data\n.hidden missing\n.quad missing\n", "unsupported shared relocation"),
                 ("linker", ".data\n.quad _end\n", "linker-defined symbol")):
             obj = td / f"{name}.o"
-            command([assembler, "-o", obj], input=source)
+            command([assembler, "-c", "-o", obj], input=source)
             output.write_text("preserved")
             result = command([linker, "-nostdlib", "-shared", "-o", output, obj], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and
@@ -23370,7 +23374,7 @@ def native_shared_array_case(linker=None):
             '.section .fini_array.101,"aw",@fini_array\n.quad fini_six\n'
         )
         for name, source in (("provider", provider), ("first", first), ("second", second)):
-            command([assembler, "-o", td / f"{name}.o"], input=source)
+            command([assembler, "-c", "-o", td / f"{name}.o"], input=source)
         command([linker, "-nostdlib", "-shared", "-soname", "provider.so", "-o", td / "provider.so",
                  td / "provider.o"])
         output = td / "consumer.so"
@@ -23423,7 +23427,7 @@ assert provider.get_log() == 781293456
             source = (".text\ncallback: subq $8,%rsp\nmovl $9,%edi\ncall record@PLT\n"
                       "addq $8,%rsp\nret\n" +
                       f'.section .{section},"aw",@{section}\n.quad callback\n')
-            command([assembler, "-o", td / "single.o"], input=source)
+            command([assembler, "-c", "-o", td / "single.o"], input=source)
             command([linker, "-nostdlib", "-shared", "-o", output, td / "single.o", td / "provider.so"])
             script = ("import _ctypes,ctypes,sys; p=ctypes.CDLL(sys.argv[1],mode=ctypes.RTLD_GLOBAL); "
                       "l=ctypes.CDLL(sys.argv[2]); assert p.get_log()==int(sys.argv[3]); "
@@ -23444,14 +23448,14 @@ assert provider.get_log() == 781293456
                 ("empty_symbol", '.section .init_array,"aw",@init_array\n.globl mark\nmark:\n', "empty shared array"),
                 ("empty_reference", '.section .init_array,"aw",@init_array\nmark:\n.data\n.quad mark\n', "empty shared array")):
             obj = td / f"{name}.o"
-            command([assembler, "-o", obj], input=source)
+            command([assembler, "-c", "-o", obj], input=source)
             output.write_text("preserved")
             result = command([linker, "-nostdlib", "-shared", "-o", output, obj], check=False)
             expect(result.returncode != 0 and diagnostic in result.stderr and
                    output.read_text() == "preserved",
                    f"shared linker did not reject {name} safely: {result.stderr}")
 
-        command([assembler, "-o", td / "duplicate.o"],
+        command([assembler, "-c", "-o", td / "duplicate.o"],
                 input='.section .init_array,"aw",@init_array\n.quad target\n.quad target\n')
         malformed = bytearray((td / "duplicate.o").read_bytes())
         shoff = struct.unpack_from("<Q", malformed, 40)[0]
@@ -23595,7 +23599,7 @@ l.__crunch_run_initializers()
         assembler, linker = BUILD / "crunch-as", BUILD / "crunch-ld"
         client = (".text\n.globl query\n.type query,@function\n"
                   "query: subq $8,%rsp\ncall __crunch_strlen@PLT\naddq $8,%rsp\nret\n")
-        command([assembler, "-o", td / "client.o"], input=client)
+        command([assembler, "-c", "-o", td / "client.o"], input=client)
         command([linker, "-nostdlib", "-shared", "--no-undefined", "-o", td / "client.so",
                  td / "client.o", "-L", BUILD, "-lcrunch"])
         client_loader = ("import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
@@ -23611,14 +23615,14 @@ l.__crunch_run_initializers()
             ".text\ninitialize: addl $1,count(%rip)\nret\n"
             ".globl get_count\nget_count: movl count(%rip),%eax\nret\n"
         )
-        command([assembler, "-o", td / "registry.o"], input=registry)
+        command([assembler, "-c", "-o", td / "registry.o"], input=registry)
         command([linker, "-nostdlib", "-shared", "--no-undefined", "-o", td / "registry.so", td / "registry.o"])
         registry_loader = ("import ctypes,sys; p=ctypes.CDLL(sys.argv[1],mode=ctypes.RTLD_GLOBAL); "
                            "l=ctypes.CDLL(sys.argv[2]); l.__crunch_run_initializers(); "
                            "assert p.get_count()==1; l.__crunch_run_initializers(); assert p.get_count()==2")
         command([PYTHON, "-c", registry_loader, td / "registry.so", library], env=env)
         incomplete = registry.replace(".globl __stop___crunch_init_array\n__stop___crunch_init_array:\n", "")
-        command([assembler, "-o", td / "incomplete.o"], input=incomplete)
+        command([assembler, "-c", "-o", td / "incomplete.o"], input=incomplete)
         command([linker, "-nostdlib", "-shared", "--no-undefined", "-o", td / "incomplete.so", td / "incomplete.o"])
         incomplete_loader = ("import ctypes,sys; ctypes.CDLL(sys.argv[1],mode=ctypes.RTLD_GLOBAL); "
                              "l=ctypes.CDLL(sys.argv[2]); l.__crunch_run_initializers(); "
@@ -23646,7 +23650,7 @@ def native_shared_dependency_case():
                         "addl $2,%eax\nret\n",
         }
         for name, source in sources.items():
-            command([assembler, "-o", td / f"{name}.o"], input=source)
+            command([assembler, "-c", "-o", td / f"{name}.o"], input=source)
         provider, other, output = td / "libdep.so.1", td / "libother.so", td / "consumer.so"
         command([linker, "-nostdlib", "-shared", "-soname", "libdep.so.1", "-o", provider, td / "provider.o"])
         (td / "libdep.so").symlink_to(provider.name)
@@ -23709,10 +23713,10 @@ def native_shared_dependency_case():
                          check=False)
         expect(failed.returncode != 0 and "undefined reference" in failed.stderr and
                output.read_bytes() == original, "unresolved strong symbol was not rejected safely")
-        command([assembler, "-o", td / "weak.o"],
+        command([assembler, "-c", "-o", td / "weak.o"],
                 input=".globl unused\n.data\n.weak absent\n.quad absent\n")
         command([linker, "-nostdlib", "-shared", "--no-undefined", "-o", output, td / "weak.o"])
-        command([assembler, "-o", td / "strong.o"], input=".globl absent\n.text\nret\n")
+        command([assembler, "-c", "-o", td / "strong.o"], input=".globl absent\n.text\nret\n")
         failed = command([linker, "-nostdlib", "-shared", "--no-undefined", "-o", output,
                           td / "weak.o", td / "strong.o"], check=False)
         expect(failed.returncode != 0 and "undefined reference" in failed.stderr,
@@ -23780,7 +23784,7 @@ def initialized_block_ir_case():
         td = pathlib.Path(directory)
         assembly, obj, exe = td / "block.s", td / "block.o", td / "block"
         assembly.write_text(command([ASM, fixture]).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "initialized block contents or zero padding were incorrect")
@@ -23811,7 +23815,7 @@ def legacy_array_ir_case():
         td = pathlib.Path(directory)
         assembly, obj, exe = td / "legacy.s", td / "legacy.o", td / "legacy"
         assembly.write_text(command([ASM, fixture]).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "legacy array resize did not preserve the old element")
@@ -24055,7 +24059,7 @@ end
             assembly.write_text(command([ASM, "-"], input=f"CRUNCH-IR {version}\n" + template).stdout)
             assemblers = [BUILD / "crunch-as"] if native_only else ["as", BUILD / "crunch-as"]
             for assembler in assemblers:
-                command([assembler, "-o", obj, assembly])
+                command([assembler, "-c", "-o", obj, assembly])
                 command([*NATIVE_LINK, "-o", exe, obj, LIBCRUNCH])
                 result = command([exe], check=False)
                 expect(result.returncode == 0,
@@ -24075,7 +24079,7 @@ ret int
 end
 """
         assembly.write_text(command([ASM, "-"], input=formatted).stdout)
-        command([BUILD / "crunch-as", "-o", obj, assembly])
+        command([BUILD / "crunch-as", "-c", "-o", obj, assembly])
         command([*NATIVE_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe])
         expect(result.stdout == "1.500000", "promoted float formatted output was incorrect")
@@ -24191,7 +24195,7 @@ check_canonical:
 .section .note.GNU-stack,"",@progbits
 """)
         for assembler in ("as", BUILD / "crunch-as"):
-            command([assembler, "-o", obj, assembly])
+            command([assembler, "-c", "-o", obj, assembly])
             command(["cc", "-no-pie", host, dirty, obj, "-o", exe])
             expect(command([exe], check=False).returncode == 0,
                    f"float C ABI failed with {assembler}")
@@ -25630,7 +25634,7 @@ def global_fixed_array_case():
         td = pathlib.Path(directory)
         assembly, obj, exe = td / "data.s", td / "data.o", td / "data"
         assembly.write_text(command([ASM], input=valid).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         expect(command([exe], check=False).returncode == 42,
                "combined block data and static relocations were incorrect")
@@ -25798,7 +25802,7 @@ def float_source_case():
         ir = command([IR, "--module", source]).stdout
         expect(ir.startswith("CRUNCH-IR 39\n"), "float formatted module did not select IR v39")
         assembly.write_text(command([ASM, "-"], input=ir).stdout)
-        command([TEST_AS, "-o", obj, assembly])
+        command([TEST_AS, "-c", "-o", obj, assembly])
         command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
         result = command([exe], check=False)
         expect(result.returncode == 42 and result.stdout == "1.500000",
@@ -25832,7 +25836,7 @@ int main(void) {
 }
 """)
         for assembler in ("as", BUILD / "crunch-as"):
-            command([assembler, "-o", obj, assembly])
+            command([assembler, "-c", "-o", obj, assembly])
             command(["cc", "-no-pie", host, obj, "-o", exe])
             expect(command([exe], check=False).returncode == 0,
                    f"float source C ABI failed with {assembler}")
@@ -27695,7 +27699,7 @@ int main() {
             ir = (f"CRUNCH-IR {version}\nstringlit fmt 257a7500\nfunc main 0 int\n"
                   f"straddr fmt\npush -1\npush 6\n{op} printf 3\nret int\nend\n")
             assembly.write_text(command([ASM, "-"], input=ir).stdout)
-            command([TEST_AS, "-o", obj, assembly])
+            command([TEST_AS, "-c", "-o", obj, assembly])
             command([*TEST_LINK, "-o", exe, obj, LIBCRUNCH])
             result = command([exe], check=False)
             expect(result.returncode == (20 if version in (6, 7) else 255) and
@@ -28601,7 +28605,7 @@ def numeric_version_compatibility_case():
             if module:
                 assembly, obj = td / "old.s", td / "old.o"
                 assembly.write_text(command([ASM, "-"], input=text).stdout)
-                command([TEST_AS, "-o", obj, assembly])
+                command([TEST_AS, "-c", "-o", obj, assembly])
                 source.write_text("int old_value(); int main() { return old_value(); }\n")
                 command([DRIVER, source, obj, "-o", exe])
                 expect(command([exe], check=False).returncode == 0,
@@ -29149,6 +29153,8 @@ report("integration / types", "float source", float_source_case)
 report("lexer", "struct and while keywords", type_keyword_case)
 report("build", "test_configure.sh",
        lambda: command([SHELL, TESTS / "integration/test_configure.sh", BUILD], timeout=1800))
+report("build", "assembler update workflow",
+       lambda: command([PYTHON, TESTS / "integration/test_update_crunch_assembler.py"]))
 report("diagnostics", "source and IR locations", diagnostic_locations_case)
 report("integration", "dynamic-array function arguments",
        lambda: compile_run(FIXTURES / "units/function_calls/array_arguments.bc", 42))
@@ -29632,7 +29638,7 @@ def native_runtime_differential_case():
             objects = []
             for assembler in ("as", BUILD / "crunch-as"):
                 obj = td / f"program-{len(objects)}.o"
-                command([assembler, "-o", obj, assembly])
+                command([assembler, "-c", "-o", obj, assembly])
                 objects.append(obj)
             reference = None
             for obj in objects:
